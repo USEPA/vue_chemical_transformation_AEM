@@ -1,0 +1,75 @@
+import { createRouter, createWebHistory } from 'vue-router'
+import HomeView from '../views/HomeView.vue'
+import chemid from '../views/chemid.vue'
+import reactid from '../views/reactionid.vue'
+import chemdatabase from '../views/chemdatabase.vue'
+import reactiondatabase from '../views/reactiondatabase.vue'
+import newchemical from '../views/newchemical.vue'
+import newreaction from '../views/newreaction.vue'
+import newdetail from '../views/newdetail.vue'
+import errorlist from '../views/errorlist.vue'
+import ErrorReport from '../views/errorreport.vue'
+import newUser from '../views/newuser.vue'
+import login from '../views/login.vue'
+import SearchResults from '../views/searchresults.vue'
+
+const router = createRouter({
+  history: createWebHistory(import.meta.env.BASE_URL),
+  routes: [
+    {
+      path: '/',
+      name: 'home',
+      component: HomeView
+    },
+    {
+      path: '/register',
+      component: newUser
+    },
+    {
+      path: '/login',
+      component: login
+    },
+    {
+      path: '/errorlist',
+      component: errorlist
+    },
+    {
+      path: '/errorreport',
+      component: ErrorReport
+    },
+    {
+      path: '/chemical/:chemid',
+      component: chemid
+    },
+    {
+      path: '/reaction/:reactid',
+      component: reactid
+    },
+    {
+      path: '/chemical/database',
+      component: chemdatabase
+    },
+    {
+      path: '/reaction/database',
+      component: reactiondatabase
+    },
+    {
+      path: '/chemical/newchemical',
+      component: newchemical
+    },
+    {
+      path: '/reaction/newreaction',
+      component: newreaction
+    },
+    {
+      path: '/reaction/newdetail/:reactid',
+      component: newdetail
+    },
+    {
+      path: '/reaction/searchresults/:chemid',
+      component: SearchResults
+    },
+  ]
+})
+
+export default router

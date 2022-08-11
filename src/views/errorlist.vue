@@ -1,0 +1,49 @@
+<template>
+    <br>
+    <button v-on:click="showhide = !showhide">Hide/Show Resolved Issues</button>
+        <div v-for="row in bigout">
+            <div v-if="showhide || row.completeflag == 0">
+                <hr>
+                <p>Page: {{row.page}}</p>
+                <p>Report: {{row.report}}</p>
+                <p>Contact Information: {{row.contact}}</p>
+                    <div v-if="row.completeflag == 0">
+                        <button v-on:click="resolve(row.id)">Mark as Resolved</button>
+                    </div>
+                    <div v-if="row.completeflag == 1">
+                        <p>RESOLVED</p>
+                    </div>
+            </div>
+    </div>
+</template>
+
+<script>
+
+import axios from "axios"
+
+export default {
+    name: 'errorlist',
+    data () {        
+        return {
+            bigout: '',
+            idnum: '',
+            showhide: false,
+        }
+    },
+    created: async function(){
+        const gResponse = await fetch("http://127.0.0.1:5000/admin/database");
+        const gObject = await gResponse.json();
+        this.bigout = gObject;
+    },
+    methods:{
+        resolve(id) {
+            axios
+                .post("http://127.0.0.1:5000/admin/resolve", {
+                    idnum: id,
+                })
+                .then( this.$router.go() );
+        },
+    }
+}
+
+</script>
