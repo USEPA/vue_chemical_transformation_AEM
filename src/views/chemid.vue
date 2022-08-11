@@ -32,7 +32,7 @@ export default{
     },
     computed: {
         url() {
-            return "http://localhost:5000/chemicals/" + this.$route.params.chemid
+            return this.$apiname + "chemicals/" + this.$route.params.chemid
         }
     },
     created: async function(){
@@ -44,7 +44,7 @@ export default{
         handleDelete() {
             if (confirm("Are you sure you want to Delete this Chemical?") == true){
                 axios
-                    .post("http://127.0.0.1:5000/chemicals/chemdelete", {
+                    .post(this.$apiname + "chemicals/chemdelete", {
                         chemID: this.$route.params.chemid,
                     })
                     .then( this.$router.push('/chemical/database') 

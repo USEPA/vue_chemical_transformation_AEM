@@ -64,7 +64,7 @@ export default{
     methods: {
         hydroSubmit() {
             axios
-                .post("http://127.0.0.1:5000/reaction/newdetail", {
+                .post(this.$apiname + "reaction/newdetail", {
                     pH: this.pH,
                     temp_C: this.temp_C,
                     activation_energy: this.activation_energy,
@@ -83,7 +83,7 @@ export default{
         },
         pfasSubmit() {
             axios
-                .post("http://127.0.0.1:5000/reaction/newdetail", {
+                .post(this.$apiname + "reaction/newdetail", {
                     temp_C: this.temp_C,
                     half_life: this.half_life,
                     reaction_system: this.reaction_system,
@@ -101,7 +101,7 @@ export default{
     },
     computed: {
         url() {
-            return "http://localhost:5000/reaction/" + this.$route.params.reactid
+            return this.$apiname + "reaction/" + this.$route.params.reactid
         }
     },
     created: async function(){

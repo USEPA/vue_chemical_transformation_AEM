@@ -44,7 +44,7 @@ export default{
     methods: {
         handleSubmit() {
             axios
-                .post("http://127.0.0.1:5000/reaction/newreaction", {
+                .post(this.$apiname + "reaction/newreaction", {
                     parent: this.parent,
                     product: this.product,
                     process: this.process,
@@ -59,10 +59,10 @@ export default{
                 );
         },
         hydroDL() {
-            axios.post("http://127.0.0.1:5000/reaction/hydro_DL");
+            axios.post(this.$apiname + "reaction/hydro_DL");
         },
         pfasDL() {
-            axios.post("http://127.0.0.1:5000/reaction/pfas_DL");
+            axios.post(this.$apiname + "reaction/pfas_DL");
         },
         uploadFile() {
             this.reactionfile = this.$refs.file.files[0];
@@ -71,7 +71,7 @@ export default{
             let formData = new FormData();
             formData.append('reactionfile', this.reactionfile);
             axios
-                .post("http://127.0.0.1:5000/reaction/newreactfile", formData, {
+                .post(this.$apiname + "reaction/newreactfile", formData, {
                     headers: {
                         'Content-Type': 'multipart/form-data'
                     }

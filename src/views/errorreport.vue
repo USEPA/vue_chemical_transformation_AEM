@@ -23,7 +23,7 @@ export default{
     methods: {
         reportSubmit() {
             axios
-                .post("http://127.0.0.1:5000/admin/errorreport", {
+                .post(this.$apiname + "admin/errorreport", {
                     page: this.page,
                     report: this.report,
                     contact: this.contact,

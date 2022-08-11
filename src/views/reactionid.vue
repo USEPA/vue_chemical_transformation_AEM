@@ -33,7 +33,7 @@
 
 <script>
 
-import {reactive, h, onMounted} from 'vue'
+import {reactive, h, onMounted, inject} from 'vue'
 import { useRoute } from 'vue-router'
 import {AgGridVue} from 'ag-grid-vue3'
 import 'ag-grid-community/dist/styles/ag-grid.css'
@@ -52,8 +52,9 @@ export default {
         const colShowHide = true
 
         const routeID = useRoute().params.reactid
+        const apiname = inject('apiname')
     
-        const detailurl = "http://localhost:5000/reaction/table/" + useRoute().params.reactid;
+        const detailurl = apiname + "reaction/table/" + useRoute().params.reactid;
         
         const rowData = reactive({
             value: [],
@@ -81,7 +82,7 @@ export default {
                         link.addEventListener('click', (e) => {
                             e.preventDefault();
                             axios
-                                .post("http://127.0.0.1:5000/reaction/detaildelete", {
+                                .post(apiname + "reaction/detaildelete", {
                                     reactionID: routeID,
                                     detailID: params.value,
                                 });
@@ -114,7 +115,7 @@ export default {
                             e.preventDefault();
                             if (confirm("Are you sure you want to Delete this Entry?") == true){
                                 axios
-                                    .post("http://127.0.0.1:5000/reaction/detaildelete", {
+                                    .post(apiname + "reaction/detaildelete", {
                                         reactionID: routeID,
                                         detailID: params.value,
                                     })
@@ -154,7 +155,7 @@ export default {
     
     computed: {
         url() {
-            return "http://localhost:5000/reaction/" + this.$route.params.reactid
+            return this.$apiname + "reaction/" + this.$route.params.reactid
         }
     },
     
@@ -168,7 +169,7 @@ export default {
         handleDelete() {
             if (confirm("Are you sure you want to Delete this Reaction?") == true){
                 axios
-                    .post("http://127.0.0.1:5000/reaction/reactiondelete", {
+                    .post(this.$apiname + "reaction/reactiondelete", {
                         reactionID: this.$route.params.reactid,
                     })
                     .then( this.$router.push('/reaction/database') );

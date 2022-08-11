@@ -23,7 +23,8 @@ export default {
         }
     },
     created: async function(){
-        const gResponse = await fetch("http://127.0.0.1:5000/chemicals/database");
+        const url = this.$apiname + "chemicals/database";
+        const gResponse = await fetch(url);
         const gObject = await gResponse.json();
         this.bigout = gObject;
     },

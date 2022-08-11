@@ -23,7 +23,7 @@ export default{
     methods: {
         NewUserSubmit() {
             axios
-                .post("http://127.0.0.1:5000/admin/register", {
+                .post(this.$apiname + "admin/register", {
                     username: this.username,
                     password: this.password,
                     dev: this.dev,

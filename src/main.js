@@ -7,5 +7,7 @@ const app = createApp(App)
 
 app.use(router)
 app.use(VueCookieNext)
+app.config.globalProperties.$apiname = 'http://v2626umcth819.rtord.epa.gov:9414/'
+app.provide('apiname', 'http://v2626umcth819.rtord.epa.gov:9414/')
 
 app.mount('#app')

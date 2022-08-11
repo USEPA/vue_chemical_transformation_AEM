@@ -33,10 +33,12 @@ export default {
         }
     },
     created: async function(){
-        const gResponse = await fetch("http://127.0.0.1:5000/reaction/database");
+        const url = this.$apiname + "reaction/database";
+        const gResponse = await fetch(url);
         const gObject = await gResponse.json();
         this.bigout = gObject;
-        const gResponse2 = await fetch("http://127.0.0.1:5000/chemicals/database");
+        const url2 = this.$apiname + "chemicals/database";
+        const gResponse2 = await fetch(url2);
         const gObject2 = await gResponse2.json();
         this.chemout = gObject2;
     },

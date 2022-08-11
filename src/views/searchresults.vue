@@ -20,7 +20,7 @@ export default {
     name: 'SearchResults',
     data () {
         const searchinput = ref("");
-        const url = "http://127.0.0.1:5000/reaction/search/" + this.$route.params.chemid;
+        const url = this.$apiname + "reaction/search/" + this.$route.params.chemid;
 
         return {
             bigout: '',

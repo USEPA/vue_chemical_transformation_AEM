@@ -21,7 +21,7 @@ export default {
     name: 'Grid',
     components: {AgGridVue},
     setup(){
-        const url = "http://localhost:5000/reaction/table/" + this.$route.params.reactid;
+        const url = this.$apiname + "reaction/table/" + this.$route.params.reactid;
         const rowData = reactive({
             value: [],
         });

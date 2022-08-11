@@ -1,2 +1,2 @@
 docker build -t vue_chemical_transformation_aem .
-docker run -d -it -p 9414:5000 vue_chemical_transformation_aem .
+docker run -d -it -p 9414:80 vue_chemical_transformation_aem 

@@ -31,14 +31,14 @@ export default {
         }
     },
     created: async function(){
-        const gResponse = await fetch("http://127.0.0.1:5000/admin/database");
+        const gResponse = await fetch(this.$apiname + "admin/database");
         const gObject = await gResponse.json();
         this.bigout = gObject;
     },
     methods:{
         resolve(id) {
             axios
-                .post("http://127.0.0.1:5000/admin/resolve", {
+                .post(this.$apiname + "admin/resolve", {
                     idnum: id,
                 })
                 .then( this.$router.go() );

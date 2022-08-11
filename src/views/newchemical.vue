@@ -45,7 +45,7 @@ export default{
     methods: {
         handleSubmit() {
             axios
-                .post("http://127.0.0.1:5000/chemicals/newchemical", {
+                .post(this.$apiname + "chemicals/newchemical", {
                     primary_name: this.primary_name,
                     other_names: this.other_names,
                     dtxsid: this.dtxsid,
@@ -61,7 +61,7 @@ export default{
                 );
         },
         templateDL() {
-            axios.post("http://127.0.0.1:5000/chemicals/template_DL");
+            axios.post(this.$apiname + "chemicals/template_DL");
         },
         uploadFile() {
             this.chemfile = this.$refs.file.files[0];
@@ -70,7 +70,7 @@ export default{
             let formData = new FormData();
             formData.append('chemfile', this.chemfile);
             axios
-                .post("http://127.0.0.1:5000/chemicals/newchemfile", formData, {
+                .post(this.$apiname + "chemicals/newchemfile", formData, {
                     headers: {
                         'Content-Type': 'multipart/form-data'
                     }
