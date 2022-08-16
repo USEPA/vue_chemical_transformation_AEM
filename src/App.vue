@@ -23,7 +23,11 @@ export default {
         return {
             CRtoggle: true,
             }
-        }
+    },
+    metaInfo: {
+        title: 'CTDB - Chemical Transformations Database',
+        titleTemplate: '%s',
+    }
 }
 
 </script>
@@ -40,7 +44,6 @@ export default {
 @import '@/assets/base.css';
 
 #app {
-  max-width: 1280px;
   margin: 0 auto;
   padding: 2rem;
 
@@ -48,7 +51,7 @@ export default {
 }
 
 html { font-family: sans-serif; background: #eee; padding: 1rem; }
-body { max-width: 960px; margin: 0 auto; background: white; }
+body { margin: 0 auto; background: white; }
 h1 { font-family: serif; color: #377ba8; margin: 1rem 0; }
 a { color: #377ba8; }
 hr { border: none; border-top: 1px solid lightgray; }

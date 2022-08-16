@@ -46,7 +46,10 @@ export default {
             showhide1: false,
             showhide2: false,
             }
-        }
+    },  
+    mounted() {  
+      document.title = 'CTDB - Chemical Transformations Database';  
+    },  
 }
 
 </script>

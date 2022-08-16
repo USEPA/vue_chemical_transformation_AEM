@@ -8,20 +8,22 @@
         <p>Reaction Scheme: {{reaction.reaction_scheme}}</p>
         <button v-on:click="showhide = !showhide">Reaction Details</button> 
         <br>
-        <div v-if="showhide && reaction.reaction_process.toLowerCase().includes('hydrolysis')">
+        <div v-if="showhide && reaction.reaction_process.toLowerCase().includes('hydrolysis')" style="height:600px">
             <ag-grid-vue
                 class="ag-theme-balham-dark"
-                style="height:600px"
+                domLayout="autoHeight"
                 :columnDefs="columnDefs.value"
-                :rowData="rowData.value">
+                :rowData="rowData.value"
+                :enableBrowserTooltips="true">
             </ag-grid-vue>
         </div>
         <div v-if="showhide && reaction.reaction_process.toLowerCase().includes('pfas')">
             <ag-grid-vue
                 class="ag-theme-balham-dark"
-                style="height:600px"
+                domLayout="autoHeight"
                 :columnDefs="pfasColDefs.value"
-                :rowData="rowData.value">
+                :rowData="rowData.value"
+                :enableBrowserTooltips="true">
             </ag-grid-vue>
         </div>
         <div v-if="this.$cookie.getCookie('user')">
@@ -49,7 +51,7 @@ export default {
     
     setup(){
     
-        const colShowHide = true
+        const colShowHide = false
 
         const routeID = useRoute().params.reactid
         const apiname = inject('apiname')
@@ -63,14 +65,14 @@ export default {
         const columnDefs = reactive({
             value: [
                 {headerName:'pH', field:'pH', sortable: true, resizable: true, width:40},
-                {headerName:'Temperature (°C)', field:'temp_C', sortable: true, resizable: true, width:90},
-                {headerName:'Activation Energy (kcal/mol)', field:'activation_energy', sortable: true, resizable: true, width:80},
-                {headerName:'Degradation Rate (days⁻¹)', field:'degradation_rate', sortable: true, resizable: true, width:80},
-                {headerName:'1st Order Rate Constant (second⁻¹)', field:'first_order_rc', sortable: true, resizable: true, width:120},
-                {headerName:'2nd Order Rate Constant (mol⁻¹ * second⁻¹)', field:'second_order_rc', sortable: true, resizable: true, width:120},
-                {headerName:'Reaction Rate Constant', field:'reaction_rc', sortable: true, resizable: true, width:115},
-                {headerName:'Notes', field:'notes', sortable: true, resizable: true, width: 80},
-                {headerName:'Reference', field:'reference', sortable: true,  resizable: true, filter: 'agTextColumnFilter', width: 80},
+                {headerName:'T (°C)', headerTooltip: 'Temperature', field:'temp_C', sortable: true, resizable: true, width:70},
+                {headerName:'Ea (kcal/mol)', headerTooltip: 'Activation Energy', field:'activation_energy', sortable: true, resizable: true, width:100},
+                {headerName:'Deg. Rate (days⁻¹)', headerTooltip: 'Degradation Rate', field:'degradation_rate', sortable: true, resizable: true, width:130},
+                {headerName:'k1 (s⁻¹)', headerTooltip:'1st Order Rate Constant', field:'first_order_rc', sortable: true, resizable: true, width:80},
+                {headerName:'k2 (mol⁻¹ * s⁻¹)', headerTooltip:'2nd Order Rate Constant', field:'second_order_rc', sortable: true, resizable: true, width:110},
+                {headerName:'Reaction RC', headerTooltip:'Reaction Rate Constant', field:'reaction_rc', sortable: true, resizable: true, width:110},
+                {headerName:'Notes', field:'notes', sortable: true, resizable: true, width: 230},
+                {headerName:'Reference', field:'reference', sortable: true,  resizable: true, filter: 'agTextColumnFilter', width:450},
                 {
                     headerName:'Delete', 
                     field:'detail_id', 
@@ -96,7 +98,7 @@ export default {
         
         const pfasColDefs = reactive({
             value: [
-                {headerName:'Temperature (°C)', field:'temp_C', sortable: true, resizable: true, width:115},
+                {headerName:'T (°C)', headerTooltip: 'Temperature', field:'temp_C', sortable: true, resizable: true, width:115},
                 {headerName:'Half Life (days)', field:'half_life', sortable: true, resizable: true, width:85},
                 {headerName:'Reaction System', field:'reaction_system', sortable: true, resizable: true, width:115},
                 {headerName:'Metabolic', field:'is_metabolic', sortable: true, resizable: true, width:85},
@@ -142,14 +144,13 @@ export default {
             pfasColDefs,
             rowData,
             detailurl,
-            
         };
     },
     
     data () {
         return{
             reaction: '',
-            showhide: false,
+            showhide: true,
         }
     },
     
@@ -180,3 +181,6 @@ export default {
 }
 
 </script>
+
+<style>
+</style>
