@@ -4,7 +4,7 @@
         <p><router-link v-bind:to="'/reaction/searchresults/'+this.$route.params.chemid">Reactions Containing this Chemical</router-link></p>
         <img v-bind:src="'data:image/png;base64,'+chemical.image" alt="missing image" style="width:150px;height:150px;" />
         <br>
-        DTXSID: <a :href="'https://comptox.epa.gov/dashboard/chemical/details/' + chemical.dtxsid" target="_blank"> {{chemical.dtxsid}} </a>
+        DTXSID: <a :href="'https://comptox.epa.gov/dashboard/chemical/details/' + chemical.dtxsid" target="_blank"> {{chemical.dtxsid}} ↗ </a>
         <br>
         <button v-on:click="showhide = !showhide">Chemical Identifiers</button> <br>
         <div v-if="showhide">

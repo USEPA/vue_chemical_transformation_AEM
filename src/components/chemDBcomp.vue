@@ -1,10 +1,13 @@
 <template>
-    Search: <input type="text" v-model="input" placeholder="Name, DTXSID, CASRN, inchi key" /> <br>
+    Search: <input type="text" list="typeaheadlist" v-model="input" placeholder="Name, DTXSID, CASRN, inchi key" /> <br>
+    <datalist id="typeaheadlist">
+        <option v-for="row in bigout" :value="row.dtxsid" :label="row.primary_name"></option>
+    </datalist>
     <br>
     <div v-for="row in filteredlist">
         <hr>
         <p>Name: <router-link v-bind:to="'/chemical/'+row.local_IDnum"> {{row.primary_name}} </router-link> </p>
-        <p>DTXSID: <a :href="'https://comptox.epa.gov/dashboard/chemical/details/' + row.dtxsid" target="_blank"> {{row.dtxsid}} </a></p>
+        <p>DTXSID: <a :href="'https://comptox.epa.gov/dashboard/chemical/details/' + row.dtxsid" target="_blank"> {{row.dtxsid}} ↗</a></p>
         <p><img v-bind:src="'data:image/png;base64,'+row.image" alt="missing image" style="width:150px;height:150px;" /> </p>
     </div>
 </template>

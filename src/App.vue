@@ -1,9 +1,16 @@
 <template>
-
+<div v-if="showhide">
+    <EPA_header />
+</div>
+<div style="display: flex; justify-content: flex-end;">
+    <button v-on:click="showhide = !showhide" style="font-size:xx-small">Show/Hide EPA Header and Footer</button>
+</div>
 <Header />
 <router-view></router-view>
 <br>
-
+<div v-if="showhide">
+    <EPA_footer />
+</div>
 </template>
 
 
@@ -11,6 +18,8 @@
 
 import { RouterLink, RouterView } from 'vue-router'
 import Header from '@/components/Header.vue'
+import EPA_header from '@/components/EPA_Header.vue'
+import EPA_footer from '@/components/Footer.vue'
 
 
 
@@ -18,10 +27,13 @@ export default {
     name: 'App',
     components: {
         Header,
+        EPA_header,
+        EPA_footer
     },
     data () {
         return {
             CRtoggle: true,
+            showhide: true,
             }
     },
     metaInfo: {
