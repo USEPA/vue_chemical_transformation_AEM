@@ -13,6 +13,9 @@ import newUser from '../views/newuser.vue'
 import login from '../views/login.vue'
 import SearchResults from '../views/searchresults.vue'
 
+import testpage from '../views/testpage.vue'
+
+
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
@@ -28,6 +31,10 @@ const router = createRouter({
     {
       path: '/login',
       component: login
+    },
+    {
+      path: '/testpage',
+      component: testpage
     },
     {
       path: '/errorlist',

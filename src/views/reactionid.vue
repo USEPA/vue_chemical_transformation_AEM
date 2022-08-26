@@ -35,7 +35,7 @@
 
 <script>
 
-import {reactive, h, onMounted, inject} from 'vue'
+import {reactive, onMounted, inject} from 'vue'
 import { useRoute } from 'vue-router'
 import {AgGridVue} from 'ag-grid-vue3'
 import 'ag-grid-community/dist/styles/ag-grid.css'
@@ -45,6 +45,7 @@ import axios from "axios"
 
 export default {
     name: 'reactid',
+
     components: {
         AgGridVue,
     },
@@ -130,8 +131,6 @@ export default {
                 }
             ],
         });
-        
-        
         
         onMounted(() => {
             fetch(detailurl)
