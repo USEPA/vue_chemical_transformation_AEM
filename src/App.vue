@@ -1,16 +1,30 @@
 <template>
-<div v-if="showhide">
-    <EPA_header />
-</div>
-<div style="display: flex; justify-content: flex-end;">
-    <button v-on:click="showhide = !showhide" style="font-size:xx-small">Show/Hide EPA Header and Footer</button>
-</div>
-<Header />
-<router-view></router-view>
-<br>
-<div v-if="showhide">
-    <EPA_footer />
-</div>
+
+    <transition>
+        <div v-if="showhide">
+            <EPA_header />
+        </div>
+    </transition>
+    <div  v-if="showhide" style="display: flex; justify-content: flex-end;">
+        <button v-on:click="showhide = !showhide" style="font-size:xx-small">Hide EPA Header and Footer</button>
+    </div>
+    <div  v-else style="display: flex; justify-content: flex-end;">
+        <button v-on:click="showhide = !showhide" style="font-size:xx-small">Show EPA Header and Footer</button>
+    </div>
+    <Header />
+    <router-view :key="$route.path"></router-view>
+    <br>
+    <transition>
+        <div v-if="showhide">
+            <EPA_footer />
+        </div>
+    </transition>
+    <transition>
+        <div class="popup" v-if="popup_showhide">
+            <p>The Official EPA Header <br> and Footer have been <br> hidden for your convenience.</p>
+            <button style="position:fixed; top:95px; right:25px; font-size:xx-small;" v-on:click="popup_showhide = false" >[X]</button>
+        </div>
+    </transition>
 </template>
 
 
@@ -32,14 +46,17 @@ export default {
     },
     data () {
         return {
-            CRtoggle: true,
             showhide: true,
+            popup_showhide: true,
             }
     },
     metaInfo: {
         title: 'CTDB - Chemical Transformations Database',
         titleTemplate: '%s',
-    }
+    },
+    mounted: async function(){
+        setTimeout(() => this.showhide = false, 1500)
+    },
 }
 
 </script>
@@ -67,7 +84,7 @@ body { margin: 0 auto; background: white; }
 h1 { font-family: serif; color: #377ba8; margin: 1rem 0; }
 a { color: #377ba8; }
 hr { border: none; border-top: 1px solid lightgray; }
-nav { background: lightgray;  align-items: center; padding: 0 0.5rem; }
+nav { background: #0e6993;  align-items: center; padding: 0 0.5rem; }
 nav h1 { flex: auto; margin: 0; }
 nav h1 a { text-decoration: none; padding: 0.25rem 0.5rem; }
 nav ul  { display: flex; list-style: none; margin: 0; padding: 0; }
@@ -91,6 +108,26 @@ td:empty::before {content: "---"}
 input.danger { color: #cc2f2e; }
 input[type=submit] { align-self: start; min-width: 10em; }
 
+.v-enter-active,
+.v-leave-active {
+  transition: opacity 0.5s ease;
+}
+.v-enter-from,
+.v-leave-to {
+  opacity: 0;
+}
+
+.popup{
+    position:fixed;
+    top:20px;
+    right:20px;
+    height:100px;
+    width:250px;
+    color: white;
+    background-color: #1b634b;
+    text-align: center;
+    border: 2px solid black;
+}
 </style>
 
 

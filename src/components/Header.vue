@@ -1,41 +1,31 @@
 <template>
     <header>
-            <nav>
-            <h1>Chemical Transformations Database</h1>    
-            <p style="text-align:right;">
-            <div v-if="this.$cookie.getCookie('user')" style="display:inline-block;">
-              {{ this.$cookie.getCookie('user') }} &nbsp;
-              <button @click="this.$cookie.removeCookie('user').then(this.forceUpdate())">Log Out</button> &nbsp;
-            </div>
-            <div v-else style="display:inline-block;">
-              <RouterLink to="/register">Register</RouterLink> &nbsp;
-              <RouterLink to="/login">Login</RouterLink> &nbsp;
-            </div>
-            </p>
-
-            <div style="display:inline-block;">
-              <RouterLink to="/chemical/database">Chemical Database</RouterLink> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
-            </div>
-            <div style="display:inline-block;">
-              <div v-if="this.$cookie.getCookie('user')">
-                <RouterLink to="/chemical/newchemical">Register New Chemicals</RouterLink>
-              </div>
-            </div> <br>
-
-            <div style="display:inline-block;">
-              <ul><RouterLink to="/reaction/database">Reaction Database</RouterLink> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;</ul>
-            </div>
-            <div style="display:inline-block;">
-              <div v-if="this.$cookie.getCookie('user')">
-                <ul><RouterLink to="/reaction/newreaction">Register New Reactions</RouterLink></ul>
-              </div>
-            </div> <br>
-
-            <RouterLink to="/errorreport">Report an Error on this Page</RouterLink> &nbsp;
-            <div v-if="this.$cookie.getCookie('user')" style="display:inline-block;">  
-              <RouterLink to="/errorlist">List of Errors</RouterLink> &nbsp;
-            </div>
-            </nav>
+      <nav>
+        <div>
+          <h1 class="navstyle" style="font-size:25px"><RouterLink to="/">Chemical Transformations Database &nbsp; &nbsp;</RouterLink></h1>  
+        </div>
+        <b-nav><h1 class="navstyle" style="font-size:16px"><RouterLink to="/chemical/database">Search Chemicals</RouterLink></h1></b-nav>
+        <b-nav-item-dropdown text="Reaction Lists" class="navstyle" style="font-size:16px">
+          <b-dropdown-item to="/reaction/database">Complete Reaction Database</b-dropdown-item>
+          <b-dropdown-item to="/reaction/searchresults/hydrolysis/reaction_library">Abiotic Hydrolysis</b-dropdown-item>
+          <b-dropdown-item to="/reaction/searchresults/PFAS/reaction_library">PFAS</b-dropdown-item>
+        </b-nav-item-dropdown>
+        <b-nav-item-dropdown text="Tools" class="navstyle" style="font-size:16px">
+          <div v-if="this.$cookie.getCookie('user')">
+            <b-dropdown-item to="/chemical/newchemical">Register New Chemicals</b-dropdown-item>
+            <b-dropdown-item to="/reaction/newreaction">Register New Reactions</b-dropdown-item>
+            <b-dropdown-item to="/errorlist">List of Errors</b-dropdown-item>
+            <b-dropdown-item v-on:click="this.$cookie.removeCookie('user').then(this.forceUpdate())">Logout</b-dropdown-item>
+          </div>
+          <div v-else>
+            <b-dropdown-item to="/register">Register</b-dropdown-item>
+            <b-dropdown-item to="/login">Login</b-dropdown-item>
+          </div>
+        </b-nav-item-dropdown>
+        <b-nav><h1 class="navstyle" style="font-size:16px"><RouterLink to="/about">About</RouterLink></h1></b-nav>
+        <b-nav><h1 class="navstyle" style="font-size:16px"><RouterLink to="/errorreport">Submit Comments</RouterLink></h1></b-nav>
+        <b-nav><h1 class="navstyle" style="font-size:16px"><RouterLink to="/contactpage">Contact Us</RouterLink></h1></b-nav>
+      </nav>
     </header>
     <br>
 </template>
@@ -46,7 +36,42 @@ export default {
     name: 'Header',
     mounted() {  
       document.title = 'CTDB - Chemical Transformations DataBase';  
-    },  
+    }, 
+    data () {
+      return {
+        devshowhide:false,
+        listshowhide:false,
+        dbshowhide:false,
+      }
+    }
 }
 
 </script>
+
+<style scoped>
+
+
+
+nav{
+  display:flex;
+  align-items: left;
+  justify-content: left;
+  background: #0e6993;
+}
+
+nav .navstyle{
+  padding: 5px;
+  position: relative;
+  float: left;
+  text-align: left;
+  border-bottom: 3px solid transparent;
+  display: flex;
+  transition: 0.4s;
+  font-family:'Roboto';
+  color:white;
+  margin-left: 0;
+  background: #0e6993;
+}
+
+a { color: white; }
+</style>

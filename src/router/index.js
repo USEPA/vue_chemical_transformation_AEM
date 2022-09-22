@@ -12,6 +12,8 @@ import ErrorReport from '../views/errorreport.vue'
 import newUser from '../views/newuser.vue'
 import login from '../views/login.vue'
 import SearchResults from '../views/searchresults.vue'
+import contactpage from '../views/contactpage.vue'
+import about from '../views/about.vue'
 
 import testpage from '../views/testpage.vue'
 
@@ -35,6 +37,14 @@ const router = createRouter({
     {
       path: '/testpage',
       component: testpage
+    },
+    {
+      path: '/contactpage',
+      component: contactpage
+    },
+    {
+      path: '/about',
+      component: about
     },
     {
       path: '/errorlist',
@@ -73,7 +83,7 @@ const router = createRouter({
       component: newdetail
     },
     {
-      path: '/reaction/searchresults/:chemid',
+      path: '/reaction/searchresults/:searchinput/:searchtype',
       component: SearchResults
     },
   ]

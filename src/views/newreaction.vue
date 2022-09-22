@@ -2,11 +2,31 @@
     <button v-on:click="showhide1 = !showhide1">Enter a Single Reaction</button> <br>
     <div v-if="showhide1">
         <form @submit.prevent="handleSubmit">
-            Parent DTXSID: <input type="text" placeholder="Parent DTXSID" v-model="parent"/> <br>
-            Product DTXSID: <input type="text" placeholder="Product DTXSID" v-model="product"/> <br>
-            Reaction Process: <input type="text" placeholder="Process" v-model="process"/> <br>
-            Reaction Type: <input type="text" placeholder="Type" v-model="type"/> <br>
-            Reaction Scheme: <input type="text" placeholder="Scheme" v-model="scheme"/> <br>
+            <br>
+            <p>To enter multiple parent or product DTXSID's, separate them with commas.</p>
+            <div style="display:flex">
+                <span style="font-size:18px">
+                    Parent DTXSID: <br>
+                    Product DTXSID: <br>
+                    Reaction Library: <br>
+                    Reaction Process: <br>
+                    Reaction Type: <br>
+                    Reaction Scheme: &nbsp;&nbsp; <br>
+                </span>
+                <span style="font-size:14px">
+                    <input type="text" placeholder="Parent DTXSID" v-model="parent"/> <br>
+                    <input type="text" placeholder="Product DTXSID" v-model="product"/> <br>
+                    <input type="text" list="typeaheadlist" placeholder="Reaction Library" v-model="library"/>
+                    <datalist id="typeaheadlist">
+                        <option value="hydrolysis"></option>
+                        <option value="pfas"></option>
+                    </datalist> <br>
+                    <input type="text" placeholder="Process" v-model="process"/> <br>
+                    <input type="text" placeholder="Type" v-model="type"/> <br>
+                    <input type="text" placeholder="Scheme" v-model="scheme"/> <br>
+                </span>
+            </div>
+            <br>
             <button type="submit">Submit</button> <br><br>
         </form>
     </div>
@@ -38,6 +58,7 @@ export default{
             process: '',
             type: '',
             scheme: '',
+            library:'',
             reactionfile: null,
         }
     },
@@ -50,6 +71,7 @@ export default{
                     process: this.process,
                     type: this.type,
                     scheme: this.scheme,
+                    library: this.library,
                 })
                 .then((response) => {
                     const data = response.data;

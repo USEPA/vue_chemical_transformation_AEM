@@ -1,6 +1,6 @@
 <template>
     <br>
-    <div v-if="reaction.reaction_process.toLowerCase().includes('hydrolysis')">
+    <div v-if="reaction.reaction_library.toLowerCase().includes('hydrolysis')">
         <form @submit.prevent="hydroSubmit">
             pH: <input type="text" v-model="pH"/> <br>
             Temperature (°C): <input type="text" v-model="temp_C"/> <br>
@@ -15,7 +15,7 @@
             <button type="submit">Submit</button> <br>
         </form>
     </div>
-    <div v-if="reaction.reaction_process.toLowerCase().includes('pfas')">
+    <div v-if="reaction.reaction_library.toLowerCase().includes('pfas')">
         <br>
         <form @submit.prevent="pfasSubmit">
             Temperature (°C): <input type="text" v-model="temp_C"/> <br>

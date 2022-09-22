@@ -1,25 +1,22 @@
 <template>
-    <button v-on:click="showhide1 = !showhide1">Enter a Single Chemical</button> <br>
+    <button v-on:click="showhide1 = !showhide1">Enter a Single Chemical by DTXSID</button> <br>
     <div v-if="showhide1">
         <form @submit.prevent="handleSubmit">
-            Primary Name: <input type="text" placeholder="Name" v-model="primary_name"/> <br>
-            Other Names: <input type="text" placeholder="Name" v-model="other_names"/> <br>
-            DTXSID: <input type="text" placeholder="DTXSID" v-model="dtxsid"/> <br>
-            Smiles: <input type="text" placeholder="Smiles" v-model="smiles"/> <br>
-            Inchi Key: <input type="text" placeholder="Inchi Key" v-model="inchi"/> <br>
-            CASRN: <input type="text" placeholder="CASRN" v-model="casrn"/> <br>
+            DTXSID: <input type="text" placeholder="DTXSID#########" v-model="dtxsid"/> <br>
             <button type="submit">Submit</button> <br><br>
         </form>
     </div>
     <button v-on:click="showhide2 = !showhide2">Enter Chemicals From a CSV</button> <br>
     <div v-if="showhide2">
         <br>
-        <button @click="templateDL">Download Chemical Entry Template</button>
+        <button @click="templateDL">Download Chemical Entry Template</button> <br><br>
         <form @submit.prevent="handleSubmitFile">
             <input type="file" @change="uploadFile" ref="file"> <br>
             <button type="submit">Submit</button> <br><br>
         </form>
     </div>
+    <br>
+    <p>If a chemical you would like to enter into the database does not have a DTXSID please contact Antony Williams (see contact page).</p>
 </template>
 
 <script>
@@ -33,12 +30,7 @@ export default{
             showhide1: false,
             showhide2: false,
             chemical: [],
-            primary_name: '',
-            other_names: '',
             dtxsid: '',
-            smiles: '',
-            inchi: '',
-            casrn: '',
             chemfile: null,
         }
     },
@@ -46,18 +38,13 @@ export default{
         handleSubmit() {
             axios
                 .post(this.$apiname + "chemicals/newchemical", {
-                    primary_name: this.primary_name,
-                    other_names: this.other_names,
                     dtxsid: this.dtxsid,
-                    smiles: this.smiles,
-                    inchi: this.inchi,
-                    casrn: this.casrn,
                 })
                 .then((response) => {
                     const data = response.data;
                     this.chemical.push(data);
                 })
-                .then( this.$router.push('/chemical/database') 
+                .then(this.$router.push('/chemical/database') 
                 );
         },
         templateDL() {

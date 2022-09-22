@@ -3,32 +3,36 @@
         <h2> <span v-for="(name,index) in reaction.parent_name"><router-link v-bind:to="'/chemical/'+reaction.parent_IDnum[index]">{{name}}</router-link><span v-if="index != reaction.parent_name.length - 1"> + </span></span> → <span v-for="(name,index) in reaction.product_name"><router-link v-bind:to="'/chemical/'+reaction.product_IDnum[index]">{{name}}</router-link><span v-if="index != reaction.product_name.length - 1"> + </span></span></h2>
         <span v-for="(element,index) in reaction.parent_image"> <img v-bind:src="'data:image/png;base64,'+element" alt="missing image" style="width:150px;height:150px;vertical-align:middle;" /><span v-if="index != reaction.parent_image.length - 1"> + </span> </span> → <span v-for="(element,index) in reaction.product_image"> <img v-bind:src="'data:image/png;base64,'+element" alt="missing image" style="width:150px;height:150px;vertical-align:middle;" /><span v-if="index != reaction.product_image.length - 1"> + </span> </span>
         <br>
-        <p>Reaction Process: <router-link v-bind:to="'/reaction/searchresults/'+reaction.reaction_process">{{reaction.reaction_process}}</router-link></p>
-        <p>Reaction Type: <router-link v-bind:to="'/reaction/searchresults/'+reaction.reaction_type">{{reaction.reaction_type}}</router-link></p>
-        <p>Reaction Scheme: <router-link v-bind:to="'/reaction/searchresults/'+reaction.reaction_scheme">{{reaction.reaction_scheme}}</router-link></p>
+        <p>Reaction Process: <router-link v-bind:to="'/reaction/searchresults/'+reaction.reaction_process+'/reaction_process'">{{reaction.reaction_process}}</router-link></p>
+        <p>Reaction Type: <router-link v-bind:to="'/reaction/searchresults/'+reaction.reaction_type+'/reaction_type'">{{reaction.reaction_type}}</router-link></p>
+        <p>Reaction Scheme: <router-link v-bind:to="'/reaction/searchresults/'+reaction.reaction_scheme+'/reaction_scheme'">{{reaction.reaction_scheme}}</router-link></p>
     <button v-on:click="showhide = !showhide">Reaction Details</button> 
         <br>
-        <div v-if="showhide && reaction.reaction_process.toLowerCase().includes('hydrolysis')">
+        <div v-if="showhide && reaction.reaction_library.toLowerCase().includes('hydrolysis')">
             <ag-grid-vue
-                class="ag-theme-balham-dark"
+                class="ag-theme-balham"
                 domLayout="autoHeight"
                 :columnDefs="columnDefs.value"
                 :rowData="rowData.value"
                 :enableBrowserTooltips="true">
             </ag-grid-vue>
         </div>
-        <div v-if="showhide && reaction.reaction_process.toLowerCase().includes('pfas')">
+        <div v-if="showhide && reaction.reaction_library.toLowerCase().includes('pfas')">
             <ag-grid-vue
-                class="ag-theme-balham-dark"
+                class="ag-theme-balham"
                 domLayout="autoHeight"
                 :columnDefs="pfasColDefs.value"
                 :rowData="rowData.value"
                 :enableBrowserTooltips="true">
             </ag-grid-vue>
         </div>
+            
+        <br> <button v-on:click="handleDownload">Export Reaction Details</button> 
+
         <div v-if="this.$cookie.getCookie('user')">
             <router-link v-bind:to="'/reaction/newdetail/'+this.$route.params.reactid"> Add New Reaction Details </router-link>
-            <br> <button v-on:click="handleDelete">Delete this Reaction</button> 
+
+            <br><br> <button v-on:click="handleDelete">Delete this Reaction</button> 
         </div>
     </div>
 </template>
@@ -39,7 +43,7 @@ import {reactive, onMounted, inject} from 'vue'
 import { useRoute } from 'vue-router'
 import {AgGridVue} from 'ag-grid-vue3'
 import 'ag-grid-community/dist/styles/ag-grid.css'
-import 'ag-grid-community/dist/styles/ag-theme-balham-dark.css'
+import 'ag-grid-community/dist/styles/ag-theme-balham.css'
 import axios from "axios"
 
 
@@ -73,7 +77,22 @@ export default {
                 {headerName:'k2 (mol⁻¹ * s⁻¹)', headerTooltip:'2nd Order Rate Constant', field:'second_order_rc', valueFormatter: params => {if(params.data.second_order_rc+1 == 1){return params.data.second_order_rc} else{return params.data.second_order_rc.toExponential(3)}}, sortable: true, resizable: true, width:110},
                 {headerName:'Reaction RC', headerTooltip:'Reaction Rate Constant', field:'reaction_rc', sortable: true, resizable: true, width:110},
                 {headerName:'Notes', field:'notes', tooltipField:'notes', sortable: true, resizable: true, width: 230},
-                {headerName:'Reference', field:'reference', tooltipField:'reference', sortable: true,  resizable: true, filter: 'agTextColumnFilter', width:450},
+                {
+                    headerName:'Reference',
+                    field:'reference', 
+                    tooltipField:'reference', 
+                    sortable: true,  
+                    resizable: true, 
+                    filter: 'agTextColumnFilter', 
+                    width:450,
+                    cellRenderer: (params) => {
+                        var link = document.createElement('a');
+                        link.href = 'https://www.doi.org/'+params.data.DOI;
+                        link.target = 'blank_';
+                        link.innerText = params.data.reference;
+                        return link;
+                    },
+                },
                 {
                     headerName:'Delete', 
                     field:'detail_id', 
@@ -93,20 +112,34 @@ export default {
                             }
                         );
                         return link;
-                    }
+                    },
                 }
             ],
         });
         
         const pfasColDefs = reactive({
             value: [
-                {headerName:'T (°C)', headerTooltip: 'Temperature', field:'temp_C', sortable: true, resizable: true, width:115},
-                {headerName:'Half Life (days)', field:'half_life', valueFormatter: params => {if(params.data.half_life+1 == 1){return params.data.half_life} else{return params.data.half_life.toExponential(3)}}, sortable: true, resizable: true, width:85},
-                {headerName:'Reaction System', field:'reaction_system', sortable: true, resizable: true, width:115},
+                {headerName:'T (°C)', headerTooltip: 'Temperature', field:'temp_C', sortable: true, resizable: true, width:40},
+                {headerName:'Half Life (days)', field:'half_life', valueFormatter: params => {if(params.data.half_life+1 == 1){return params.data.half_life} else{return params.data.half_life.toExponential(3)}}, sortable: true, resizable: true, width:105},
+                {headerName:'Reaction System', field:'reaction_system', sortable: true, resizable: true, width:140},
                 {headerName:'Metabolic', field:'is_metabolic', sortable: true, resizable: true, width:85},
-                {headerName:'Environmental', field:'is_environmental', sortable: true, resizable: true, width:85},
-                {headerName:'Notes', field:'notes', sortable: true, resizable: true, width: 80},
-                {headerName:'Reference', field:'reference', sortable: true,  resizable: true, filter: 'agTextColumnFilter', width: 80},
+                {headerName:'Environmental', field:'is_environmental', sortable: true, resizable: true, width:105},
+                {headerName:'Notes', field:'notes', sortable: true, resizable: true, width: 280},
+                {
+                    headerName:'Reference', 
+                    field:'reference', 
+                    sortable: true,  
+                    resizable: true, 
+                    filter: 'agTextColumnFilter', 
+                    width: 450,
+                    cellRenderer: (params) => {
+                        var link = document.createElement('a');
+                        link.href = 'https://www.doi.org/'+params.data.DOI;
+                        link.target = 'blank_';
+                        link.innerText = params.data.reference;
+                        return link;
+                    }
+                },
                 {
                     headerName:'Delete', 
                     field:'detail_id', 
@@ -176,6 +209,12 @@ export default {
                     .then( this.$router.push('/reaction/database') );
             }
             
+        },
+        handleDownload() {
+            axios
+                .post(this.$apiname + "reaction/detail_DL", {
+                    reactionID: this.$route.params.reactid,
+                });
         },
     },
 }

@@ -1,7 +1,7 @@
 <template>
     <div>
-        <h2>{{chemical.primary_name}}</h2>
-        <p><router-link v-bind:to="'/reaction/searchresults/'+this.$route.params.chemid">Reactions Containing this Chemical</router-link></p>
+        <h2 :title=chemical.primary_name>{{chemical.primary_name}}</h2>
+        <p><router-link v-bind:to="'/reaction/searchresults/'+this.$route.params.chemid+'/any'">Reactions Containing this Chemical</router-link></p>
         <img v-bind:src="'data:image/png;base64,'+chemical.image" alt="missing image" style="width:150px;height:150px;" />
         <br>
         DTXSID: <a :href="'https://comptox.epa.gov/dashboard/chemical/details/' + chemical.dtxsid" target="_blank"> {{chemical.dtxsid}} ↗ </a>
@@ -55,3 +55,11 @@ export default{
 }
 
 </script>
+
+<style scoped>
+h2 {
+    overflow: hidden;
+    text-overflow:ellipsis;
+    white-space: nowrap;
+}
+</style>
