@@ -87,7 +87,9 @@ export default {
                     width:450,
                     cellRenderer: (params) => {
                         var link = document.createElement('a');
-                        link.href = 'https://www.doi.org/'+params.data.DOI;
+                        if(params.data.DOI != ''){
+                            link.href = 'https://www.doi.org/'+params.data.DOI;
+                        };
                         link.target = 'blank_';
                         link.innerText = params.data.reference;
                         return link;
@@ -119,7 +121,7 @@ export default {
         
         const pfasColDefs = reactive({
             value: [
-                {headerName:'T (°C)', headerTooltip: 'Temperature', field:'temp_C', sortable: true, resizable: true, width:40},
+                {headerName:'T (°C)', headerTooltip: 'Temperature', field:'temp_C', sortable: true, resizable: true, width:55},
                 {headerName:'Half Life (days)', field:'half_life', valueFormatter: params => {if(params.data.half_life+1 == 1){return params.data.half_life} else{return params.data.half_life.toExponential(3)}}, sortable: true, resizable: true, width:105},
                 {headerName:'Reaction System', field:'reaction_system', sortable: true, resizable: true, width:140},
                 {headerName:'Metabolic', field:'is_metabolic', sortable: true, resizable: true, width:85},
@@ -134,7 +136,9 @@ export default {
                     width: 450,
                     cellRenderer: (params) => {
                         var link = document.createElement('a');
-                        link.href = 'https://www.doi.org/'+params.data.DOI;
+                        if(params.data.DOI != ''){
+                            link.href = 'https://www.doi.org/'+params.data.DOI;
+                        };
                         link.target = 'blank_';
                         link.innerText = params.data.reference;
                         return link;
@@ -210,10 +214,19 @@ export default {
             }
             
         },
-        handleDownload() {
+        async handleDownload() {
             axios
                 .post(this.$apiname + "reaction/detail_DL", {
                     reactionID: this.$route.params.reactid,
+                    responseType: 'blob',
+                })
+                .then((res) => {
+                    let data = res.data;
+                    const blob = new Blob([data], { type: 'application/zip' })
+                    let link = document.createElement('a')
+                    link.href = window.URL.createObjectURL(blob)
+                    link.download = 'reaction_'+this.$route.params.reactid+'_detail_list.csv'
+                    link.click()
                 });
         },
     },

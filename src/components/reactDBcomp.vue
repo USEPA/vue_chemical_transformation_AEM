@@ -66,10 +66,19 @@ export default {
     },
     
     methods: {
-        handleDownload() {
+        async handleDownload() {
             axios
                 .post(this.$apiname + "reaction/reaction_DL", {
                     reactions: this.filteredlist,
+                    responseType: 'blob',
+                })
+                .then((res) => {
+                    let data = res.data
+                    const blob = new Blob([data])
+                    let link = document.createElement('a')
+                    link.href = window.URL.createObjectURL(blob)
+                    link.download = 'CTDB_reaction_list_'+this.searchinput+'.csv'
+                    link.click()
                 });
         },
     },

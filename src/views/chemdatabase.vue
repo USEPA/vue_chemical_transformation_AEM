@@ -3,6 +3,7 @@
 <div v-if="rowtile"> 
     <button v-on:click="rowtile = !rowtile">Tile View</button>
     <button v-on:click="handleGridExport()">Export Chemical List</button><br><br>
+    Enter terms of interest into filter boxes to filter the table on that column.<br><br>
     <ag-grid-vue
         class="ag-theme-balham"
         domLayout="autoHeight"
@@ -14,12 +15,13 @@
     </ag-grid-vue>
 </div>
 <div v-else>
-    Search: <input style='width:245px' type="text" list="typeaheadlist" v-model="input" placeholder="Name, DTXSID, CASRN, InChI key" /> <br><br>
+    <button v-on:click="rowtile = !rowtile">Table View</button>
+    <button v-on:click="handleExport">Export Chemical List</button> <br><br>
+    Search: <input style='width:245px' type="text" list="typeaheadlist" v-model="input" placeholder="Name, DTXSID, CASRN, InChI key" /> <br>
+    Searching in the Tile View will perform a search across all names, synonyms, and chemical identifiers.<br>
     <datalist id="typeaheadlist">
         <option v-for="row in bigout" :value="row.dtxsid" :label="row.primary_name"></option>
     </datalist>
-    <button v-on:click="rowtile = !rowtile">Table View</button>
-    <button v-on:click="handleExport">Export Chemical List</button> 
     <div class="tileset">
     <div class="tile" v-for="row in filteredlist">
         <p style="text-overflow: ellipsis; overflow: hidden; white-space: nowrap;">Name: <router-link v-bind:to="'/reaction/searchresults/'+row.local_IDnum+'/ID'"> {{row.primary_name}} </router-link> </p>
@@ -214,10 +216,19 @@ export default {
         };
     },
     methods: {
-        handleExport() {
+        async handleExport() {
             axios
                 .post(this.$apiname + "chemicals/chemical_DL", {
                     chemlist: this.filteredlist,
+                    responseType: 'blob',
+                })
+                .then((res) => {
+                    let data = res.data;
+                    const blob = new Blob([data], { type: 'application/zip' })
+                    let link = document.createElement('a')
+                    link.href = window.URL.createObjectURL(blob)
+                    link.download = this.input+'_chemical_list.csv'
+                    link.click()
                 });
         },
         handleGridExport() {

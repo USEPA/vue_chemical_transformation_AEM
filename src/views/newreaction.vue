@@ -1,7 +1,7 @@
 <template>
     <button v-on:click="showhide1 = !showhide1">Enter a Single Reaction</button> <br>
     <div v-if="showhide1">
-        <form @submit.prevent="handleSubmit">
+        <form @submit.prevent="chemcheck">
             <br>
             <p>To enter multiple parent or product DTXSID's, separate them with commas.</p>
             <div style="display:flex">
@@ -40,6 +40,21 @@
             <button type="submit">Submit</button> <br><br>
         </form>
     </div>
+    <div v-if="showhide3" class="chemcheck">
+        <div v-if="checkparent.data.error || checkproduct.data.error">
+            {{checkparent.data.error}} <button @click="showhide3=false"> [X] </button>
+        </div>
+        <div v-else>
+            Is this the reaction you intend to enter?<hr>
+            {{checkparent.data.name}} => {{checkproduct.data.name}}<br>
+            <div style="display:flex">
+            <img v-bind:src="'data:image/png;base64,'+checkparent.data.img" alt="missing image" style="display: block; margin-left: auto; margin-right: auto; width:300px; height:300px; vertical-align:middle;" /> =>
+            <img v-bind:src="'data:image/png;base64,'+checkproduct.data.img" alt="missing image" style="display: block; margin-left: auto; margin-right: auto; width:300px; height:300px; vertical-align:middle;" />
+            </div>
+            <hr>
+            <button style="width:130px" @click="handleSubmit">Yes</button><button style="width:130px" @click="showhide3=false">No</button>
+        </div>
+    </div>
 </template>
 
 <script>
@@ -52,6 +67,7 @@ export default{
         return{
             showhide1: false,
             showhide2: false,
+            showhide3: false,
             reaction: [],
             parent: '',
             product: '',
@@ -60,9 +76,18 @@ export default{
             scheme: '',
             library:'',
             reactionfile: null,
+            checkparent:[],
+            checkproduct:[],
         }
     },
     methods: {
+        async chemcheck() {
+            const url1 = this.$apiname + "chemicals/verify/" + this.parent
+            this.checkparent = await axios.get(url1)
+            const url2 = this.$apiname + "chemicals/verify/" + this.parent
+            this.checkproduct = await axios.get(url2)
+            this.showhide3 = true
+        },
         handleSubmit() {
             axios
                 .post(this.$apiname + "reaction/newreaction", {
@@ -80,11 +105,29 @@ export default{
                 .then( this.$router.push('/reaction/database') 
                 );
         },
-        hydroDL() {
-            axios.post(this.$apiname + "reaction/hydro_DL");
+        async hydroDL() {
+            axios
+                .post(this.$apiname + "reaction/hydro_DL", {responseType: 'blob'})
+                .then((res) => {
+                    let data = res.data;
+                    const blob = new Blob([data], { type: 'application/zip' })
+                    let link = document.createElement('a')
+                    link.href = window.URL.createObjectURL(blob)
+                    link.download = 'hydrolysis_reaction_entry_template.csv'
+                    link.click()
+                });
         },
-        pfasDL() {
-            axios.post(this.$apiname + "reaction/pfas_DL");
+        async pfasDL() {
+            axios
+                .post(this.$apiname + "reaction/pfas_DL", {responseType: 'blob'})
+                .then((res) => {
+                    let data = res.data;
+                    const blob = new Blob([data], { type: 'application/zip' })
+                    let link = document.createElement('a')
+                    link.href = window.URL.createObjectURL(blob)
+                    link.download = 'PFAS_reaction_entry_template.csv'
+                    link.click()
+                });
         },
         uploadFile() {
             this.reactionfile = this.$refs.file.files[0];
@@ -105,3 +148,17 @@ export default{
 }
 
 </script>
+
+<style>
+
+.chemcheck{
+    position:fixed;
+    top:20%;
+    left:10%;
+    right:10%;
+    text-align: center;
+    border: 2px solid black;
+    background-color: white;
+}
+
+</style>

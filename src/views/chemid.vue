@@ -1,7 +1,7 @@
 <template>
     <div>
         <h2 :title=chemical.primary_name>{{chemical.primary_name}}</h2>
-        <p><router-link v-bind:to="'/reaction/searchresults/'+this.$route.params.chemid+'/any'">Reactions Containing this Chemical</router-link></p>
+        <p><router-link v-bind:to="'/reaction/searchresults/'+this.$route.params.chemid+'/ID'">Reactions Containing this Chemical</router-link></p>
         <img v-bind:src="'data:image/png;base64,'+chemical.image" alt="missing image" style="width:150px;height:150px;" />
         <br>
         DTXSID: <a :href="'https://comptox.epa.gov/dashboard/chemical/details/' + chemical.dtxsid" target="_blank"> {{chemical.dtxsid}} ↗ </a>
@@ -11,6 +11,7 @@
             SMILES: {{ chemical.smiles }} <br>
             CASRN: {{ chemical.casrn }} <br>
             InChI KEY: {{ chemical.inchi }} <br>
+            Synonyms: {{chemical.other_names}} <br>
         </div>
         <div v-if="this.$cookie.getCookie('user')">
             <br> <button v-on:click="handleDelete">Delete this Chemical</button> 

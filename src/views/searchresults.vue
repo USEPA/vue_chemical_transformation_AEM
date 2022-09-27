@@ -1,5 +1,6 @@
 <template>
-    Search: <input style='width:255px' type="text" v-model="searchinput" placeholder="Name, DTXSID, or Reaction Detail" /> <br>
+    Filter Results:<br>
+    <input style='width:255px' type="text" v-model="searchinput" placeholder="Name, DTXSID, or Reaction Detail" /> <br>
     {{searchinput}}
     <br>
     <br> <button v-on:click="handleDownload">Export Reaction Details</button> 
@@ -62,10 +63,19 @@ export default {
         },
     },
     methods: {
-        handleDownload() {
+        async handleDownload() {
             axios
                 .post(this.$apiname + "reaction/reaction_DL", {
                     reactions: this.filteredlist,
+                    responseType: 'blob',
+                })
+                .then((res) => {
+                    let data = res.data;
+                    const blob = new Blob([data], { type: 'application/zip' })
+                    let link = document.createElement('a')
+                    link.href = window.URL.createObjectURL(blob)
+                    link.download = 'CTDB_reaction_list_'+this.$route.params.searchinput+'_'+this.$route.params.searchtype+'.csv'
+                    link.click()
                 });
         },
     },
