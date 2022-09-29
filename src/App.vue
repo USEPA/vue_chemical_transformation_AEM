@@ -25,6 +25,9 @@
             <button style="position:fixed; top:95px; right:25px; font-size:xx-small;" v-on:click="popup_showhide = false" >[X]</button>
         </div>
     </transition>
+    <div style="position:fixed; bottom:5px; right:25px">
+        Version: α.0.4
+    </div>
 </template>
 
 

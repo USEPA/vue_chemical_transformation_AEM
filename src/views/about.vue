@@ -1,6 +1,6 @@
 <template>
     <body>
-        <h1 style="font-size:25px">Sataement Of Purpose</h1>
+        <h1 style="font-size:25px">Staement Of Purpose</h1>
         <p>
         Manufactured chemicals are often transformed into different molecules in environmental and biological systems, 
         and the resulting transformation products generally differ from the parent chemical in their toxicity and physicochemical

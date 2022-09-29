@@ -139,13 +139,14 @@ export default {
                     tooltipField:'primary_name',
                 },
                 {headerName:'Synonyms', field:'other_names', tooltipField:'other_names', sortable: true, filter: 'agTextColumnFilter', floatingFilter: true, width:350},
-                {headerName:'CASRN', field:'casrn', sortable: true, resizable: true, filter: 'agTextColumnFilter', floatingFilter: true, width:100},
+                {headerName:'CASRN', field:'casrn', sortable: true, resizable: true, filter: 'agTextColumnFilter', floatingFilter: true, width:115},
                 {headerName:'InChI KEY', field:'inchi', sortable: true, hide: true, filter: 'agTextColumnFilter', floatingFilter: true, width:350},
                 {
                     headerName:'Hydrolysis Reactions', 
                     field:'hydro_count', 
                     resizable: true, 
                     sortable: true, 
+                    cellStyle: { 'justify-content': 'center' },
                     width:150,
                     cellRenderer: (params) => {
                         var link = document.createElement('a');
@@ -165,6 +166,7 @@ export default {
                     field:'pfas_count', 
                     resizable: true, 
                     sortable: true, 
+                    cellStyle: { 'justify-content': 'center' },
                     width:150,
                     cellRenderer: (params) => {
                         var link = document.createElement('a');
@@ -184,6 +186,7 @@ export default {
                     field:'photo_count', 
                     resizable: true, 
                     sortable: true, 
+                    cellStyle: { 'justify-content': 'center' },
                     width:150,
                     cellRenderer: (params) => {
                         var link = document.createElement('a');

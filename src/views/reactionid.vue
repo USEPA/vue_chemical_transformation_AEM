@@ -3,9 +3,9 @@
         <h2> <span v-for="(name,index) in reaction.parent_name"><router-link v-bind:to="'/chemical/'+reaction.parent_IDnum[index]">{{name}}</router-link><span v-if="index != reaction.parent_name.length - 1"> + </span></span> → <span v-for="(name,index) in reaction.product_name"><router-link v-bind:to="'/chemical/'+reaction.product_IDnum[index]">{{name}}</router-link><span v-if="index != reaction.product_name.length - 1"> + </span></span></h2>
         <span v-for="(element,index) in reaction.parent_image"> <img v-bind:src="'data:image/png;base64,'+element" alt="missing image" style="width:150px;height:150px;vertical-align:middle;" /><span v-if="index != reaction.parent_image.length - 1"> + </span> </span> → <span v-for="(element,index) in reaction.product_image"> <img v-bind:src="'data:image/png;base64,'+element" alt="missing image" style="width:150px;height:150px;vertical-align:middle;" /><span v-if="index != reaction.product_image.length - 1"> + </span> </span>
         <br>
-        <p>Reaction Process: <router-link v-bind:to="'/reaction/searchresults/'+reaction.reaction_process+'/reaction_process'">{{reaction.reaction_process}}</router-link></p>
-        <p>Reaction Type: <router-link v-bind:to="'/reaction/searchresults/'+reaction.reaction_type+'/reaction_type'">{{reaction.reaction_type}}</router-link></p>
-        <p>Reaction Scheme: <router-link v-bind:to="'/reaction/searchresults/'+reaction.reaction_scheme+'/reaction_scheme'">{{reaction.reaction_scheme}}</router-link></p>
+        <p>Reaction Process: <router-link v-if="reaction.reaction_process" v-bind:to="'/reaction/searchresults/'+reaction.reaction_process+'/reaction_process'">{{reaction.reaction_process}}</router-link></p>
+        <p>Reaction Type: <router-link v-if="reaction.reaction_type" v-bind:to="'/reaction/searchresults/'+reaction.reaction_type+'/reaction_type'">{{reaction.reaction_type}}</router-link></p>
+        <p>Reaction Scheme: <router-link v-if="reaction.reaction_scheme" v-bind:to="'/reaction/searchresults/'+reaction.reaction_scheme+'/reaction_scheme'">{{reaction.reaction_scheme}}</router-link></p>
     <button v-on:click="showhide = !showhide">Reaction Details</button> 
         <br>
         <div v-if="showhide && reaction.reaction_library.toLowerCase().includes('hydrolysis')">

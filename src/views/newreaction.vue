@@ -3,7 +3,7 @@
     <div v-if="showhide1">
         <form @submit.prevent="chemcheck">
             <br>
-            <p>To enter multiple parent or product DTXSID's, separate them with commas.</p>
+            <p>To enter multiple parent or product DTXSIDs, separate them with commas.</p>
             <div style="display:flex">
                 <span style="font-size:18px">
                     Parent DTXSID: <br>
