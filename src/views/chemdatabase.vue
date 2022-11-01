@@ -142,65 +142,85 @@ export default {
                 {headerName:'CASRN', field:'casrn', sortable: true, resizable: true, filter: 'agTextColumnFilter', floatingFilter: true, width:115},
                 {headerName:'InChI KEY', field:'inchi', sortable: true, hide: true, filter: 'agTextColumnFilter', floatingFilter: true, width:350},
                 {
-                    headerName:'Hydrolysis Reactions', 
-                    field:'hydro_count', 
-                    resizable: true, 
-                    sortable: true, 
-                    cellStyle: { 'justify-content': 'center' },
-                    width:150,
-                    cellRenderer: (params) => {
-                        var link = document.createElement('a');
-                        link.href = '#';
-                        link.innerText = params.data.hydro_count;
-                        link.addEventListener('click', (e) => {
-                            e.preventDefault();
-                            router.push('/reaction/searchresults/'+params.data.local_IDnum+'/hydrolysis');
-                            }
-                        );
-                        if (params.data.hydro_count == 0) return '0';
-                        else return link;
-                    },
-                },
-                {
-                    headerName:'PFAS Reactions', 
-                    field:'pfas_count', 
-                    resizable: true, 
-                    sortable: true, 
-                    cellStyle: { 'justify-content': 'center' },
-                    width:150,
-                    cellRenderer: (params) => {
-                        var link = document.createElement('a');
-                        link.href = '#';
-                        link.innerText = params.data.pfas_count;
-                        link.addEventListener('click', (e) => {
-                            e.preventDefault();
-                            router.push('/reaction/searchresults/'+params.data.local_IDnum+'/PFAS');
-                            }
-                        );
-                        if (params.data.pfas_count == 0) return '0';
-                        else return link;
-                    },
-                },
-                {
-                    headerName:'Photolysis Reactions', 
-                    field:'photo_count', 
-                    resizable: true, 
-                    sortable: true, 
-                    cellStyle: { 'justify-content': 'center' },
-                    width:150,
-                    cellRenderer: (params) => {
-                        var link = document.createElement('a');
-                        link.href = '#';
-                        link.innerText = params.data.photo_count;
-                        link.addEventListener('click', (e) => {
-                            e.preventDefault();
-                            router.push('/reaction/searchresults/'+params.data.local_IDnum+'/Photolysis');
-                            }
-                        );
-                        if (params.data.photo_count == 0) return '0';
-                        else return link;
-                    },
-                
+                    headerName: 'Number of Reactions',
+                    children: [
+                        {
+                            headerName:'Hydrolysis', 
+                            field:'hydro_count', 
+                            resizable: true, 
+                            sortable: true, 
+                            cellStyle: { 'justify-content': 'center' },
+                            width:80,
+                            cellRenderer: (params) => {
+                                var link = document.createElement('a');
+                                link.href = '#';
+                                link.innerText = params.data.hydro_count;
+                                link.addEventListener('click', (e) => {
+                                    e.preventDefault();
+                                    router.push('/reaction/searchresults/'+params.data.local_IDnum+'/hydrolysis');
+                                });
+                                if (params.data.hydro_count == 0) return '0';
+                                else return link;
+                            },
+                        },
+                        {
+                            headerName:'PFAS', 
+                            field:'pfas_count', 
+                            resizable: true, 
+                            sortable: true, 
+                            cellStyle: { 'justify-content': 'center' },
+                            width:50,
+                            cellRenderer: (params) => {
+                                var link = document.createElement('a');
+                                link.href = '#';
+                                link.innerText = params.data.pfas_count;
+                                link.addEventListener('click', (e) => {
+                                    e.preventDefault();
+                                    router.push('/reaction/searchresults/'+params.data.local_IDnum+'/PFAS');
+                                });
+                                if (params.data.pfas_count == 0) return '0';
+                                else return link;
+                            },
+                        },
+                        {
+                            headerName:'Metapath', 
+                            field:'meta_count', 
+                            resizable: true, 
+                            sortable: true, 
+                            cellStyle: { 'justify-content': 'center' },
+                            width:50,
+                            cellRenderer: (params) => {
+                                var link = document.createElement('a');
+                                link.href = '#';
+                                link.innerText = params.data.meta_count;
+                                link.addEventListener('click', (e) => {
+                                    e.preventDefault();
+                                    router.push('/reaction/searchresults/'+params.data.local_IDnum+'/metapath');
+                                });
+                                if (params.data.meta_count == 0) return '0';
+                                else return link;
+                            },
+                        },
+                        {
+                            headerName:'Photolysis', 
+                            field:'photo_count', 
+                            resizable: true, 
+                            sortable: true, 
+                            cellStyle: { 'justify-content': 'center' },
+                            width:80,
+                            cellRenderer: (params) => {
+                                var link = document.createElement('a');
+                                link.href = '#';
+                                link.innerText = params.data.photo_count;
+                                link.addEventListener('click', (e) => {
+                                    e.preventDefault();
+                                    router.push('/reaction/searchresults/'+params.data.local_IDnum+'/Photolysis');
+                                });
+                                if (params.data.photo_count == 0) return '0';
+                                else return link;
+                            },
+                        },
+                    ]
                 },
             ],
         });

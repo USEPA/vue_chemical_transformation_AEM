@@ -1,50 +1,52 @@
 <template>
-    Search: <input type="text" list="typeaheadlist" v-model="input" placeholder="Name, DTXSID, CASRN, inchi key" /> <br>
-    <datalist id="typeaheadlist">
-        <option v-for="row in bigout" :value="row.dtxsid" :label="row.primary_name"></option>
-    </datalist>
-    <br>
-    <testcomp :filterout='filteredlist'/>
+    <div id="graph"></div>
 </template>
 
 <script>
 
-import {ref} from 'vue';
-import testcomp from '@/components/testcomp.vue'
+import ForceGraph from 'force-graph'
 
 export default {
-    name: 'ChemDB',
-    data () {        
-        const input = ref("");
-        return {
-            bigout: '',
-            input,
+    name: 'testpage',
+    mounted() {
+        fetch(this.$apiname + "reaction/reactionmap/181/chemical").then(res => res.json()).then(data => {
+            const Graph = ForceGraph()(document.getElementById('graph'))
+            const N = 10
+            Graph.dagMode('td')
+            Graph.dagLevelDistance(2.2*N)
+            Graph.width(window.innerWidth-115)
+            Graph.zoom(9)
+            Graph.graphData(data)
+            Graph.nodeVal(1)
+            Graph.cooldownTime(300)
+            Graph.d3Force('charge').strength(-20)
+            Graph.d3Force('link').distance(2*N)
+            Graph.nodeId('id')
+            Graph.nodeLabel('name')
+            Graph.linkSource('source')
+            Graph.linkTarget('target')
+            Graph.nodeCanvasObject(({img,x,y}, ctx) => {
+                const size=N; 
+                ctx.drawImage(this.imgconvert(img), x-size/2, y-size/2, size, size);})
+            Graph.nodePointerAreaPaint((node,color,ctx) => {
+                const size=N; 
+                ctx.fillStyle=color;ctx.fillRect(node.x - size/2, node.y -size/2,size,size);})
+            Graph.linkDirectionalArrowLength(2)
+            Graph.onEngineStop(() => 
+                Graph.d3Force('charge',null),
+                Graph.d3Force('link',null),
+                Graph.d3Force('center',null))
+            Graph.onNodeDragEnd(node => { node.fx = node.x; node.fy = node.y;})
+            Graph.backgroundColor('#8b9eb0')
+        });
+    },
+    methods:{
+        imgconvert: function(img){
+            const image = new Image();
+            image.src = 'data:image/png;base64,'+ img;
+            return image;
         }
-    },
-    created: async function(){
-        const url = this.$apiname + "chemicals/database";
-        const gResponse = await fetch(url);
-        const gObject = await gResponse.json();
-        this.bigout = gObject;
-    },
-    computed: {
-        filteredlist() {
-            if (this.input) {
-                return this.bigout.filter((item) => {
-                    return this.input
-                        .toLowerCase()
-                        .split(" ")
-                        .every((v) => 
-                            item.primary_name?.toLowerCase().includes(v)
-                            || item.dtxsid?.toLowerCase().includes(v)
-                            || item.inchi?.toLowerCase().includes(v)
-                            || item.casrn?.toLowerCase().includes(v));
-                });
-            } else {
-                return this.bigout
-            }
-        },
-    },
+    }
 }
 
 </script>

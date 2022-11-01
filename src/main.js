@@ -10,8 +10,8 @@ const app = createApp(App)
 
 app.use(router)
 app.use(VueCookieNext)
+app.use(BootstrapVue3)
 app.config.globalProperties.$apiname = 'http://v2626umcth819.rtord.epa.gov:9413/'
 app.provide('apiname', 'http://v2626umcth819.rtord.epa.gov:9413/')
-app.use(BootstrapVue3)
 
 app.mount('#app')

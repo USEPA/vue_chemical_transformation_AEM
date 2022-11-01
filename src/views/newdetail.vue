@@ -29,6 +29,16 @@
             <button type="submit">Submit</button> <br>
         </form>
     </div>
+    <div v-if="reaction.reaction_library.toLowerCase().includes('metapath')">
+        <br>
+        <form @submit.prevent="metaSubmit">
+            Species: <input type="text" v-model="species"/> <br>
+            Notes/Specification: <input type="text" v-model="notes"/> <br>
+            Reference: <input type="text" v-model="reference"/> <br>
+            DOI: <input type="text" v-model="doi"/> <br><br>
+            <button type="submit">Submit</button> <br>
+        </form>
+    </div>
 </template>
 
 <script>
@@ -56,6 +66,7 @@ export default{
             reaction_system: '',
             is_metabolic: '',
             is_environmental: '',
+            species: '',
             reactID: '',
             reactiontype: '',
             return_route: '/reaction/' + this.$route.params.reactid
@@ -93,6 +104,19 @@ export default{
                     reference: this.reference,
                     doi: this.doi,
                     reactiontype: 'pfas',
+                    reactID: this.$route.params.reactid,
+                })
+                .then( this.$router.push(this.return_route) 
+                );
+        },
+        metaSubmit() {
+            axios
+                .post(this.$apiname + "reaction/newdetail", {
+                    species: this.species,
+                    notes: this.notes,
+                    reference: this.reference,
+                    doi: this.doi,
+                    reactiontype: 'metapath',
                     reactID: this.$route.params.reactid,
                 })
                 .then( this.$router.push(this.return_route) 

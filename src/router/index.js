@@ -14,6 +14,7 @@ import login from '../views/login.vue'
 import SearchResults from '../views/searchresults.vue'
 import contactpage from '../views/contactpage.vue'
 import about from '../views/about.vue'
+import reactmap from '../views/reactmap.vue'
 
 import testpage from '../views/testpage.vue'
 
@@ -85,6 +86,10 @@ const router = createRouter({
     {
       path: '/reaction/searchresults/:searchinput/:searchtype',
       component: SearchResults
+    },
+    {
+      path: '/reaction/reactionmap/:searchinput/:searchtype',
+      component: reactmap
     },
   ]
 })

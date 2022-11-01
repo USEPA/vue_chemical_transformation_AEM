@@ -9,6 +9,7 @@
           <b-dropdown-item to="/reaction/database">Complete Reaction Database</b-dropdown-item>
           <b-dropdown-item to="/reaction/searchresults/hydrolysis/reaction_library">Abiotic Hydrolysis</b-dropdown-item>
           <b-dropdown-item to="/reaction/searchresults/PFAS/reaction_library">PFAS</b-dropdown-item>
+          <b-dropdown-item to="/reaction/searchresults/metapath/reaction_library">Metapath</b-dropdown-item>
         </b-nav-item-dropdown>
         <b-nav-item-dropdown text="Tools" class="navstyle" style="font-size:16px">
           <div v-if="this.$cookie.getCookie('user')">
@@ -74,4 +75,5 @@ nav .navstyle{
 }
 
 a { color: white; }
+a:hover{ color:white; }
 </style>

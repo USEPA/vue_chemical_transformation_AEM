@@ -26,6 +26,15 @@
                 :enableBrowserTooltips="true">
             </ag-grid-vue>
         </div>
+        <div v-if="showhide && reaction.reaction_library.toLowerCase().includes('metapath')">
+            <ag-grid-vue
+                class="ag-theme-balham"
+                domLayout="autoHeight"
+                :columnDefs="metapathColDefs.value"
+                :rowData="rowData.value"
+                :enableBrowserTooltips="true">
+            </ag-grid-vue>
+        </div>
             
         <br> <button v-on:click="handleDownload">Export Reaction Details</button> 
 
@@ -56,7 +65,7 @@ export default {
     
     setup(){
     
-        const colShowHide = false
+        const colShowHide = true
 
         const routeID = useRoute().params.reactid
         const apiname = inject('apiname')
@@ -123,10 +132,56 @@ export default {
             value: [
                 {headerName:'T (°C)', headerTooltip: 'Temperature', field:'temp_C', sortable: true, resizable: true, width:55},
                 {headerName:'Half Life (days)', field:'half_life', valueFormatter: params => {if(params.data.half_life+1 == 1){return params.data.half_life} else{return params.data.half_life.toExponential(3)}}, sortable: true, resizable: true, width:105},
-                {headerName:'Reaction System', field:'reaction_system', sortable: true, resizable: true, width:140},
-                {headerName:'Metabolic', field:'is_metabolic', sortable: true, resizable: true, width:85},
-                {headerName:'Environmental', field:'is_environmental', sortable: true, resizable: true, width:105},
-                {headerName:'Notes', field:'notes', sortable: true, resizable: true, width: 280},
+                {headerName:'Reaction System', field:'reaction_system', tooltipField:'reaction_system', sortable: true, resizable: true, width:140},
+                {headerName:'Metabolic', headerTooltip: '1 if the record is from a metabolic system', field:'is_metabolic', sortable: true, resizable: true, width:85},
+                {headerName:'Environmental', headerTooltip: '1 if the record is from an Environmental system', field:'is_environmental', sortable: true, resizable: true, width:105},
+                {headerName:'Notes', field:'notes', tooltipField:'notes', sortable: true, resizable: true, width: 280},
+                {
+                    headerName:'Reference', 
+                    field:'reference', 
+                    sortable: true,  
+                    resizable: true, 
+                    filter: 'agTextColumnFilter', 
+                    width: 450,
+                    cellRenderer: (params) => {
+                        var link = document.createElement('a');
+                        if(params.data.DOI != ''){
+                            link.href = 'https://www.doi.org/'+params.data.DOI;
+                        };
+                        link.target = 'blank_';
+                        link.innerText = params.data.reference;
+                        return link;
+                    }
+                },
+                {
+                    headerName:'Delete', 
+                    field:'detail_id', 
+                    hide: colShowHide,
+                    cellRenderer: (params) => {
+                        var link = document.createElement('a');
+                        link.href = '#';
+                        link.innerText = 'Delete';
+                        link.addEventListener('click', (e) => {
+                            e.preventDefault();
+                            if (confirm("Are you sure you want to Delete this Entry?") == true){
+                                axios
+                                    .post(apiname + "reaction/detaildelete", {
+                                        reactionID: routeID,
+                                        detailID: params.value,
+                                    })
+                                    .then( location.reload() );
+                            }
+                        });
+                        return link;
+                    }
+                }
+            ],
+        });
+        
+        const metapathColDefs = reactive({
+            value: [
+                {headerName:'Species', field:'species', sortable: true, resizable: true, width:200},
+                {headerName:'Notes', field:'notes', tooltipField:'notes', sortable: true, resizable: true, width: 280},
                 {
                     headerName:'Reference', 
                     field:'reference', 
@@ -179,6 +234,7 @@ export default {
         return{
             columnDefs,
             pfasColDefs,
+            metapathColDefs,
             rowData,
             detailurl,
         };
