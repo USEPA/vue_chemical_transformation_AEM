@@ -26,7 +26,7 @@
         </div>
     </transition>
     <div style="position:fixed; bottom:5px; right:25px">
-        Version: α.0.4
+        Version: α.1.1
     </div>
 </template>
 
@@ -127,7 +127,7 @@ input[type=submit] { align-self: start; min-width: 10em; }
     height:100px;
     width:250px;
     color: white;
-    background-color: #1b634b;
+    background-color: #377680;
     text-align: center;
     border: 2px solid black;
 }
