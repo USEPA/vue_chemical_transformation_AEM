@@ -1,8 +1,8 @@
 <template>
     Click on a Chemical to Expand the Tree <br>
     Currently Expanded Nodes are Highlighted in Blue <br>
-    Reactions where the Highlighted Chemical is a Parent are Highlighted in Blue <br>
-    Reactions where the Highlighted Chemical is a Product are Highlighted in Orange <br>
+    Reactions where an Expanded Chemical is a Parent are Drawn in Blue <br>
+    Reactions where an Expanded Chemical is a Product and the parent is not Expanded are Drawn in Orange <br>
     <button v-on:click="openall()">Expand All Nodes</button><button v-on:click="closeall()">Close All Nodes</button>
     <div id="graph"></div>
 </template>
@@ -27,6 +27,7 @@ export default {
         fetch(this.$apiname + "reaction/reactionmap/" + this.$route.params.searchinput + "/" + this.$route.params.searchtype).then(res => res.json()).then(data => {
             this.Graph = ForceGraph()(document.getElementById('graph'))
             const N = 10
+            let k = 0
             this.Graph.width(window.innerWidth-115)
             this.Graph.backgroundColor('#a9b2ba')
             this.Graph.autoPauseRedraw(false)
@@ -50,11 +51,17 @@ export default {
                 ctx.lineTo(x+(N/2),y-(N/2));
                 ctx.lineTo(x+(N/2),y+(N/2));
                 ctx.lineTo(x-(N/2),y+(N/2));
-                ctx.lineTo(x-(N/2),y-(N/2)-0.14); //0.14 necessary to prevent blank corner
-                ctx.lineWidth = 0.3;
-                ctx.strokeStyle = this.openNodes.includes(id) ? '#0072B2' : 'transparent';
+                ctx.lineTo(x-(N/2),y-(N/2)- ((id == this.$route.params.searchinput) ? 1 : 0.25)); //necessary to prevent blank corner
+                ctx.lineWidth = (id == this.$route.params.searchinput) ? 2 : 0.5;
+                ctx.strokeStyle = (id == this.$route.params.searchinput) ? '#06c43c' : (this.openNodes.includes(id) ? '#0072B2' : 'transparent');
                 ctx.stroke();
-                ctx.drawImage(this.imgconvert(img), x-size/2, y-size/2, size, size);})
+                ctx.drawImage(this.imgconvert(img), x-size/2, y-size/2, size, size);
+                if(id == this.$route.params.searchinput && k < 100){
+                    this.Graph.centerAt(x,y)
+                    k=k+1
+                    console.log(k)
+                };
+            })
             this.Graph.linkVisibility(false)
             this.Graph.linkWidth(2)
             this.Graph.linkDirectionalArrowLength(2)
@@ -65,7 +72,7 @@ export default {
                 return ''
             })
             this.Graph.onEngineStop(() => 
-            this.Graph.d3Force('charge',null),
+                this.Graph.d3Force('charge',null),
                 this.Graph.d3Force('link',null),
                 this.Graph.d3Force('center',null))
             this.Graph.onNodeDragEnd(node => { node.fx = node.x; node.fy = node.y;})
@@ -83,6 +90,7 @@ export default {
                     this.visibleNodes = this.visibleNodes.concat(node.id);
                     this.openNodes = [...new Set(this.openNodes.concat(node.id))];
                 }
+                this.visibleNodes.concat(this.$route.params.searchinput)
                 this.Graph.nodeVisibility(node => this.visibleNodes.includes(node.id));
                 this.Graph.linkVisibility(link => this.visibleNodes.includes(link.source.id) && this.visibleNodes.includes(link.target.id));
             })
@@ -99,6 +107,7 @@ export default {
             gData.nodes.forEach(node => {
                 this.openNodes = JSON.parse(JSON.stringify(this.openNodes)).concat(node.id);
                 this.visibleNodes = JSON.parse(JSON.stringify(this.visibleNodes)).concat(node.neighbors);
+                this.visibleNodes = JSON.parse(JSON.stringify(this.visibleNodes)).concat(node.id);
                 this.Graph.nodeVisibility(true);
                 this.Graph.linkVisibility(true);
             })
