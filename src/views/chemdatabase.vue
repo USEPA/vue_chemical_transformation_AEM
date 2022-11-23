@@ -17,7 +17,7 @@
 <div v-else>
     <button v-on:click="rowtile = !rowtile">Table View</button>
     <button v-on:click="handleExport">Export Chemical List</button> <br><br>
-    Search: <input style='width:245px' type="text" list="typeaheadlist" v-model="input" placeholder="Name, DTXSID, CASRN, InChI key" /> <br>
+    Search: <input style="width:245px" type="text" list="typeaheadlist" v-model="input" placeholder="Name, DTXSID, CASRN, InChI key" /> <br>
     Searching in the Tile View will perform a search across all names, synonyms, and chemical identifiers.<br>
     <datalist id="typeaheadlist">
         <option v-for="row in bigout" :value="row.dtxsid" :label="row.primary_name"></option>
@@ -25,10 +25,20 @@
     <div class="tileset">
     <div class="tile" v-for="row in filteredlist">
         <p style="text-overflow: ellipsis; overflow: hidden; white-space: nowrap;">Name: <router-link v-bind:to="'/reaction/searchresults/'+row.local_IDnum+'/ID'"> {{row.primary_name}} </router-link> </p>
-        <p><img v-bind:src="'data:image/png;base64,'+row.image" alt="missing image" style="display: block; margin-left: auto; margin-right: auto; width:150px; height:150px;" /> </p>
+        <p><img v-bind:src="'data:image/png;base64,'+row.image" v-on:click="magnify('data:image/png;base64,'+row.image)" alt="missing image" style="display: block; margin-left: auto; margin-right: auto; width:150px; height:150px;" /> </p>
         <p>DTXSID: <a :href="'https://comptox.epa.gov/dashboard/chemical/details/' + row.dtxsid" target="_blank"> {{row.dtxsid}} ↗</a></p>
     </div>
     </div>
+    <div v-if="!bigout.length">
+        <br> <p style="font-size:25px">Searching...</p>
+    </div>
+    <div v-else-if="filteredlist.length == 0">
+        <br> <p style="font-size:25px">NO RESULTS WERE FOUND</p>
+    </div>
+</div>
+<div v-if="showhide" class="chemcheck">
+    <img v-bind:src="srcvar" alt="missing image" style="display: block; margin-left: auto; margin-right: auto; width:300px; height:300px;" /><hr>
+    <button @click="showhide=false"> [X] </button>     
 </div>
 </template>
 
@@ -52,6 +62,8 @@ export default {
             rowtile: false,
             bigout: '',
             input,
+            showhide: false,
+            srcvar:'',
         }
     },
     created: async function(){
@@ -183,12 +195,12 @@ export default {
                             },
                         },
                         {
-                            headerName:'Metapath', 
+                            headerName:'MetaPath', 
                             field:'meta_count', 
                             resizable: true, 
                             sortable: true, 
                             cellStyle: { 'justify-content': 'center' },
-                            width:50,
+                            width:80,
                             cellRenderer: (params) => {
                                 var link = document.createElement('a');
                                 link.href = '#';
@@ -261,6 +273,10 @@ export default {
             this.gridApi = params.api;
             this.gridColumnApi = params.columnApi;
         },
+        magnify(x) {
+            this.srcvar = x;
+            this.showhide=true;
+        },
     },
 }
 
@@ -282,6 +298,15 @@ export default {
   border: 2px solid darkblue;
   box-sizing: border-box;
   position: relative;
+}
+
+.chemcheck{
+    position:fixed;
+    top:20%;
+    right:40%;
+    left:40%;
+    text-align: center;
+    border: 2px solid black;
 }
 
 .ag-row .ag-cell {

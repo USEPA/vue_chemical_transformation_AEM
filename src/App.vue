@@ -5,13 +5,8 @@
             <EPA_header />
         </div>
     </transition>
-    <div  v-if="showhide" style="display: flex; justify-content: flex-end;">
-        <button v-on:click="showhide = !showhide" style="font-size:xx-small">Hide EPA Header and Footer</button>
-    </div>
-    <div  v-else style="display: flex; justify-content: flex-end;">
-        <button v-on:click="showhide = !showhide" style="font-size:xx-small">Show EPA Header and Footer</button>
-    </div>
-    <Header />
+    <crossnav/>
+    <Header v-on:toggleHeader="(value) => this.showhide = value"/>
     <router-view :key="$route.path"></router-view>
     <br>
     <transition>
@@ -26,7 +21,7 @@
         </div>
     </transition>
     <div style="position:fixed; bottom:5px; right:25px">
-        Version: α.1.2
+        Version: 1.0.0
     </div>
 </template>
 
@@ -34,6 +29,7 @@
 <script>
 
 import { RouterLink, RouterView } from 'vue-router'
+import crossnav from '@/components/crossnav.vue'
 import Header from '@/components/Header.vue'
 import EPA_header from '@/components/EPA_Header.vue'
 import EPA_footer from '@/components/Footer.vue'
@@ -45,7 +41,8 @@ export default {
     components: {
         Header,
         EPA_header,
-        EPA_footer
+        EPA_footer,
+        crossnav
     },
     data () {
         return {
@@ -59,6 +56,7 @@ export default {
     },
     mounted: async function(){
         setTimeout(() => this.showhide = false, 1500)
+        setTimeout(() => this.popup_showhide = false, 5000)
     },
 }
 

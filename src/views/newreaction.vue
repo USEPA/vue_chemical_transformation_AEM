@@ -35,7 +35,7 @@
     <div v-if="showhide2">
         <br>
         <button @click="hydroDL">Download Template for Hydrolysis Reactions</button> <br>
-        <button @click="pfasDL">Download Template for PFAS Reactions</button> <br><br>
+        <button @click="pfasDL">Download Template for PFAS Reactions</button> <br>
         <button @click="metaDL">Download Template for Metapath Reactions</button> <br><br>
         <form @submit.prevent="handleSubmitFile">
             <input type="file" @change="uploadFile" ref="file"> <br>

@@ -11,6 +11,8 @@ const app = createApp(App)
 app.use(router)
 app.use(VueCookieNext)
 app.use(BootstrapVue3)
+
+//change the apiname variable to the location of the server for the backend
 app.config.globalProperties.$apiname = 'http://v2626umcth819.rtord.epa.gov:9413/'
 app.provide('apiname', 'http://v2626umcth819.rtord.epa.gov:9413/')
 
