@@ -66,7 +66,7 @@ export default {
         const metapathColDefs = reactive({
             value: [
                 {
-                    headerName:'Reaction Map', 
+                    headerName:'Show/Hide Map', 
                     field:'mapid', 
                     resizable: true, 
                     filter: 'agTextColumnFilter', 
@@ -79,6 +79,27 @@ export default {
                             link.addEventListener("click", e => {
                                 e.preventDefault();
                                 this.openmap(params.data.mapid);
+                            })
+                        } else {
+                            link.innerText = "No Map"
+                        };
+                        return link;
+                    }
+                },
+                {
+                    headerName:'Highlight Map', 
+                    field:'mapid', 
+                    resizable: true, 
+                    filter: 'agTextColumnFilter', 
+                    width: 150,
+                    cellRenderer: (params) => {
+                        var link = document.createElement('a');
+                        if(params.data.mapid != ''){
+                            link.innerText = "Map "+params.data.mapid;
+                            link.href = '#'
+                            link.addEventListener("click", e => {
+                                e.preventDefault();
+                                this.highlightmap(params.data.mapid);
                             })
                         } else {
                             link.innerText = "No Map"
@@ -112,6 +133,7 @@ export default {
             visibleNodes: [],
             openNodes: [],
             openMaps: [],
+            highlightMaps: [],
             reactlist:[],
             rowData,
             Graph: '',
@@ -245,12 +267,37 @@ export default {
             if(this.openMaps.includes(id)){
                 this.openMaps = this.openMaps.filter(v => v != id);
                 mapreactions.forEach( reaction => {
+                    const x = JSON.stringify(reaction.parent_IDnum);
+                    const index = this.reactlist.findIndex(v => v==x);
+                    this.visibleNodes.splice(index,1);
+                    const y = JSON.stringify(reaction.product_IDnum);
+                    const index2 = this.reactlist.findIndex(v => v==y);
+                    this.visibleNodes.splice(index2,1);
+                    this.Graph.linkVisibility(link => this.visibleNodes.includes(link.source.id) && this.visibleNodes.includes(link.target.id));
+                });
+            } else{
+                this.openMaps.push(id);
+                console.log(mapreactions);
+                mapreactions.forEach(reaction => {
+                    this.openNodes = JSON.parse(JSON.stringify(this.openNodes)).concat(reaction.parent_IDnum);
+                    this.visibleNodes = JSON.parse(JSON.stringify(this.visibleNodes)).concat(reaction.parent_IDnum);
+                    this.openNodes = JSON.parse(JSON.stringify(this.openNodes)).concat(reaction.product_IDnum);
+                    this.visibleNodes = JSON.parse(JSON.stringify(this.visibleNodes)).concat(reaction.product_IDnum);
+                    this.Graph.linkVisibility(link => this.visibleNodes.includes(link.source.id) && this.visibleNodes.includes(link.target.id));
+                })
+            }
+        },
+        highlightmap: async function(id){
+            const mapreactions = await(fetch(this.$apiname + "reaction/mapid/" + id)).then(res => res.json());
+            if(this.highlightMaps.includes(id)){
+                this.highlightMaps = this.highlightMaps.filter(v => v != id);
+                mapreactions.forEach( reaction => {
                     const x = JSON.stringify(reaction.reaction_id);
                     const index = this.reactlist.findIndex(v => v==x);
                     this.reactlist.splice(index,1);
                 });
             } else{
-                this.openMaps.push(id);
+                this.highlightMaps.push(id);
                 mapreactions.forEach(reaction => {
                     const x = JSON.stringify(reaction.reaction_id);
                     this.reactlist.push(x);

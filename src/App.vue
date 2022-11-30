@@ -5,7 +5,7 @@
             <EPA_header />
         </div>
     </transition>
-    <crossnav/>
+    <!-- <crossnav/> -->
     <Header v-on:toggleHeader="(value) => this.showhide = value"/>
     <router-view :key="$route.path"></router-view>
     <br>
@@ -21,7 +21,7 @@
         </div>
     </transition>
     <div style="position:fixed; bottom:5px; right:25px">
-        Version: 1.0.0
+        Version: 1.0.1
     </div>
 </template>
 

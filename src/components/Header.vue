@@ -26,15 +26,15 @@
         <b-nav><h1 class="navstyle" style="font-size:16px"><RouterLink to="/about">About</RouterLink></h1></b-nav>
         <b-nav><h1 class="navstyle" style="font-size:16px"><RouterLink to="/errorreport">Submit Comments</RouterLink></h1></b-nav>
         <b-nav><h1 class="navstyle" style="font-size:16px"><RouterLink to="/contactpage">Contact Us</RouterLink></h1></b-nav>
-        <b-nav><h1 style="font-size:16px, color:transparent">_________</h1></b-nav>
-        <!--
+        <!-- 
+        <b-nav><h1 style="font-size:16px, color:#0e6993">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;</h1></b-nav>
+        -->
         <b-nav-item-dropdown text="Related Applications" class="navstyle" style="font-size:16px">
           <b-dropdown-item href="http://v2626umcth819.rtord.epa.gov:9414/">Chemical Transformations Database</b-dropdown-item>
           <b-dropdown-item href="http://v2626umcth819.rtord.epa.gov:81/substances">Analytical QC</b-dropdown-item>
           <b-dropdown-item href="http://v2626umcth819.rtord.epa.gov:5173/">Spectral and Methods Database</b-dropdown-item>
           <b-dropdown-item href="http://v2626umcth819.rtord.epa.gov:9004/molmass_web.py">Molecular Mass Calculator</b-dropdown-item>
         </b-nav-item-dropdown>
-        -->
         <b-nav>
           <div  v-if="showhide" style="display: flex; justify-content: flex-end;">
             <button v-on:click="showhide = !showhide; this.$emit('toggleHeader',false)" style="font-size:xx-small">Hide EPA Header and Footer</button>

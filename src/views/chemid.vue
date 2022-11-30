@@ -37,121 +37,121 @@
 
 <script>
 
-import {reactive, onMounted, inject} from 'vue'
-import { useRoute, useRouter } from 'vue-router'
-import axios from "axios"
-import {AgGridVue} from 'ag-grid-vue3'
-import 'ag-grid-community/dist/styles/ag-grid.css'
-import 'ag-grid-community/dist/styles/ag-theme-balham.css'
+    import {reactive, onMounted, inject} from 'vue'
+    import { useRoute, useRouter } from 'vue-router'
+    import axios from "axios"
+    import {AgGridVue} from 'ag-grid-vue3'
+    import 'ag-grid-community/dist/styles/ag-grid.css'
+    import 'ag-grid-community/dist/styles/ag-theme-balham.css'
 
-export default{
-    name: 'chemid',
-    components: {
-        AgGridVue,
-    },
-    data () {
-        return{
-            chemical: '',
-            showhide: false,
-            showhide2: false,
-            srcvar:'',
-        }
-    },
-    computed: {
-        url() {
-            return this.$apiname + "chemicals/" + this.$route.params.chemid
-        }
-    },
-    created: async function(){
-        const gResponse = await fetch(this.url);
-        const gObject = await gResponse.json();
-        this.chemical = gObject[0];
-    },
-    methods: {
-        handleDelete() {
-            if (confirm("Are you sure you want to Delete this Chemical?") == true){
-                axios
-                    .post(this.$apiname + "chemicals/chemdelete", {
-                        chemID: this.$route.params.chemid,
-                    })
-                    .then( this.$router.push('/chemical/database') 
-                    );
+    export default{
+        name: 'chemid',
+        components: {
+            AgGridVue,
+        },
+        data () {
+            return{
+                chemical: '',
+                showhide: false,
+                showhide2: false,
+                srcvar:'',
             }
         },
-        magnify(x) {
-            this.srcvar = x;
-            this.showhide2=true;
+        computed: {
+            url() {
+                return this.$apiname + "chemicals/" + this.$route.params.chemid
+            }
         },
-    },
-    setup(){
+        created: async function(){
+            const gResponse = await fetch(this.url);
+            const gObject = await gResponse.json();
+            this.chemical = gObject[0];
+        },
+        methods: {
+            handleDelete() {
+                if (confirm("Are you sure you want to Delete this Chemical?") == true){
+                    axios
+                        .post(this.$apiname + "chemicals/chemdelete", {
+                            chemID: this.$route.params.chemid,
+                        })
+                        .then( this.$router.push('/chemical/database') 
+                        );
+                }
+            },
+            magnify(x) {
+                this.srcvar = x;
+                this.showhide2=true;
+            },
+        },
+        setup(){
 
-        const router = useRouter()
-        const apiname = inject('apiname')
-    
-        const detailurl = apiname + "chemicals/mapinfo/" + useRoute().params.chemid;
+            const router = useRouter()
+            const apiname = inject('apiname')
         
-        const rowData = reactive({
-            value: [],
-        });
-                
-        const metapathColDefs = reactive({
-            value: [
-                {
-                    headerName:'Reaction Map', 
-                    field:'mapid', 
-                    resizable: true, 
-                    filter: 'agTextColumnFilter', 
-                    width: 150,
-                    cellRenderer: (params) => {
-                        var link = document.createElement('a');
-                        if(params.data.mapid != ''){
-                            link.innerText = "Map "+params.data.mapid;
-                            link.href = '#'
-                            link.addEventListener("click", e => {
-                                e.preventDefault();
-                                router.push('/reaction/reactionmap/'+params.data.mapid+'/mapid');
-                            })
-                        } else {
-                            link.innerText = "No Map"
-                        };
-                        return link;
-                    }
-                },
-                {headerName:'Species', field:'species', sortable: true, resizable: true, width:200},
-                {
-                    headerName:'Reference', 
-                    field:'reference', 
-                    sortable: true,  
-                    resizable: true, 
-                    filter: 'agTextColumnFilter', 
-                    width: 1050,
-                    cellRenderer: (params) => {
-                        var link = document.createElement('a');
-                        if(params.data.DOI != ''){
-                            link.href = 'https://www.doi.org/'+params.data.DOI;
-                        };
-                        link.target = 'blank_';
-                        link.innerText = params.data.reference;
-                        return link;
-                    }
-                },
-            ],
-        });
-        
-        onMounted(() => {
-            fetch(detailurl)
-                .then((result) => result.json())
-                .then((remoteRowData) => (rowData.value = remoteRowData))
-                .then();
-        });
-        
-        return{
-            metapathColDefs,
-            rowData,
-            detailurl,
-        };
-    },
-}
+            const detailurl = apiname + "chemicals/mapinfo/" + useRoute().params.chemid;
+            
+            const rowData = reactive({
+                value: [],
+            });
+                    
+            const metapathColDefs = reactive({
+                value: [
+                    {
+                        headerName:'Reaction Map', 
+                        field:'mapid', 
+                        resizable: true, 
+                        filter: 'agTextColumnFilter', 
+                        width: 150,
+                        cellRenderer: (params) => {
+                            var link = document.createElement('a');
+                            if(params.data.mapid != ''){
+                                link.innerText = "Map "+params.data.mapid;
+                                link.href = '#'
+                                link.addEventListener("click", e => {
+                                    e.preventDefault();
+                                    router.push('/reaction/reactionmap/'+params.data.mapid+'/mapid');
+                                })
+                            } else {
+                                link.innerText = "No Map"
+                            };
+                            return link;
+                        }
+                    },
+                    {headerName:'Species', field:'species', sortable: true, resizable: true, width:200},
+                    {
+                        headerName:'Reference', 
+                        field:'reference', 
+                        sortable: true,  
+                        resizable: true, 
+                        filter: 'agTextColumnFilter', 
+                        width: 1050,
+                        cellRenderer: (params) => {
+                            var link = document.createElement('a');
+                            if(params.data.DOI != ''){
+                                link.href = 'https://www.doi.org/'+params.data.DOI;
+                            };
+                            link.target = 'blank_';
+                            link.innerText = params.data.reference;
+                            return link;
+                        }
+                    },
+                ],
+            });
+            
+            onMounted(() => {
+                fetch(detailurl)
+                    .then((result) => result.json())
+                    .then((remoteRowData) => (rowData.value = remoteRowData))
+                    .then();
+            });
+            
+            return{
+                metapathColDefs,
+                rowData,
+                detailurl,
+            };
+        },
+    }
 
 </script>
 
