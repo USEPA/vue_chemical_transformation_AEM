@@ -12,7 +12,8 @@ app.use(router)
 app.use(VueCookieNext)
 app.use(BootstrapVue3)
 
-//change the apiname variable to the location of the server for the backend
+//sets up a global variable for the rest of the app to use so that the location of the backend only needs to be specified once
+//change the apiname variable to the location of the server for the backend for any new deployed location
 app.config.globalProperties.$apiname = 'http://v2626umcth819.rtord.epa.gov:9413/'
 app.provide('apiname', 'http://v2626umcth819.rtord.epa.gov:9413/')
 

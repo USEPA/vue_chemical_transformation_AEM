@@ -15,6 +15,7 @@ import SearchResults from '../views/searchresults.vue'
 import contactpage from '../views/contactpage.vue'
 import about from '../views/about.vue'
 import reactmap from '../views/reactmap.vue'
+import batchsearch from '../views/batchsearch.vue'
 
 import testpage from '../views/testpage.vue'
 
@@ -82,6 +83,10 @@ const router = createRouter({
     {
       path: '/reaction/newdetail/:reactid',
       component: newdetail
+    },
+    {
+      path: '/reaction/batchsearch',
+      component: batchsearch
     },
     {
       path: '/reaction/searchresults/:searchinput/:searchtype',

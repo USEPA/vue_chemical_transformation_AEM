@@ -2,6 +2,7 @@
     <br>
     <button v-on:click="showhide = !showhide">Hide/Show Resolved Issues</button>
         <div v-for="row in bigout">
+            <!-- show incomplete errors or all errors based on above -->
             <div v-if="showhide || row.completeflag == 0">
                 <hr>
                 <p>Page: {{row.page}}</p>
@@ -30,17 +31,21 @@ export default {
             showhide: false,
         }
     },
+    // get the error info from the backend
     created: async function(){
         const gResponse = await fetch(this.$apiname + "admin/database");
         const gObject = await gResponse.json();
         this.bigout = gObject;
     },
     methods:{
+        // function for marking an issue as resolved
         resolve(id) {
             axios
+                // tell the backend to mark the issue as resolved
                 .post(this.$apiname + "admin/resolve", {
                     idnum: id,
                 })
+                // refresh the page
                 .then( this.$router.go() );
         },
     }

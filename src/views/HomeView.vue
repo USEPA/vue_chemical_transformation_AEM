@@ -1,16 +1,17 @@
 <template>
-  <main>
-    <p style="text-align:center">Welcome to the Chemical Transformations Database</p> <br><br>
-  </main>
-  <body>
-    <div style="text-align:center; color:white; background-color:#0e6993; padding-top:30px; margin-right:32%; margin-left:32%;">
-      Search: &nbsp; &nbsp;<input style='width:245px' type="text" list="typeaheadlist" v-model="input" placeholder="Name, DTXSID, CASRN, InChI key" /> <br><br> <!-- CASRN -->
-      <datalist id="typeaheadlist">
-        <option v-for="row in bigout" :value="row.dtxsid" :label="row.primary_name + '  CASRN:  ' + row.casrn + '  InChI:  ' + row.inchi"></option>
-      </datalist>
-      <button @click="$router.push('/reaction/searchresults/' + input + '/any')">Submit</button> <br><br>
-    </div>
-  </body>
+    <main>
+        <p style="text-align:center">Welcome to the Chemical Transformations Database</p> <br><br>
+    </main>
+    <body>
+        <div style="text-align:center; color:white; background-color:#0e6993; padding-top:30px; margin-right:32%; margin-left:32%;">
+            Search: &nbsp; &nbsp;<input style='width:245px' type="text" list="typeaheadlist" v-model="input" placeholder="Name, DTXSID, CASRN, InChI key" /> <br><br> <!-- CASRN -->
+            <!-- Suggested Search, substring match on various identifiers -->
+            <datalist id="typeaheadlist">
+                <option v-for="row in bigout" :value="row.dtxsid" :label="row.primary_name + '  CASRN:  ' + row.casrn + '  InChI:  ' + row.inchi"></option>
+            </datalist>
+            <button @click="$router.push('/reaction/searchresults/' + input + '/any')">Search</button> <br><br>
+        </div>
+    </body>
 </template>
 
 <script>
@@ -26,6 +27,7 @@ export default {
             input,
         }
     },
+    // get the chemical info from the backend for the suggested search list
     created: async function(){
         const url = this.$apiname + "chemicals/database";
         const gResponse = await fetch(url);

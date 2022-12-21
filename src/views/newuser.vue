@@ -21,13 +21,16 @@ export default{
         }
     },
     methods: {
+        // function for submitting a new user
         NewUserSubmit() {
             axios
+                // sends the new username, new password, and dev password to the backend
                 .post(this.$apiname + "admin/register", {
                     username: this.username,
                     password: this.password,
                     dev: this.dev,
                 })
+                // redirects the user to the login page
                 .then( this.$router.push('/login') );
         },
     },

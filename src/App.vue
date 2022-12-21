@@ -5,8 +5,11 @@
             <EPA_header />
         </div>
     </transition>
+    <!-- Commented out, if returned remove the corresponding item from the header component -->
     <!-- <crossnav/> -->
+    <!-- Inherits Show/Hide value from component -->
     <Header v-on:toggleHeader="(value) => this.showhide = value"/>
+    <!-- Displays the page specified by the URL -->
     <router-view :key="$route.path"></router-view>
     <br>
     <transition>
@@ -21,7 +24,7 @@
         </div>
     </transition>
     <div style="position:fixed; bottom:5px; right:25px">
-        Version: 1.0.1
+        Version: 1.1.0
     </div>
 </template>
 
@@ -50,10 +53,12 @@ export default {
             popup_showhide: true,
             }
     },
+    // Give a name to tabs/windows containing the app
     metaInfo: {
         title: 'CTDB - Chemical Transformations Database',
         titleTemplate: '%s',
     },
+    // Sets time for fade in/out of the EPA header and the popup explaining it
     mounted: async function(){
         setTimeout(() => this.showhide = false, 1500)
         setTimeout(() => this.popup_showhide = false, 5000)
@@ -90,7 +95,7 @@ nav h1 { flex: auto; margin: 0; }
 nav h1 a { text-decoration: none; padding: 0.25rem 0.5rem; }
 nav ul  { display: flex; list-style: none; margin: 0; padding: 0; }
 nav ul li a, nav ul li span, header .action { display: block; padding: 0.5rem; }
-table, th, td {border: 1px solid black; font-size:10px; text-align: center;}
+table, th, td {border: 1px solid black; font-size:16px; text-align: center;}
 td:empty::before {content: "---"}
 .content { padding: 0 1rem 1rem; }
 .content > header { border-bottom: 1px solid lightgray; display: flex; align-items: flex-end; }

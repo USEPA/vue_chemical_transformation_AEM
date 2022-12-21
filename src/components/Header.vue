@@ -4,12 +4,16 @@
         <div>
           <h1 class="navstyle" style="font-size:22px"><RouterLink to="/">Chemical Transformations Database &nbsp; &nbsp;</RouterLink></h1>  
         </div>
-        <b-nav><h1 class="navstyle" style="font-size:16px"><RouterLink to="/chemical/database">Search Chemicals</RouterLink></h1></b-nav>
+        <b-nav-item-dropdown text="Search" class="navstyle" style="font-size:16px">
+          <b-dropdown-item to="/chemical/database">Browse Chemicals</b-dropdown-item>
+          <b-dropdown-item to="/reaction/batchsearch">Batch Search</b-dropdown-item>
+        </b-nav-item-dropdown>
         <b-nav-item-dropdown text="Reaction Lists" class="navstyle" style="font-size:16px">
           <b-dropdown-item to="/reaction/database">Complete Reaction Database</b-dropdown-item>
           <b-dropdown-item to="/reaction/searchresults/hydrolysis/reaction_library">Abiotic Hydrolysis</b-dropdown-item>
           <b-dropdown-item to="/reaction/searchresults/PFAS/reaction_library">PFAS</b-dropdown-item>
           <b-dropdown-item to="/reaction/searchresults/metapath/reaction_library">MetaPath</b-dropdown-item>
+          <!--<b-dropdown-item to="/reaction/searchresults/photolysis/reaction_library">Photolysis</b-dropdown-item>-->
         </b-nav-item-dropdown>
         <b-nav-item-dropdown text="Tools" class="navstyle" style="font-size:16px">
           <div v-if="this.$cookie.getCookie('user')">

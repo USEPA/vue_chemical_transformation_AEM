@@ -2,10 +2,13 @@
     <h2 v-if="this.$route.params.searchtype == 'chemical'">
         Reaction Map For {{chemical.primary_name}}
     </h2>
-    <h2 v-else>
+    <h2 v-else-if="this.$route.params.searchtype == 'mapid'">
         Reaction Map {{this.$route.params.searchinput}}
     </h2>
-    <div v-if="showhide">
+    <h2 v-else-if="this.$route.params.searchtype == 'compare'">
+        Reaction Maps {{this.$route.params.searchinput.replace('_',' & ').replace('_',' & ')}}
+    </h2>
+    <div v-if="(showhide && this.$route.params.searchtype != 'compare')">
         <button @click="showhide=false">Hide Instructions</button> <br>
         Click and Drag the Background or Scroll with the Mouse Wheel to Alter the Viewport <br>
         Click and Drag a Chemical to Move it in the Viewport <br>
@@ -20,17 +23,67 @@
         Use the Search Box to Search for a Chemical within the Map by DTXSID or Name, Matches will be Highlighted in Yellow <span style="color:yellow">&#9632;</span> <br>
         Click on a Map ID in the Table to Highlight all Reactions within that map in Purple <span style="color:#b50255">&#9632;</span><br>
     </div>
-    <div v-else>
+    <div v-else-if="(this.$route.params.searchtype != 'compare')">
         <button @click="showhide=true">Show Instructions</button>
     </div>
-    <div v-if="this.$route.params.searchtype == 'chemical'">
+    <!-- the grid setup is in the script section, the grid will only display if there are entries -->
+    <div v-if="this.$route.params.searchtype == 'chemical' && (metarowData.value.length != 0 | pfasrowData.value.length != 0)">
+        <div v-if="metarowData.value.length != 0">
+            <ag-grid-vue
+                class="ag-theme-balham"
+                domLayout="autoHeight"
+                @grid-ready="onGridReady"
+                :columnDefs="metapathColDefs.value"
+                :rowData="metarowData.value"
+                :enableBrowserTooltips="true">
+            </ag-grid-vue>
+        </div>
+        <div v-if="pfasrowData.value.length != 0">
+            <ag-grid-vue
+                class="ag-theme-balham"
+                domLayout="autoHeight"
+                @grid-ready="onGridReady"
+                :columnDefs="pfasColDefs.value"
+                :rowData="pfasrowData.value"
+                :enableBrowserTooltips="true">
+            </ag-grid-vue>
+        </div>
+        <div v-if="(this.openMaps.length == 2)">
+            <router-link v-bind:to="'/reaction/reactionmap/'+this.openMaps[0]+'_'+this.openMaps[1]+'/compare'">Compare Open Maps</router-link>
+        </div>
+        <div v-else-if="(this.openMaps.length == 3)">
+            <router-link v-bind:to="'/reaction/reactionmap/'+this.openMaps[0]+'_'+this.openMaps[1]+'_'+this.openMaps[2]+'/compare'">Compare Open Maps</router-link>
+        </div>
+        <div v-else>
+            Open Two or Three Maps to Compare Them
+        </div>
+    </div>
+    <div v-if="this.$route.params.searchtype == 'compare' && metarowData.value.length != 0">
         <ag-grid-vue
             class="ag-theme-balham"
             domLayout="autoHeight"
-            :columnDefs="metapathColDefs.value"
-            :rowData="rowData.value"
+            @grid-ready="onGridReady"
+            :columnDefs="compareColDefs.value"
+            :rowData="metarowData.value"
             :enableBrowserTooltips="true">
         </ag-grid-vue>
+    </div>
+    <div v-if="this.$route.params.searchtype == 'compare' && pfasrowData.value.length != 0">
+        <ag-grid-vue
+            class="ag-theme-balham"
+            domLayout="autoHeight"
+            @grid-ready="onGridReady"
+            :columnDefs="compareColDefs.value"
+            :rowData="pfasrowData.value"
+            :enableBrowserTooltips="true">
+        </ag-grid-vue>
+    </div>
+    <div v-if="(this.$route.params.searchtype == 'compare')">
+        Map {{this.$route.params.searchinput.split('_')[0]}} <span style="color:#0072B2">&#9632;</span> <br>
+        Map {{this.$route.params.searchinput.split('_')[1]}} <span style="color:#D55E00">&#9632;</span> <br>
+        <div v-if="(this.$route.params.searchinput.split('_')[2])">
+            Map {{this.$route.params.searchinput.split('_')[2]}} <span style="color:#b50255">&#9632;</span> <br>
+        </div>
     </div>
     <button @click="openall()">Show All Chemicals</button>
     <button @click="closeall()">Hide All Chemicals</button> <br>
@@ -38,14 +91,13 @@
     <button @click="searchmap(input)">Submit</button>
     <button @click="searchmap('qqqqqq')">Clear Search</button> <br>
     <button @click="handleMapExport()">Export Visible Map</button>
-    <div v-if="openMaps.length > 0">Open Maps: {{openMaps}}</div>
     <div id="graph"></div>
 </template>
 
 <script>
 
-import {ref, reactive, onMounted, inject} from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import {ref, reactive} from 'vue'
+import { useRoute } from 'vue-router'
 import ForceGraph from 'force-graph'
 import axios from 'axios'
 import {AgGridVue} from 'ag-grid-vue3'
@@ -59,10 +111,15 @@ export default {
     },
     data(){
         const input = ref("");
-        const detailurl = this.$apiname + "chemicals/mapinfo/" + useRoute().params.searchinput;
-        const rowData = reactive({
+        const metaurl = this.$apiname + "chemicals/mapinfo/" + useRoute().params.searchinput + "/metapath";
+        const pfasurl = this.$apiname + "chemicals/mapinfo/" + useRoute().params.searchinput + "/pfas";
+        const metarowData = reactive({
             value: [],
         });
+        const pfasrowData = reactive({
+            value: [],
+        });
+        // Defines the columns for AG Grid for the single chemical view 
         const metapathColDefs = reactive({
             value: [
                 {
@@ -71,6 +128,15 @@ export default {
                     resizable: true, 
                     filter: 'agTextColumnFilter', 
                     width: 150,
+                    // code for coloring cells when they are included in an open map, forceRefresh necessary below
+                    cellStyle: params => {
+                        if(this.openMaps.includes(params.data.mapid)){
+                            return {backgroundColor:'#c7dbed'};
+                        } else {
+                            return {backgroundColor:''}
+                        };
+                    },
+                    // code for setting up a link in the cell which emits an event which will show or hide the chemicals and reactions in a map
                     cellRenderer: (params) => {
                         var link = document.createElement('a');
                         if(params.data.mapid != ''){
@@ -84,7 +150,7 @@ export default {
                             link.innerText = "No Map"
                         };
                         return link;
-                    }
+                    },
                 },
                 {
                     headerName:'Highlight Map', 
@@ -92,6 +158,15 @@ export default {
                     resizable: true, 
                     filter: 'agTextColumnFilter', 
                     width: 150,
+                    // code for coloring cells when they are included in a highlighted map, forceRefresh necessary below
+                    cellStyle: params => {
+                        if(this.highlightMaps.includes(params.data.mapid)){
+                            return {backgroundColor:'#c7dbed'};
+                        } else {
+                            return {backgroundColor:''}
+                        };
+                    },
+                    // code for setting up a link in the cell which emits an event which will highlight the chemicals and reactions in a map
                     cellRenderer: (params) => {
                         var link = document.createElement('a');
                         if(params.data.mapid != ''){
@@ -115,6 +190,7 @@ export default {
                     resizable: true, 
                     filter: 'agTextColumnFilter', 
                     width: 1050,
+                    // code for adding an external link to a grid column
                     cellRenderer: (params) => {
                         var link = document.createElement('a');
                         if(params.data.DOI != ''){
@@ -127,6 +203,119 @@ export default {
                 },
             ],
         });
+
+        // Defines the columns for AG Grid for the single chemical view 
+        const pfasColDefs = reactive({
+            value: [
+                {
+                    headerName:'Show/Hide Map', 
+                    field:'mapid', 
+                    resizable: true, 
+                    filter: 'agTextColumnFilter', 
+                    width: 150,
+                    // code for coloring cells when they are included in an open map, forceRefresh necessary below
+                    cellStyle: params => {
+                        if(this.openMaps.includes(params.data.mapid)){
+                            return {backgroundColor:'#c7dbed'};
+                        } else {
+                            return {backgroundColor:''}
+                        };
+                    },
+                    // code for setting up a link in the cell which emits an event which will show or hide the chemicals and reactions in a map
+                    cellRenderer: (params) => {
+                        var link = document.createElement('a');
+                        if(params.data.mapid != ''){
+                            link.innerText = "Map "+params.data.mapid;
+                            link.href = '#'
+                            link.addEventListener("click", e => {
+                                e.preventDefault();
+                                this.openmap(params.data.mapid);
+                            })
+                        } else {
+                            link.innerText = "No Map"
+                        };
+                        return link;
+                    },
+                },
+                {
+                    headerName:'Highlight Map', 
+                    field:'mapid', 
+                    resizable: true, 
+                    filter: 'agTextColumnFilter', 
+                    width: 150,
+                    // code for coloring cells when they are included in a highlighted map, forceRefresh necessary below
+                    cellStyle: params => {
+                        if(this.highlightMaps.includes(params.data.mapid)){
+                            return {backgroundColor:'#c7dbed'};
+                        } else {
+                            return {backgroundColor:''}
+                        };
+                    },
+                    // code for setting up a link in the cell which emits an event which will highlight the chemicals and reactions in a map
+                    cellRenderer: (params) => {
+                        var link = document.createElement('a');
+                        if(params.data.mapid != ''){
+                            link.innerText = "Map "+params.data.mapid;
+                            link.href = '#'
+                            link.addEventListener("click", e => {
+                                e.preventDefault();
+                                this.highlightmap(params.data.mapid);
+                            })
+                        } else {
+                            link.innerText = "No Map"
+                        };
+                        return link;
+                    }
+                },
+                {headerName:'Reaction System', field:'reaction_system', sortable: true, resizable: true, width:200},
+                {
+                    headerName:'Reference', 
+                    field:'reference', 
+                    sortable: true,  
+                    resizable: true, 
+                    filter: 'agTextColumnFilter', 
+                    width: 1050,
+                    // code for adding an external link to a grid column
+                    cellRenderer: (params) => {
+                        var link = document.createElement('a');
+                        if(params.data.DOI != ''){
+                            link.href = 'https://www.doi.org/'+params.data.DOI;
+                        };
+                        link.target = 'blank_';
+                        link.innerText = params.data.reference;
+                        return link;
+                    }
+                },
+            ],
+        });
+
+        // Defines the columns for AG Grid for the map comparison view 
+        const compareColDefs = reactive({
+            value: [
+                {headerName:'Map ID', field:'mapid', resizable: true, filter: 'agTextColumnFilter', width: 150},
+                {headerName:'Species', field:'species', sortable: true, resizable: true, width:200},
+                {headerName:'Reaction System', field:'reaction_system', sortable: true, resizable: true, width:200},
+                {
+                    headerName:'Reference', 
+                    field:'reference', 
+                    sortable: true,  
+                    resizable: true, 
+                    filter: 'agTextColumnFilter', 
+                    width: 1050,
+                    // code for adding an external link to a grid column
+                    cellRenderer: (params) => {
+                        var link = document.createElement('a');
+                        if(params.data.DOI != ''){
+                            link.href = 'https://www.doi.org/'+params.data.DOI;
+                        };
+                        link.target = 'blank_';
+                        link.innerText = params.data.reference;
+                        return link;
+                    }
+                },
+            ],
+        });
+
         return {
             maps:'',
             searchstring:'',
@@ -135,28 +324,28 @@ export default {
             openMaps: [],
             highlightMaps: [],
             reactlist:[],
-            rowData,
+            metarowData,
+            pfasrowData,
             Graph: '',
             input,
             metapathColDefs,
-            detailurl,
+            pfasColDefs,
+            compareColDefs,
+            metaurl,
+            pfasurl,
             showhide:false,
             chemname:'',
             chemical:'',
+            gridApi:null,
         }
     },
     computed: {
-        url() {
-            return this.$apiname + "chemicals/mapinfo/" + this.$route.params.searchinput
-        },
         chemurl() {
             return this.$apiname + "chemicals/" + this.$route.params.searchinput
         },
     },
+    // get the chemical info and map info from the backend
     created: async function(){
-        const gResponse = await fetch(this.url);
-        const gObject = await gResponse.json();
-        this.maps = gObject;
         const chemResponse = await fetch(this.chemurl);
         const chemObject = await chemResponse.json();
         this.chemical = chemObject[0];
@@ -167,26 +356,36 @@ export default {
         this.reactlist = []
         this.searchstring = '____'
 
-        fetch(this.detailurl).then((result) => result.json()).then((remoteRowData) => (this.rowData.value = remoteRowData));
+        // gets the row data from the backend for AG grid
+        fetch(this.metaurl).then((result) => result.json()).then((remoteRowData) => (this.metarowData.value = remoteRowData));
+        fetch(this.pfasurl).then((result) => result.json()).then((remoteRowData) => (this.pfasrowData.value = remoteRowData));
         
+        // gets the map data from the backend, then sets up the forcegraph map
         fetch(this.$apiname + "reaction/reactionmap/" + this.$route.params.searchinput + "/" + this.$route.params.searchtype).then(res => res.json()).then(data => {
+            // defines the graph and places it in the HTML element named 'graph'
             this.Graph = ForceGraph()(document.getElementById('graph'))
             const N = 10
             let k = 0
+            // defines a root node, either the chemical we entered with or the first chemical in the map, this node will always be visible
             const rootnode = (this.$route.params.searchtype == 'chemical' ? this.$route.params.searchinput : data.nodes[0]['id'])
+            // sets up an object which keeps track of the visible nodes
             this.visibleNodes = [rootnode]
             this.Graph.width(window.innerWidth-115)
             this.Graph.backgroundColor('#a9b2ba')
+            // necessary for snapping to the center
             this.Graph.autoPauseRedraw(false)
+            // this makes the graph self organize into a useful tree when there are no cycles
             this.Graph.dagMode('td')
             this.Graph.dagLevelDistance(2.2*N)
             this.Graph.zoom(15)
+            // gets the data for the graph
             this.Graph.graphData(data)
             this.Graph.nodeVal(1)
             this.Graph.cooldownTime(200)
             this.Graph.d3Force('charge').strength(-2)
             this.Graph.d3Force('link').distance(2*N)
             this.Graph.nodeId('id')
+            // builds the node hover with image, name, and DTXSID
             this.Graph.nodeLabel(node => {
                 const scrString = "<div style='text-align:center;'><img src='data:image/png;base64," + node.img + "' style='width:150px;height:150px;'/> <br>" + node.name + " </div>"
                 return scrString
@@ -194,8 +393,10 @@ export default {
             this.Graph.linkSource('source')
             this.Graph.linkTarget('target')
             this.Graph.nodeVisibility(node => this.visibleNodes.includes(node.id))
+            // draws the nodes
             this.Graph.nodeCanvasObject(({img,x,y,id,name,neighbors}, ctx) => {
                 const size=N; 
+                // draws the highlighting box
                 ctx.beginPath();
                 ctx.moveTo(x-(N/2),y-(N/2));
                 ctx.lineTo(x+(N/2),y-(N/2));
@@ -203,10 +404,13 @@ export default {
                 ctx.lineTo(x-(N/2),y+(N/2));
                 ctx.lineTo(x-(N/2),y-(N/2)-(1)); //necessary to prevent blank corner
                 ctx.lineWidth = 2;
+                // color the node highlighting, first based on whether it is searched, then based on whether it is the root node, then whether it is open, then whether there is more information if it was to be opened, then finally a default black
                 ctx.strokeStyle = (name.toLowerCase().includes(this.searchstring.toLowerCase())) ? 'yellow' : (id == rootnode) ? '#06c43c' : (this.openNodes.includes(id) ? '#0072B2' : (neighbors.some(node => !this.visibleNodes.includes(node))) ? 'red': 'black');
                 ctx.stroke();
+                // draws the image of the chemical
                 ctx.drawImage(this.imgconvert(img), x-size/2, y-size/2, size, size);
-                if(id == rootnode && k < 100){
+                // while drawing nodes, centers the graph on the root for the first 50 ticks
+                if(id == rootnode && k < 50){
                     this.Graph.centerAt(x,y)
                     k=k+1
                 };
@@ -215,57 +419,100 @@ export default {
             this.Graph.linkWidth(2)
             this.Graph.linkDirectionalArrowLength(2)
             this.Graph.linkDirectionalArrowRelPos(0.6)
+            // colors the links
             this.Graph.linkColor(link => {
+                // for the comparison view, colors the maps differently
+                if(this.$route.params.searchtype == 'compare'){
+                    if(link.map == 0){return '#0072B2'} else if (link.map == 1){return '#D55E00'} else {return '#b50255'}
+                } else
+                // for the non-comparison view, colors highlighted maps
                 if(this.reactlist.includes(link.reactID)){return '#b50255'} else
+                // colors based on whether a parent or product is highlighted
                 if(this.openNodes.includes(link.source.id)){return '#0072B2'} else
                 if(this.openNodes.includes(link.target.id)){return '#D55E00'} else
                 return ''
             })
+            // curves the links for the comparison view
+            this.Graph.linkCurvature(link => {
+                if(this.$route.params.searchtype == 'compare'){
+                    if(link.map == 0){return 0.05} else if (link.map == 1){return -0.05} else {return 0}
+                } else 
+                return 0
+            })
+            // turns off the forces when the engine stops so that you can drag nodes around without other nodes moving
             this.Graph.onEngineStop(() => 
                 this.Graph.d3Force('charge',null),
                 this.Graph.d3Force('link',null),
                 this.Graph.d3Force('center',null))
+            // fixes a node so that when you drag the node it stays in place after you release it
             this.Graph.onNodeDragEnd(node => { node.fx = node.x; node.fy = node.y;})
+            // shows/hides the node's neighbors when you click on it
             this.Graph.onNodeClick(node => {
+                // case for when the node is already open
                 if (this.openNodes.includes(node.id)){
                     var $this = this;
+                    // remove the node from the list of open nodes
                     this.openNodes = this.openNodes.filter(v => v != node.id);
+                    // remove the neighbors from the visible list
+                    // only removes one instance so if they have been opened manually or are shown by another map/neighbor they will remain visible
                     node.neighbors.forEach(function(v) {
                         const index = $this.visibleNodes.findIndex(x => x==v);
                         $this.visibleNodes.splice(index,1);
                     })
+                    // removes the node from the visible list so it can be hidden again
                     this.visibleNodes.splice(this.visibleNodes.findIndex(x => x==node.id),1);
                 } else {
+                    // add the neighbors to the visible list
                     this.visibleNodes = this.visibleNodes.concat(node.neighbors);
+                    // adds the node to the visible list so it can't be hidden while it is still open
                     this.visibleNodes = this.visibleNodes.concat(node.id);
+                    // add the node to the list of open nodes
                     this.openNodes = [...new Set(this.openNodes.concat(node.id))];
                 }
+                // make sure the root node is always visible
                 this.visibleNodes.concat(rootnode)
+                // update the graph's nodes and links
                 this.Graph.nodeVisibility(node => this.visibleNodes.includes(node.id));
                 this.Graph.linkVisibility(link => this.visibleNodes.includes(link.source.id) && this.visibleNodes.includes(link.target.id));
             })
         });
     },
     methods:{
+        // returns an image object from a bas64 image string, used to get images as force-graph nodes
         imgconvert: function(img){
             const image = new Image();
             image.src = 'data:image/png;base64,'+ img;
             return image;
         },
+        onGridReady(params) {
+            this.gridApi = params.api;
+            this.gridColumnApi = params.columnApi;
+        },
+        // opens all nodes in the graph (JSON.pares(JSON.stringify()) syntax used because we are not in the graph object)
         openall: async function(){
+            // get the list of all nodes in the graph and their neighbors
             const gData = await(fetch(this.$apiname + "reaction/reactionmap/" + this.$route.params.searchinput + "/" + this.$route.params.searchtype).then(res => res.json()).then(data => {return data}))
             gData.nodes.forEach(node => {
+                // add nodes to the list of open and visible nodes
                 this.openNodes = JSON.parse(JSON.stringify(this.openNodes)).concat(node.id);
-                this.visibleNodes = JSON.parse(JSON.stringify(this.visibleNodes)).concat(node.neighbors);
                 this.visibleNodes = JSON.parse(JSON.stringify(this.visibleNodes)).concat(node.id);
+                // add each set of neighbors to the list of visible nodes again so that when a node is closed it doesn't remove nodes that should be visible from the map
+                this.visibleNodes = JSON.parse(JSON.stringify(this.visibleNodes)).concat(node.neighbors);
+                // faster way to open all nodes and links
                 this.Graph.nodeVisibility(true);
                 this.Graph.linkVisibility(true);
             })
+            // update the cell color
+            this.gridApi.refreshCells({force:true})
         },
+        // opens/closes the nodes in a single pre-built map
         openmap: async function(id){
+            // get the list of nodes and reactions within the map
             const mapreactions = await(fetch(this.$apiname + "reaction/mapid/" + id)).then(res => res.json());
             if(this.openMaps.includes(id)){
+                // remove the map id from the list of open maps
                 this.openMaps = this.openMaps.filter(v => v != id);
+                // remove the parent and product for each link in the map from the list of visible nodes
                 mapreactions.forEach( reaction => {
                     const x = JSON.stringify(reaction.parent_IDnum);
                     const index = this.reactlist.findIndex(v => v==x);
@@ -276,8 +523,9 @@ export default {
                     this.Graph.linkVisibility(link => this.visibleNodes.includes(link.source.id) && this.visibleNodes.includes(link.target.id));
                 });
             } else{
+                // add the map id to the list of open maps
                 this.openMaps.push(id);
-                console.log(mapreactions);
+                // add the parent and product for each link in the map to the list of open nodes
                 mapreactions.forEach(reaction => {
                     this.openNodes = JSON.parse(JSON.stringify(this.openNodes)).concat(reaction.parent_IDnum);
                     this.visibleNodes = JSON.parse(JSON.stringify(this.visibleNodes)).concat(reaction.parent_IDnum);
@@ -286,24 +534,33 @@ export default {
                     this.Graph.linkVisibility(link => this.visibleNodes.includes(link.source.id) && this.visibleNodes.includes(link.target.id));
                 })
             }
+            this.gridApi.refreshCells({force:true});
         },
+        // highlights the links in a single pre-built map
         highlightmap: async function(id){
+            // get the list of nodes and reactions within the map
             const mapreactions = await(fetch(this.$apiname + "reaction/mapid/" + id)).then(res => res.json());
             if(this.highlightMaps.includes(id)){
+                // remove the map id from the list of highlighted maps
                 this.highlightMaps = this.highlightMaps.filter(v => v != id);
+                // remove the reaction id's within the map from the list of highlighted reactions
                 mapreactions.forEach( reaction => {
                     const x = JSON.stringify(reaction.reaction_id);
                     const index = this.reactlist.findIndex(v => v==x);
                     this.reactlist.splice(index,1);
                 });
             } else{
+                // add the map id to the list of highlighted maps
                 this.highlightMaps.push(id);
+                // add the reaction id's within the map to the list of highlighted reactions
                 mapreactions.forEach(reaction => {
                     const x = JSON.stringify(reaction.reaction_id);
                     this.reactlist.push(x);
                 })
             }
+            this.gridApi.refreshCells({force:true});
         },
+        // adds a string that the graph will check against and highlight matches
         searchmap: async function(string){
             if(string.length > 0){
                 this.searchstring = string
@@ -311,25 +568,32 @@ export default {
                 this.searchstring = 'qqqqqqqq'
             }
         },
+        // closes all nodes except the root
         closeall: async function(){
+            // get the list of nodes
             const gData = await(fetch(this.$apiname + "reaction/reactionmap/" + this.$route.params.searchinput + "/" + this.$route.params.searchtype).then(res => res.json()).then(data => {return data}))
+            // determine the root node
             const rootnode = (this.$route.params.searchtype == 'chemical' ? this.$route.params.searchinput : gData.nodes[0]['id'])
+            // set open and visible maps, nodes, and links
             this.openNodes = [];
+            this.openMaps = [];
             this.visibleNodes = [rootnode];
             this.Graph.nodeVisibility(node => this.visibleNodes.includes(node.id));
             this.Graph.linkVisibility(false);
+            // update the cell color
+            this.gridApi.refreshCells({force:true})
         },
+        // function for exporting the reactions currently visible in the map
         handleMapExport: function(){
-            console.log(this.$route.params.searchtype)
-            console.log(this.visibleNodes)
-            
             axios
+                // sends the map information to the backend
                 .post(this.$apiname + "reaction/map_DL", {
                     searchtype : this.$route.params.searchtype,
                     mapid : this.$route.params.searchinput,
                     chemicals : this.visibleNodes,
                     responseType: 'blob',
                 })
+                // get the file setup by the backend and open a download window
                 .then((res) => {
                     let data = res.data;
                     const blob = new Blob([data], { type: 'application/zip' })

@@ -3,6 +3,7 @@
         <h1 style="font-size:25px">Contact Us</h1>
     </main>
     <body>
+        <!-- link will open mail dialogue -->
         <p>
             Antony J. Williams<br>
             Email: <a href="mailto:Williams.Antony@epa.gov?subject=Chemical Transformations Database - Contact Us">Williams.Antony@epa.gov</a> <br>
