@@ -599,7 +599,15 @@ export default {
                     const blob = new Blob([data], { type: 'application/zip' })
                     let link = document.createElement('a')
                     link.href = window.URL.createObjectURL(blob)
-                    link.download = this.input+'_chemical_list.csv'
+                    if(this.$route.params.searchtype == 'mapid'){
+                        link.download = 'reaction_map_'+this.$route.params.searchinput+'.csv'
+                    }
+                    else if(this.$route.params.searchtype == 'compare'){
+                        link.download = 'reaction_map_comparison_'+this.$route.params.searchinput+'.csv'
+                    }
+                    else {
+                        link.download = this.chemical.primary_name+'_reaction_map.csv'
+                    }
                     link.click()
                 });
         },

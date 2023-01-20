@@ -40,7 +40,7 @@
         <button @click="hydroDL">Download Template for Hydrolysis Reactions</button> <br>
         <button @click="pfasDL">Download Template for PFAS Reactions</button> <br>
         <button @click="metaDL">Download Template for Metapath Reactions</button> <br>
-        <button @click="photoDL">Download Template for Metapath Reactions</button> <br><br>
+        <button @click="photoDL">Download Template for Photolysis Reactions</button> <br><br>
         <!-- file input that uploads when a new filepath is offered -->
         <form @submit.prevent="handleSubmitFile">
             <input type="file" @change="uploadFile" ref="file"> <br>
