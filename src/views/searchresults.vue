@@ -1,4 +1,5 @@
 <template>
+    {{ filteredlist.length }} reactions returned from {{ searchinfo(filteredlist) }} search terms out of {{ bigout[bigout.length-1] }} searched <br><br>
     Filter Results:<br>
     <input style="width:255px" type="text" v-model="searchinput" placeholder="Name, DTXSID, or Reaction Detail" /> <br>
     <br> <button v-on:click="handleDownload">Export Reaction Details</button> 
@@ -77,7 +78,7 @@ export default {
                 });
             } else {
                 // don't filter if there's no input
-                return this.bigout
+                return this.bigout.slice(0,-1)
             }
         },
     },
@@ -100,6 +101,8 @@ export default {
                     link.click()
                 });
         },
+
+        // code for creating an on-hover popup with information about the searched chemical
         show_hover(event,row) {
             this.showhide = true;
             this.calctext = row.searchchem;
@@ -108,6 +111,15 @@ export default {
             this.calcx = event.currentTarget.getBoundingClientRect().x+250;
             this.calcy = event.currentTarget.getBoundingClientRect().y+20;
         },
+
+        searchinfo(list) {
+            let idlist = []
+            for(let row in list){
+                idlist.push(list[row].searchterm)
+            }
+            let idset = new Set(idlist)
+            return idset.size
+        }
     },
 }
 
