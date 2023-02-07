@@ -1,5 +1,7 @@
 <template>
-    {{ filteredlist.length }} reactions returned from {{ searchinfo(filteredlist) }} search terms out of {{ bigout[bigout.length-1] }} searched <br><br>
+    <div v-if="search_type=='batch'">
+        {{ filteredlist.length }} reactions returned from {{ searchinfo(filteredlist) }} search terms out of {{ bigout[bigout.length-1] }} searched <br><br>
+    </div>
     Filter Results:<br>
     <input style="width:255px" type="text" v-model="searchinput" placeholder="Name, DTXSID, or Reaction Detail" /> <br>
     <br> <button v-on:click="handleDownload">Export Reaction Details</button> 
@@ -38,10 +40,12 @@ export default {
     data () {
         const searchinput = ref("");
         const url = this.$apiname + "reaction/search/" + this.$route.params.searchinput + '/' + this.$route.params.searchtype ;
+        const search_type = this.$route.params.searchtype
 
         return {
             bigout: '',
             searchinput,
+            search_type,
             url,
             showhide:false,
             calcx:0,
