@@ -1,4 +1,5 @@
 <template>
+    <!-- displays information about number of hits if a batch search is performed -->
     <div v-if="search_type=='batch'">
         {{ filteredlist.length }} reactions returned from {{ searchinfo(filteredlist) }} search terms out of {{ bigout[bigout.length-1] }} searched <br><br>
     </div>
@@ -82,7 +83,12 @@ export default {
                 });
             } else {
                 // don't filter if there's no input
-                return this.bigout.slice(0,-1)
+                if (this.search_type=='batch'){
+                    return this.bigout.slice(0,-1)
+                }
+                else{
+                    return this.bigout
+                }
             }
         },
     },
