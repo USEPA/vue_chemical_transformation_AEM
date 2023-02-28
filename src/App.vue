@@ -24,7 +24,7 @@
         </div>
     </transition>
     <div style="position:fixed; bottom:5px; right:25px">
-        Version: 1.1.6
+        Version: 1.1.7
     </div>
 </template>
 

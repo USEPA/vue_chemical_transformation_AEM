@@ -27,13 +27,13 @@
         <div class="tileset">
         <!-- tile formatting is handled mostly by the css styling -->
         <div class="tile" v-for="row in filteredlist">
-            <p style="text-overflow: ellipsis; overflow: hidden; white-space: nowrap;">Name: <router-link v-bind:to="'/reaction/searchresults/'+row.local_IDnum+'/ID'"> {{row.primary_name}} </router-link> </p>
+            <p style="text-overflow: ellipsis; overflow: hidden; white-space: nowrap;">Name: <router-link v-bind:to="'/chemical/'+row.dtxsid"> {{row.primary_name}} </router-link> </p>
             <p><img v-bind:src="'data:image/png;base64,'+row.image" v-on:click="magnify('data:image/png;base64,'+row.image)" alt="missing image" style="display: block; margin-left: auto; margin-right: auto; width:150px; height:150px;" /> </p>
             <p>DTXSID: <a :href="'https://comptox.epa.gov/dashboard/chemical/details/' + row.dtxsid" target="_blank"> {{row.dtxsid}} ↗</a></p>
         </div>
         </div>
         <!-- if the data have not loaded yet indicates that a search is underway -->
-        <div v-if="!bigout.length">
+        <div v-if="!bigout.length & timer">
             <br> <p style="font-size:25px">Searching...</p>
         </div>
         <!-- if the data have loaded but all elements have been filtered out of the list, indicate that there is no match -->
@@ -73,10 +73,12 @@
                 input,
                 showhide: false,
                 srcvar:'',
+                timer:true,
             }
         },
         // get the database JSON from the backend
         created: async function(){
+            setTimeout(()=>(this.timer = false),30000);
             const url = this.$apiname + "chemicals/database";
             const gResponse = await fetch(url);
             const gObject = await gResponse.json();
@@ -161,7 +163,7 @@
                             link.innerText = params.data.primary_name;
                             link.addEventListener('click', (e) => {
                                 e.preventDefault();
-                                router.push('/reaction/searchresults/' + params.data.local_IDnum + '/ID');
+                                router.push('/reaction/searchresults/' + params.data.dtxsid + '/ID');
                                 }
                             );
                             return link;

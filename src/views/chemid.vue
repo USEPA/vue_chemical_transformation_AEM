@@ -1,7 +1,6 @@
 <template>
     <div>
         <h2 :title=chemical.primary_name>{{chemical.primary_name}}</h2>
-        <p><router-link v-bind:to="'/reaction/searchresults/'+this.$route.params.chemid+'/ID'">Reactions Containing this Chemical</router-link></p>
         <img v-bind:src="'data:image/png;base64,'+chemical.image" v-on:click="magnify('data:image/png;base64,'+chemical.image)" alt="missing image" style="width:150px;height:150px;" />
         <br>
         DTXSID: <a :href="'https://comptox.epa.gov/dashboard/chemical/details/' + chemical.dtxsid" target="_blank"> {{chemical.dtxsid}} ↗ </a>
@@ -12,8 +11,11 @@
             CASRN: {{ chemical.casrn }} <br>
             InChI KEY: {{ chemical.inchi }} <br>
             Synonyms: {{chemical.other_names}} <br>
-        </div><br>
-        <p><router-link v-bind:to="'/reaction/reactionmap/'+this.$route.params.chemid+'/chemical'">Map of all Reactions Linked to this Chemical</router-link></p>
+        </div>
+        <a :href="'http://v2626umcth819.rtord.epa.gov:5173/search/' + chemical.dtxsid + '?initial_results_tab=all'" target="_blank"> Search Methods and Spectra ↗ </a><br><br>
+
+        <router-link v-bind:to="'/reaction/searchresults/'+this.$route.params.chemid+'/ID'">List of Reactions Containing this Chemical</router-link><br>
+        <router-link v-bind:to="'/reaction/reactionmap/'+ this.$route.params.chemid +'/chemical'">Map of all Reactions Linked to this Chemical</router-link><br><br>
         <!-- the grid setup is in the script section, the grid will only display if there are entries -->
         <div v-if="(metarowData.value.length!=0)">
             Metapath Reaction Maps Containing this Chemical
@@ -89,7 +91,7 @@
                     axios
                         // tell the backend to delete the chemical
                         .post(this.$apiname + "chemicals/chemdelete", {
-                            chemID: this.$route.params.chemid,
+                            chemID: this.chemical.local_IDnum,
                         })
                         // reroute to the database
                         .then( this.$router.push('/chemical/database') 

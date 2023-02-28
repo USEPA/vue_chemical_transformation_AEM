@@ -23,7 +23,7 @@
         Use the Search Box to Search for a Chemical within the Map by DTXSID or Name, Matches will be Highlighted in Yellow <span style="color:yellow">&#9632;</span> <br>
         Click on a Map ID in the Table to Highlight all Reactions within that map in Purple <span style="color:#b50255">&#9632;</span><br>
     </div>
-    <div v-else-if="(this.$route.params.searchtype != 'compare')">
+    <div v-else-if="(this.$route.params.searchtype == 'chemical')">
         <button @click="showhide=true">Show Instructions</button>
     </div>
     <!-- the grid setup is in the script section, the grid will only display if there are entries -->
@@ -326,6 +326,7 @@ export default {
             reactlist:[],
             metarowData,
             pfasrowData,
+            rootid:'',
             Graph: '',
             input,
             metapathColDefs,
@@ -366,8 +367,11 @@ export default {
             this.Graph = ForceGraph()(document.getElementById('graph'))
             const N = 10
             let k = 0
+            if(this.$route.params.searchtype == 'chemical'){
+                this.rootID = String(this.chemical.local_IDnum)
+            }
             // defines a root node, either the chemical we entered with or the first chemical in the map, this node will always be visible
-            const rootnode = (this.$route.params.searchtype == 'chemical' ? this.$route.params.searchinput : data.nodes[0]['id'])
+            const rootnode = (this.$route.params.searchtype == 'chemical' ? this.rootID : data.nodes[0]['id'])
             // sets up an object which keeps track of the visible nodes
             this.visibleNodes = [rootnode]
             this.Graph.width(window.innerWidth-115)
@@ -573,7 +577,10 @@ export default {
             // get the list of nodes
             const gData = await(fetch(this.$apiname + "reaction/reactionmap/" + this.$route.params.searchinput + "/" + this.$route.params.searchtype).then(res => res.json()).then(data => {return data}))
             // determine the root node
-            const rootnode = (this.$route.params.searchtype == 'chemical' ? this.$route.params.searchinput : gData.nodes[0]['id'])
+            if(this.$route.params.searchtype == 'chemical'){
+                this.rootID = String(this.chemical.local_IDnum)
+            }
+            const rootnode = (this.$route.params.searchtype == 'chemical' ? this.rootID : gData.nodes[0]['id'])
             // set open and visible maps, nodes, and links
             this.openNodes = [];
             this.openMaps = [];

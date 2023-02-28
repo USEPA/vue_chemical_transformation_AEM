@@ -1,5 +1,5 @@
 <template>
-    Search: <input style='width:255px' type="text" list="typeaheadlist" v-model="searchinput" placeholder="Name, DTXSID, or Reaction Detail" /> <br>
+    Search: <input style="width:255px" type="text" list="typeaheadlist" v-model="searchinput" placeholder="Name, DTXSID, or Reaction Detail" /> <br>
     <!-- sets up substring filtered search suggestions for DTXSID and Name -->
     <datalist id="typeaheadlist">
         <option v-for="row in chemout" :value="row.dtxsid" :label="row.primary_name"></option>
@@ -10,12 +10,13 @@
     <div v-for="row in filteredlist">
         <hr>
         <p><router-link v-bind:to="'/reaction/'+row.reaction_id"><span v-for="(name,index) in row.parent_name">{{name}}<span v-if="index != row.parent_name.length - 1"> + </span></span> → <span v-for="(name,index) in row.product_name">{{name}}<span v-if="index != row.product_name.length - 1"> + </span></span></router-link></p>
-        <p><span v-for="(element,index) in row.parent_image"><router-link v-bind:to="'/chemical/'+row.parent_IDnum[index]"><img v-bind:src="'data:image/png;base64,'+element" alt="missing image" style="width:150px;height:150px;vertical-align:middle;" /></router-link><span v-if="index != row.parent_image.length - 1"> + </span> </span> → <span v-for="(element,index) in row.product_image"> <router-link v-bind:to="'/chemical/'+row.product_IDnum[index]"><img v-bind:src="'data:image/png;base64,'+element" alt="missing image" style="width:150px;height:150px;vertical-align:middle;" /></router-link><span v-if="index != row.product_image.length - 1"> + </span> </span></p>
+        <p><span v-for="(element,index) in row.parent_image"><router-link v-bind:to="'/chemical/'+row.parent_dtxsid[index]"><img v-bind:src="'data:image/png;base64,'+element" alt="missing image" style="width:150px;height:150px;vertical-align:middle;" /></router-link><span v-if="index != row.parent_image.length - 1"> + </span> </span> → <span v-for="(element,index) in row.product_image"> <router-link v-bind:to="'/chemical/'+row.product_dtxsid[index]"><img v-bind:src="'data:image/png;base64,'+element" alt="missing image" style="width:150px;height:150px;vertical-align:middle;" /></router-link><span v-if="index != row.product_image.length - 1"> + </span> </span></p>
+        <p v-if="row.reaction_library">Reaction Library: <router-link v-bind:to="'/reaction/searchresults/'+row.reaction_library+'/reaction_library'" style="text-transform: capitalize;">{{row.reaction_library}}</router-link></p>
         <p v-if="row.reaction_process">Reaction Process: <router-link v-bind:to="'/reaction/searchresults/'+row.reaction_process+'/reaction_process'">{{row.reaction_process}}</router-link></p>
         <p v-if="row.reaction_type">Reaction Type: <router-link v-bind:to="'/reaction/searchresults/'+row.reaction_type+'/reaction_type'">{{row.reaction_type}}</router-link></p>
         <p v-if="row.reaction_scheme">Reaction Scheme: <router-link v-bind:to="'/reaction/searchresults/'+row.reaction_scheme+'/reaction_scheme'">{{row.reaction_scheme}}</router-link></p>
     </div>
-    <div v-if="!bigout.length">
+    <div v-if="!bigout.length & timer">
         <!-- if the data have not loaded yet indicates that a search is underway -->
         <br> <p style="font-size:25px">Searching...</p>
     </div>
@@ -38,10 +39,12 @@ export default {
             bigout: '',
             chemout: '',
             searchinput,
+            timer:true,
         }
     },
     // gets chemical and reaction database JSON from the backend
     created: async function(){
+        setTimeout(()=>(this.timer = false),30000);
         const url = this.$apiname + "reaction/database";
         const gResponse = await fetch(url);
         const gObject = await gResponse.json();
