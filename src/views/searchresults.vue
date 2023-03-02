@@ -60,10 +60,12 @@ export default {
     },
     // get the results of the search from the backend
     created: async function(){
-        setTimeout(()=>(this.timer = false),30000);
         const gResponse = await fetch(this.url);
         const gObject = await gResponse.json();
         this.bigout = gObject;
+        if(gObject == ''){
+            this.timer = false
+        }
     },
     computed: {
         // function for filtering the results of the search

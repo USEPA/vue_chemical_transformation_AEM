@@ -22,7 +22,7 @@
     </div>
     <div v-else-if="filteredlist.length == 0">
         <!-- if the data have loaded but all elements have been filtered out of the list, indicate that there is no match -->
-        <br> <p style="font-size:25px">NO RESULTS WERE FOUND</p>
+        <br> <p style="font-size:25px">THE DATABASE COULD NOT BE REACHED</p>
     </div>
 </template>
 
@@ -44,15 +44,18 @@ export default {
     },
     // gets chemical and reaction database JSON from the backend
     created: async function(){
-        setTimeout(()=>(this.timer = false),30000);
-        const url = this.$apiname + "reaction/database";
-        const gResponse = await fetch(url);
-        const gObject = await gResponse.json();
-        this.bigout = gObject;
-        const url2 = this.$apiname + "chemicals/database";
-        const gResponse2 = await fetch(url2);
-        const gObject2 = await gResponse2.json();
-        this.chemout = gObject2;
+        try{
+            const url = this.$apiname + "reaction/database";
+            const gResponse = await fetch(url);
+            const gObject = await gResponse.json();
+            this.bigout = gObject;
+            const url2 = this.$apiname + "chemicals/database";
+            const gResponse2 = await fetch(url2);
+            const gObject2 = await gResponse2.json();
+            this.chemout = gObject2;
+        } catch (error){
+            this.timer = false
+        }
     },
     computed: {
         // function for filtering the database JSON
