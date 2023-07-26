@@ -119,7 +119,8 @@ export default {
   name: 'EPA_footer',
   computed: {
     style() {
-      return `position:${this.pos};margin-top: 10px`
+  //    commented out to avoid warnings, didn't seem to do anything
+  //    return `position:${this.pos};margin-top: 10px`
     },
   },
 }

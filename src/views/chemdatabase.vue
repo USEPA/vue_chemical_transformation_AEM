@@ -15,13 +15,14 @@
             @grid-ready="onGridReady">
         </ag-grid-vue>
     </div>
-    <div v-else>
+    <div v-else id="tiles">
         <button v-on:click="rowtile = !rowtile">Table View</button>
         <button v-on:click="handleExport">Export Chemical List</button> <br><br>
-        Search: <input style="width:245px" type="text" list="typeaheadlist" v-model="input" placeholder="Name, DTXSID, CASRN, InChI key" /> <br>
+        Filter Chemical List: <input style="width:245px" type="text" list="typeaheadlist" v-model="input" placeholder="Name, DTXSID, CASRN, InChI key" /> <br>
         Searching in the Tile View will perform a search across all names, synonyms, and chemical identifiers.<br>
         <!-- sets up substring filtered search suggestions for DTXSID and Name -->
-        <datalist id="typeaheadlist">
+        <!-- search or get rid of suggestion when clicked -->
+        <datalist v-if="input.length > 2" id="typeaheadlist">
             <option v-for="row in bigout" :value="row.dtxsid" :label="row.primary_name"></option>
         </datalist>
         <div class="tileset">
@@ -109,7 +110,6 @@
                 }
             },
         },
-        
         setup(){
             // this is necessary to access the apiname global variable during setup
             const apiname = inject('apiname')

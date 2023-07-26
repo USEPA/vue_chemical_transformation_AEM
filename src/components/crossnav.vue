@@ -5,8 +5,14 @@
         <a href="http://v2626umcth819.rtord.epa.gov:81/substances">Analytical QC</a>&nbsp; &nbsp;
         <a href="http://v2626umcth819.rtord.epa.gov:5173/">Spectral and Methods Database</a> &nbsp; &nbsp;
         <a href="http://v2626umcth819.rtord.epa.gov:9004/molmass_web.py">Molecular Mass Calculator</a> &nbsp; &nbsp;
+        <a href="https://comptox.epa.gov/dashboard/">CompTox Chemicals Dashboard</a> &nbsp; &nbsp;
+        <a href="https://comptox.epa.gov/genra/">Generalized Read-Across (GenRA)</a> &nbsp; &nbsp;
+        <a href="https://comptox.epa.gov/dashboard/chemical/pubmed-abstract-sifter/">Literature Abstract Sifter</a> &nbsp; &nbsp;
+        <a href="https://www.epa.gov/chemical-research/cheminformatics ">Cheminformatics PoC Modules</a> &nbsp; &nbsp;
+
     </nav>
 </template>
+
 
 <script>
 

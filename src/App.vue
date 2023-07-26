@@ -24,7 +24,7 @@
         </div>
     </transition>
     <div style="position:fixed; bottom:5px; right:25px">
-        Version: 1.1.10
+        Version: 1.2.0
     </div>
 </template>
 
@@ -55,7 +55,7 @@ export default {
     },
     // Give a name to tabs/windows containing the app
     metaInfo: {
-        title: 'CTDB - Chemical Transformations Database',
+        title: 'CHET - Chemical Transformations Database',
         titleTemplate: '%s',
     },
     // Sets time for fade in/out of the EPA header and the popup explaining it
