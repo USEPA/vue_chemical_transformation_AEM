@@ -6,16 +6,74 @@
     </datalist>
     {{searchinput}}
     <br>
-    <br> <button v-on:click="handleDownload">Export Reaction Details</button> 
-    <div v-for="row in filteredlist">
-        <hr>
-        <p><router-link v-bind:to="'/reaction/'+row.reaction_id"><span v-for="(name,index) in row.parent_name">{{name}}<span v-if="index != row.parent_name.length - 1"> + </span></span> → <span v-for="(name,index) in row.product_name">{{name}}<span v-if="index != row.product_name.length - 1"> + </span></span></router-link></p>
-        <p><span v-for="(element,index) in row.parent_image"><router-link v-bind:to="'/chemical/'+row.parent_dtxsid[index]"><img v-bind:src="'data:image/png;base64,'+element" alt="missing image" style="width:150px;height:150px;vertical-align:middle;" /></router-link><span v-if="index != row.parent_image.length - 1"> + </span> </span> → <span v-for="(element,index) in row.product_image"> <router-link v-bind:to="'/chemical/'+row.product_dtxsid[index]"><img v-bind:src="'data:image/png;base64,'+element" alt="missing image" style="width:150px;height:150px;vertical-align:middle;" /></router-link><span v-if="index != row.product_image.length - 1"> + </span> </span></p>
-        <p v-if="row.reaction_library">Reaction Library: <router-link v-bind:to="'/reaction/searchresults/'+row.reaction_library+'/reaction_library'" style="text-transform: capitalize;">{{row.reaction_library}}</router-link></p>
-        <p v-if="row.reaction_process">Reaction Process: <router-link v-bind:to="'/reaction/searchresults/'+row.reaction_process+'/reaction_process'">{{row.reaction_process}}</router-link></p>
-        <p v-if="row.reaction_type">Reaction Type: <router-link v-bind:to="'/reaction/searchresults/'+row.reaction_type+'/reaction_type'">{{row.reaction_type}}</router-link></p>
-        <p v-if="row.reaction_scheme">Reaction Scheme: <router-link v-bind:to="'/reaction/searchresults/'+row.reaction_scheme+'/reaction_scheme'">{{row.reaction_scheme}}</router-link></p>
-    </div>
+    <br> <button v-on:click="handleDownload">Export Reaction Details</button><br><br>
+    <table>
+        <template v-for="row,index in filteredlist">
+            <tr v-if="index % 2 == 0">
+                <td v-if="filteredlist[index]" style="width:50%; border:2px solid black;">
+                    <p><router-link v-bind:to="'/reaction/'+row.reaction_id">
+                        <span v-for="(name,n_index) in row.parent_name">{{name}}
+                            <span v-if="n_index != row.parent_name.length - 1"> + </span>
+                        </span> → 
+                        <span v-for="(name,n_index) in row.product_name">{{name}}
+                            <span v-if="n_index != row.product_name.length - 1"> + </span>
+                        </span></router-link></p>
+                    <p><span v-for="(element,e_index) in row.parent_image">
+                        <router-link v-bind:to="'/chemical/'+row.parent_dtxsid[e_index]">
+                            <img v-bind:src="'data:image/png;base64,'+element" alt="missing image" 
+                            :style="{
+                                width: 145 * 4/(Math.max(row.parent_name.length + row.product_name.length,4)) +'px', 
+                                height: 145 * 4/(Math.max(row.parent_name.length + row.product_name.length,4)) +'px'}"  
+                                style="vertical-align:middle;border: 2px solid blue" />
+                        </router-link>
+                        <span v-if="e_index != row.parent_image.length - 1"> + </span> 
+                    </span> → 
+                    <span v-for="(element,e_index) in row.product_image"> 
+                        <router-link v-bind:to="'/chemical/'+row.product_dtxsid[e_index]">
+                            <img v-bind:src="'data:image/png;base64,'+element" alt="missing image" 
+                            :style="{
+                                width: 145 * 4/(Math.max(row.parent_name.length + row.product_name.length,4)) +'px', 
+                                height: 145 * 4/(Math.max(row.parent_name.length + row.product_name.length,4)) +'px'}"  
+                            style="vertical-align:middle;border: 2px solid blue" />
+                        </router-link><span v-if="e_index != row.product_image.length - 1"> + </span> </span></p>
+                    <p v-if="row.reaction_library">Reaction Library: <router-link v-bind:to="'/reaction/searchresults/'+row.reaction_library+'/reaction_library'" style="text-transform: capitalize;">{{row.reaction_library}}</router-link></p>
+                    <p v-if="row.reaction_process">Reaction Process: <router-link v-bind:to="'/reaction/searchresults/'+row.reaction_process+'/reaction_process'" style="text-transform: capitalize;">{{row.reaction_process}}</router-link></p>
+                    <p v-if="row.reaction_type">Reaction Type: <router-link v-bind:to="'/reaction/searchresults/'+row.reaction_type+'/reaction_type'" style="text-transform: capitalize;">{{row.reaction_type}}</router-link></p>
+                    <p v-if="row.reaction_scheme">Reaction Scheme: <router-link v-bind:to="'/reaction/searchresults/'+row.reaction_scheme+'/reaction_scheme'" style="text-transform: capitalize;">{{row.reaction_scheme}}</router-link></p>
+                </td>
+                <td v-if="filteredlist[index+1]" style="width:50%; border:2px solid black;">
+                    <p><router-link v-bind:to="'/reaction/'+filteredlist[index+1].reaction_id">
+                        <span v-for="(name,n_index) in filteredlist[index+1].parent_name">{{name}}
+                            <span v-if="n_index != filteredlist[index+1].parent_name.length - 1"> + </span>
+                        </span> → 
+                        <span v-for="(name,n_index) in filteredlist[index+1].product_name">{{name}}
+                            <span v-if="n_index != filteredlist[index+1].product_name.length - 1"> + </span>
+                        </span></router-link></p>
+                    <p><span v-for="(element,e_index) in filteredlist[index+1].parent_image">
+                        <router-link v-bind:to="'/chemical/'+filteredlist[index+1].parent_dtxsid[e_index]">
+                            <img v-bind:src="'data:image/png;base64,'+element" alt="missing image" 
+                            :style="{
+                                width: 145 * 4/(Math.max(filteredlist[index+1].parent_name.length + filteredlist[index+1].product_name.length,4)) +'px', 
+                                height: 145 * 4/(Math.max(filteredlist[index+1].parent_name.length + filteredlist[index+1].product_name.length,4)) +'px'}"  
+                                style="vertical-align:middle;border: 2px solid blue" />
+                            </router-link><span v-if="e_index != filteredlist[index+1].parent_image.length - 1"> + </span> 
+                        </span> → 
+                        <span v-for="(element,e_index) in filteredlist[index+1].product_image"> 
+                            <router-link v-bind:to="'/chemical/'+filteredlist[index+1].product_dtxsid[e_index]">
+                                <img v-bind:src="'data:image/png;base64,'+element" alt="missing image" 
+                                :style="{
+                                    width: 145 * 4/(Math.max(filteredlist[index+1].parent_name.length + filteredlist[index+1].product_name.length,4)) +'px', 
+                                    height: 145 * 4/(Math.max(filteredlist[index+1].parent_name.length + filteredlist[index+1].product_name.length,4)) +'px'}"  
+                                style="vertical-align:middle;border: 2px solid blue" />
+                            </router-link><span v-if="e_index != filteredlist[index+1].product_image.length - 1"> + </span> </span></p>
+                    <p v-if="filteredlist[index+1].reaction_library">Reaction Library: <router-link v-bind:to="'/reaction/searchresults/'+filteredlist[index+1].reaction_library+'/reaction_library'" style="text-transform: capitalize;">{{filteredlist[index+1].reaction_library}}</router-link></p>
+                    <p v-if="filteredlist[index+1].reaction_process">Reaction Process: <router-link v-bind:to="'/reaction/searchresults/'+filteredlist[index+1].reaction_process+'/reaction_process'" style="text-transform: capitalize;">{{filteredlist[index+1].reaction_process}}</router-link></p>
+                    <p v-if="filteredlist[index+1].reaction_type">Reaction Type: <router-link v-bind:to="'/reaction/searchresults/'+filteredlist[index+1].reaction_type+'/reaction_type'" style="text-transform: capitalize;">{{filteredlist[index+1].reaction_type}}</router-link></p>
+                    <p v-if="filteredlist[index+1].reaction_scheme">Reaction Scheme: <router-link v-bind:to="'/reaction/searchresults/'+filteredlist[index+1].reaction_scheme+'/reaction_scheme'" style="text-transform: capitalize;">{{filteredlist[index+1].reaction_scheme}}</router-link></p>
+                </td>
+            </tr>
+        </template>
+    </table>
     <div v-if="!bigout.length & timer">
         <!-- if the data have not loaded yet indicates that a search is underway -->
         <br> <p style="font-size:25px">Searching...</p>

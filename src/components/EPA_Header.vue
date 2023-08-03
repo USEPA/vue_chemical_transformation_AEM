@@ -1,7 +1,8 @@
 <template>
   <div>
     <header class="masthead clearfix" role="banner">
-      <img alt class="site-logo" src="https://www.epa.gov/sites/all/themes/epa/logo.png">
+      <!-- commented out to avoid warnings, didn't seem to do anything -->
+      <!--<img alt class="site-logo" src="https://www.epa.gov/sites/all/themes/epa/logo.png">-->
       <div class="site-name-and-slogan">
         <h1 class="site-name">
           <a href="https://www.epa.gov/" rel="home" title="Go to the home page">
