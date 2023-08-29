@@ -59,6 +59,7 @@ export default {
         
         return{
             reaction: '',
+            details: '',
             columnDefs,
             rowData,
             showhide: true,
@@ -69,7 +70,7 @@ export default {
     computed: {
         url() {
             return this.$apiname + "reaction/" + this.$route.params.reactid
-        }
+        },
     },
     
     // get the reaction details from the backend
@@ -77,6 +78,10 @@ export default {
         const gResponse = await fetch(this.url);
         const gObject = await gResponse.json();
         this.reaction = gObject[0];
+        const liburl = this.$apiname + "reaction/details/" + this.reaction.lib_ID;
+        const libResponse = await fetch(liburl);
+        const libObject = await libResponse.json();
+        this.details = libObject;
     },
     
     mounted(){
@@ -99,11 +104,17 @@ export default {
         buildcolumns(){
             let new_cols = []
             // fixed rows for identifiers and structure image
-            for(let key of (Object.keys(this.rowData.value[0]))){
-                if(!key.toLowerCase().includes('_id') && !key.toLowerCase().includes('reference') && !key.toLowerCase().includes('doi')){
+            for(let key of this.details){
+                if(!key.detail_name.toLowerCase().includes('_id') && !key.detail_name.toLowerCase().includes('reference') && !key.detail_name.toLowerCase().includes('doi')){
+                    let displayname = ''
+                    if(key.units == " "){
+                        displayname = key.detail_name
+                    } else {
+                        displayname = key.detail_name + ' ('+ key.units +')'
+                    }
                     new_cols.push(
                         {
-                            headerName:key, field:key, sortable: true, resizable: true, filter: 'agTextColumnFilter', floatingFilter: true, width:115,
+                            headerName:displayname, field:key.detail_name, sortable: true, resizable: true, filter: 'agTextColumnFilter', floatingFilter: true, width:115,
                         }
                     )
                 }
