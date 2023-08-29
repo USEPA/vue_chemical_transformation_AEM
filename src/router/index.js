@@ -6,6 +6,7 @@ import chemdatabase from '../views/chemdatabase.vue'
 import reactiondatabase from '../views/reactiondatabase.vue'
 import newchemical from '../views/newchemical.vue'
 import newreaction from '../views/newreaction.vue'
+import newlibrary from '../views/newlibrary.vue'
 import newdetail from '../views/newdetail.vue'
 import errorlist from '../views/errorlist.vue'
 import ErrorReport from '../views/errorreport.vue'
@@ -79,6 +80,10 @@ const router = createRouter({
     {
       path: '/reaction/newreaction',
       component: newreaction
+    },
+    {
+      path: '/reaction/newlibrary',
+      component: newlibrary
     },
     {
       path: '/reaction/newdetail/:reactid',

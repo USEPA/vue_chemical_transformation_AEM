@@ -1,69 +1,67 @@
 <template>
     <button v-on:click="showhide1 = !showhide1" style="background-color:#8ad2ed">Enter a Single Reaction</button> <br>
-    <div v-if="showhide1">
-        <!-- when a reaction is submitted, displays a popup -->
-        <form @submit.prevent="chemcheck">
-            <br>
-            <p>To enter multiple parent or product DTXSIDs, separate them with commas.</p>
-            <div style="display:flex">
-                <span style="font-size:18px">
-                    Parent DTXSID: <br>
-                    Product DTXSID: <br>
-                    Reaction Library: <br>
-                    Reaction Process: <br>
-                    Reaction Type: <br>
-                    Reaction Scheme: &nbsp;&nbsp; <br>
-                </span>
-                <span style="font-size:14px">
-                    <input type="text" placeholder="Parent DTXSID" v-model="parent"/> <br>
-                    <input type="text" placeholder="Product DTXSID" v-model="product"/> <br>
-                    <input type="text" list="typeaheadlist" placeholder="Reaction Library" v-model="library"/>
-                    <datalist id="typeaheadlist">
-                        <option value="hydrolysis"></option>
-                        <option value="pfas"></option>
-                        <option value="metapath"></option>
-                        <option value="photolysis"></option>
-                    </datalist> <br>
-                    <input type="text" placeholder="Process" v-model="process"/> <br>
-                    <input type="text" placeholder="Type" v-model="type"/> <br>
-                    <input type="text" placeholder="Scheme" v-model="scheme"/> <br>
-                </span>
-            </div>
-            <br>
-            <button type="submit">Submit</button> <br><br>
-        </form>
+    <div v-if="showhide1"><br>
+        <table>
+            <!-- Rows for universal reaction details -->
+            <tr>
+                <td style ="border: 1px solid">Parent DTXSID(s)</td>
+                <td style ="border: 1px solid"><input type="text" v-model="parent"/></td>
+            </tr>
+            <tr>
+                <td style ="border: 1px solid">Product DTXSID(s)</td>
+                <td style ="border: 1px solid"><input type="text" v-model="product"/></td>
+            </tr>
+            <tr>
+                <td style ="border: 1px solid">Reaction Process</td>
+                <td style ="border: 1px solid"><input type="text" v-model="process"/></td>
+            </tr>
+            <tr>
+                <td style ="border: 1px solid">Reaction Type</td>
+                <td style ="border: 1px solid"><input type="text" v-model="type"/></td>
+            </tr>
+            <tr>
+                <td style ="border: 1px solid">Reaction Scheme</td>
+                <td style ="border: 1px solid"><input type="text" v-model="scheme"/></td>
+            </tr>
+            <!-- Rows for reaction details based on selected library -->
+            <tr v-if="showhide_detail" v-for="row in detail_list">
+                <td style ="border: 1px solid">{{ row.detail_name }} ({{ row.units }})</td>
+                <td style ="border: 1px solid"><input type="text" v-model="row.value"/></td>
+            </tr>
+        </table> <br>
+        <!-- Library Selection -->
+        Select Library:
+        <select @change="get_details(selected_library.lib_ID)" v-model="selected_library">
+            <option value="">Select a Library</option>
+            <option v-for="library in library_list" :value="library">{{ library.lib_name }}</option>
+        </select><br><br>
+        <!-- Map Selection -->
+        <button @click="showhide_map = !showhide_map">Select a Map this Reaction is a part of (if any)</button>
+        <div v-if="showhide_map">
+            <select v-model="selected_map">
+                <option value="">Select a Map</option>
+                <option v-for="map in map_list" :value="map">{{ map.map_ID }} : {{ map.reference }}</option>
+            </select><br>
+        </div><br><br>
+        <!-- Submit button -->
+        <button v-if="selected_library != ''" @click="handleSubmit()"> Submit New Reaction </button>
     </div>
     <br>
     <button v-on:click="showhide2 = !showhide2" style="background-color:#8ad2ed">Enter Reactions From a CSV</button> <br>
     <div v-if="showhide2">
         <br>
-        <button @click="hydroDL">Download Template for Hydrolysis Reactions</button> <br>
-        <button @click="pfasDL">Download Template for PFAS Reactions</button> <br>
-        <button @click="metaDL">Download Template for Metapath Reactions</button> <br>
-        <button @click="photoDL">Download Template for Photolysis Reactions</button> <br><br>
+        <!-- Template Download Button -->
+        Select a library to download a template for that library: <br>
+        <select @change="get_details(selected_library.lib_ID)" v-model="selected_library">
+            <option value="">Select a Library</option>
+            <option v-for="library in library_list" :value="library">{{ library.lib_name }}</option>
+        </select> <br>
+        <button v-if="selected_library != ''" @click="templateDL()">Download {{ selected_library.lib_name }} Library Template</button> <br><br>
         <!-- file input that uploads when a new filepath is offered -->
         <form @submit.prevent="handleSubmitFile">
             <input type="file" @change="uploadFile" ref="file"> <br>
-            <button type="submit">Submit</button> <br><br>
+            <button v-if="reactionfile != null" type="submit">Submit</button> <br><br>
         </form>
-    </div>
-    <!-- popup for single reaction submission -->
-    <div v-if="showhide3" class="chemcheck">
-        <!-- if there is an error display it -->
-        <div v-if="checkparent.data.error || checkproduct.data.error">
-            {{checkparent.data.error}} <button @click="showhide3=false"> [X] </button>
-        </div>
-        <!-- otherwise display the chemical from the check and confirm submission -->
-        <div v-else>
-            Is this the reaction you intend to enter?<hr>
-            {{checkparent.data.name}} => {{checkproduct.data.name}}<br>
-            <div style="display:flex">
-            <img v-bind:src="'data:image/png;base64,'+checkparent.data.img" alt="missing image" style="display: block; margin-left: auto; margin-right: auto; width:300px; height:300px; vertical-align:middle;" /> =>
-            <img v-bind:src="'data:image/png;base64,'+checkproduct.data.img" alt="missing image" style="display: block; margin-left: auto; margin-right: auto; width:300px; height:300px; vertical-align:middle;" />
-            </div>
-            <hr>
-            <button style="width:130px" @click="handleSubmit">Yes</button><button style="width:130px" @click="showhide3=false">No</button>
-        </div>
     </div>
 </template>
 
@@ -78,28 +76,47 @@ export default{
             showhide1: false,
             showhide2: false,
             showhide3: false,
-            reaction: [],
+            showhide_map: false,
+            showhide_detail: false,
+            library_list: [],
+            selected_library: '',   
+            map_list: [],
+            selected_map: '',  
+            detail_list: [],
             parent: '',
-            product: '',
+            product: '', 
             process: '',
             type: '',
             scheme: '',
-            library:'',
             reactionfile: null,
-            checkparent:[],
-            checkproduct:[],
         }
     },
+    mounted() {
+        const liburl = this.$apiname + "reaction/libraries"
+        fetch(liburl)
+            .then((result) => result.json())
+            .then((remoteRowData) => (this.library_list = remoteRowData));
+        const mapurl = this.$apiname + "reaction/maps"
+        fetch(mapurl)
+            .then((result) => result.json())
+            .then((remoteRowData) => (this.map_list = remoteRowData));
+    },
     methods: {
-        // function for determining whether the entered DTXSIDs are the intended chemicals
-        async chemcheck() {
-            // use the backend to check with DSSTOX and get an image for the chemical, then set the displayed reaction
-            const url1 = this.$apiname + "chemicals/verify/" + this.parent
-            this.checkparent = await axios.get(url1)
-            const url2 = this.$apiname + "chemicals/verify/" + this.parent
-            this.checkproduct = await axios.get(url2)
-            // show the verification popup
-            this.showhide3 = true
+        // function for retreiving the list of details associated with a library
+        get_details(libID) {
+            this.showhide_detail = false
+            const detailurl = this.$apiname + "reaction/details/" + libID
+            axios
+                // get the list of details from the backend
+                fetch(detailurl)
+                    .then((result) => result.json())
+                    .then((remoteRowData) => (this.detail_list = remoteRowData));
+            
+            // add a value parameter to each detail
+            for(let row of this.detail_list){
+                row.value = 0
+            }
+            this.showhide_detail = true
         },
         // function for submitting a new reaction
         handleSubmit() {
@@ -111,73 +128,28 @@ export default{
                     process: this.process,
                     type: this.type,
                     scheme: this.scheme,
-                    library: this.library,
-                })
-                .then((response) => {
-                    const data = response.data;
-                    this.reaction.push(data);
+                    library: this.selected_library.lib_ID,
+                    details: this.detail_list,
                 })
                 // redirect the user to the database
-                .then( this.$router.push('/reaction/database') 
+                .then( this.$router.push('/reaction/database')
                 );
         },
-        // function to download template for entering multiple hydrolysis reactions at once
-        async hydroDL() {
+        // function to download template for entering multiple reactions at once
+        async templateDL() {
             axios
                 // get the file from the backend
-                .post(this.$apiname + "reaction/hydro_DL", {responseType: 'blob'})
+                .post(this.$apiname + "reaction/template_DL", {
+                    responseType: 'blob',
+                    name: this.selected_library.lib_name,
+                })
                 // open a download window
                 .then((res) => {
                     let data = res.data;
                     const blob = new Blob([data], { type: 'application/zip' })
                     let link = document.createElement('a')
                     link.href = window.URL.createObjectURL(blob)
-                    link.download = 'hydrolysis_reaction_entry_template.csv'
-                    link.click()
-                });
-        },
-        // function to download template for entering multiple PFAS reactions at once
-        async pfasDL() {
-            axios
-                // get the file from the backend
-                .post(this.$apiname + "reaction/pfas_DL", {responseType: 'blob'})
-                // open a download window
-                .then((res) => {
-                    let data = res.data;
-                    const blob = new Blob([data], { type: 'application/zip' })
-                    let link = document.createElement('a')
-                    link.href = window.URL.createObjectURL(blob)
-                    link.download = 'PFAS_reaction_entry_template.csv'
-                    link.click()
-                });
-        },
-        // function to download template for entering multiple metapath reactions at once
-        async metaDL() {
-            axios
-                // get the file from the backend
-                .post(this.$apiname + "reaction/meta_DL", {responseType: 'blob'})
-                // open a download window
-                .then((res) => {
-                    let data = res.data;
-                    const blob = new Blob([data], { type: 'application/zip' })
-                    let link = document.createElement('a')
-                    link.href = window.URL.createObjectURL(blob)
-                    link.download = 'metapath_reaction_entry_template.csv'
-                    link.click()
-                });
-        },
-        // function to download template for entering multiple Photolysis reactions at once
-        async photoDL() {
-            axios
-                // get the file from the backend
-                .post(this.$apiname + "reaction/photo_DL", {responseType: 'blob'})
-                // open a download window
-                .then((res) => {
-                    let data = res.data;
-                    const blob = new Blob([data], { type: 'application/zip' })
-                    let link = document.createElement('a')
-                    link.href = window.URL.createObjectURL(blob)
-                    link.download = 'photolysis_reaction_entry_template.csv'
+                    link.download = String(this.selected_library.lib_name)+'_reaction_entry_template.csv'
                     link.click()
                 });
         },

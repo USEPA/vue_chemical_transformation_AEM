@@ -7,7 +7,7 @@
             Search: &nbsp; &nbsp;<input style='width:245px' type="text" list="typeaheadlist" v-model="input" @input="select_search()" @keyup.enter="$router.push('/reaction/searchresults/' + input + '/any')" placeholder="Name, DTXSID, CASRN, InChI key" /> <br><br> <!-- CASRN -->
             <!-- Suggested Search, substring match on various identifiers -->
             <datalist v-if="input.length > 2" id="typeaheadlist">
-                <option v-for="row in bigout" :value="row.dtxsid" :label="row.primary_name + '  CASRN:  ' + row.casrn + '  InChI:  ' + row.inchi"></option>
+                <option v-for="row in bigout" :value="row.dtxsid" :label="row.primary_name + '  CASRN:  ' + row.casrn"></option>
             </datalist>
             <button @click="$router.push('/reaction/searchresults/' + input + '/any')">Search</button> <br><br>
         </div>

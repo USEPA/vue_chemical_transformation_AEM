@@ -6,18 +6,18 @@
             </div>
             <b-nav-item-dropdown text="Search" class="navstyle" style="font-size:16px">
                 <b-dropdown-item to="/chemical/database">Browse Chemicals</b-dropdown-item>
+                <b-dropdown-item to="/reaction/database">Browse Reactions</b-dropdown-item>
+                <b-dropdown-item to="/">Search Reactions</b-dropdown-item>
                 <b-dropdown-item to="/reaction/batchsearch">Batch Search</b-dropdown-item>
             </b-nav-item-dropdown>
-            <b-nav-item-dropdown text="Reaction Lists" class="navstyle" style="font-size:16px">
+            <b-nav-item-dropdown text="Reaction Libraries" class="navstyle" style="font-size:16px">
                 <b-dropdown-item to="/reaction/database">Complete Reaction Database</b-dropdown-item>
-                <b-dropdown-item to="/reaction/searchresults/hydrolysis/reaction_library">Abiotic Hydrolysis</b-dropdown-item>
-                <b-dropdown-item to="/reaction/searchresults/PFAS/reaction_library">PFAS</b-dropdown-item>
-                <b-dropdown-item to="/reaction/searchresults/metapath/reaction_library">MetaPath</b-dropdown-item>
-                <!--<b-dropdown-item to="/reaction/searchresults/photolysis/reaction_library">Photolysis</b-dropdown-item>-->
+                <b-dropdown-item v-for="library in library_list" :to="'/reaction/searchresults/'+library.lib_name+'/reaction_library'">{{library.lib_name}}</b-dropdown-item>
             </b-nav-item-dropdown>
             <b-nav-item-dropdown text="Tools" class="navstyle" style="font-size:16px">
                 <div v-if="this.$cookie.getCookie('user')">
                     <b-dropdown-item to="/chemical/newchemical">Register New Chemicals</b-dropdown-item>
+                    <b-dropdown-item to="/reaction/newlibrary">Register New Libraries</b-dropdown-item>
                     <b-dropdown-item to="/reaction/newreaction">Register New Reactions</b-dropdown-item>
                     <b-dropdown-item to="/errorlist">List of Errors</b-dropdown-item>
                     <b-dropdown-item v-on:click="this.$cookie.removeCookie('user').then(this.forceUpdate())">Logout</b-dropdown-item>
@@ -32,9 +32,6 @@
                 <b-dropdown-item to="/errorreport">Submit Comments</b-dropdown-item>
                 <b-dropdown-item to="/contactpage">Contact Us</b-dropdown-item>
             </b-nav-item-dropdown>
-            <!-- 
-            <b-nav><h1 style="font-size:16px, color:#0e6993">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;</h1></b-nav>
-            -->
             <b-nav-item-dropdown text="Related Applications" class="navstyle" style="font-size:16px">
                 <b-dropdown-item href="http://v2626umcth819.rtord.epa.gov:9414/">Chemical Transformations Database</b-dropdown-item>
                 <b-dropdown-item href="http://v2626umcth819.rtord.epa.gov:81/substances">Analytical QC</b-dropdown-item>
@@ -58,17 +55,22 @@
 
 export default {
     name: 'Header',
-    mounted() {  
-        document.title = 'CHET - Chemical Transformations DataBase';  
-    }, 
     data () {
         return {
             devshowhide:false,
             listshowhide:false,
             dbshowhide:false,
             showhide:false,
+            library_list: [],
         }
     },
+    mounted() {  
+        document.title = 'CHET - Chemical Transformations DataBase';  
+        const liburl = this.$apiname + "reaction/libraries"
+        fetch(liburl)
+            .then((result) => result.json())
+            .then((remoteRowData) => (this.library_list = remoteRowData));
+    }, 
     emits:{
         toggleHeader:true,
     },

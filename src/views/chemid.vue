@@ -7,35 +7,27 @@
         <br>
         <button v-on:click="showhide = !showhide">Chemical Identifiers</button> <br>
         <div v-if="showhide">
-            SMILES: {{ chemical.smiles }} <br>
-            CASRN: {{ chemical.casrn }} <br>
-            InChI KEY: {{ chemical.inchi }} <br>
-            Synonyms: {{chemical.other_names}} <br>
+            &nbsp; &nbsp; SMILES: {{ chemical.smiles }} <br>
+            &nbsp; &nbsp; CASRN: {{ chemical.casrn }} <br>
+            &nbsp; &nbsp; InChI KEY: {{ chemical.inchi }} <br>
+            &nbsp; &nbsp; <button v-on:click="alias_showhide = !alias_showhide">Synonyms</button>
+            <div v-if="alias_showhide" v-for="name in aliases"> &nbsp; &nbsp; &nbsp; &nbsp; {{name.alias}}</div> <br>
         </div>
         <a :href="'http://v2626umcth819.rtord.epa.gov:5173/search/' + chemical.dtxsid + '?initial_results_tab=all'" target="_blank"> Search Methods and Spectra ↗ </a><br><br>
 
         <router-link v-bind:to="'/reaction/searchresults/'+this.$route.params.chemid+'/ID'">List of Reactions Containing this Chemical</router-link><br>
         <router-link v-bind:to="'/reaction/reactionmap/'+ this.$route.params.chemid +'/chemical'">Map of all Reactions Linked to this Chemical</router-link><br><br>
         <!-- the grid setup is in the script section, the grid will only display if there are entries -->
-        <div v-if="(metarowData.value.length!=0)">
-            Metapath Reaction Maps Containing this Chemical
+        <div v-if="(mapRowData.value.length!=0)">
+            Reaction Maps Containing this Chemical
             <ag-grid-vue
                 class="ag-theme-balham"
                 domLayout="autoHeight"
-                :columnDefs="metapathColDefs.value"
-                :rowData="metarowData.value"
-                :enableBrowserTooltips="true">
-            </ag-grid-vue>
-        </div>
-        <div v-if="(pfasrowData.value.length!=0)">
-            PFAS Reaction Maps Containing this Chemical
-            <ag-grid-vue
-                class="ag-theme-balham"
-                domLayout="autoHeight"
-                :columnDefs="pfasColDefs.value"
-                :rowData="pfasrowData.value"
-                :enableBrowserTooltips="true">
-            </ag-grid-vue>
+                :columnDefs="colDefs.value"
+                :rowData="mapRowData.value"
+                :enableBrowserTooltips="true"
+                @grid-ready="onGridReady">>
+            </ag-grid-vue> 
         </div>
         <!-- Delete option only available to logged in users, placeholder system in place for login -->
         <div v-if="this.$cookie.getCookie('user')">
@@ -65,16 +57,32 @@
             AgGridVue,
         },
         data () {
+            const mapRowData = reactive({
+                value: []
+            });
+            const colDefs = reactive({
+                value: []
+            });
             return{
                 chemical: '',
+                aliases: '',
+                colDefs,
+                mapRowData,
                 showhide: false,
                 showhide2: false,
+                alias_showhide: false,
                 srcvar:'',
             }
         },
         computed: {
             url() {
                 return this.$apiname + "chemicals/" + this.$route.params.chemid
+            },
+            aliasurl() {
+                return this.$apiname + "chemicals/alias/" + this.$route.params.chemid
+            },
+            mapurl() {
+                return this.$apiname + "chemicals/maps/" + this.$route.params.chemid
             }
         },
         // get the chemical info from the backend
@@ -82,8 +90,55 @@
             const gResponse = await fetch(this.url);
             const gObject = await gResponse.json();
             this.chemical = gObject[0];
+            const aliasResponse = await fetch(this.aliasurl);
+            const aliasObject = await aliasResponse.json();
+            this.aliases = aliasObject;
+            const mapResponse = await fetch(this.mapurl);
+            const mapObject = await mapResponse.json();
+            this.mapRowData.value = mapObject;
+        },
+        mounted(){
+            this.colDefs.value = this.buildcolumns()
         },
         methods: {
+            // sets up the grid
+            onGridReady(params) {
+                this.gridApi = params.api;
+                this.gridColumnApi = params.columnApi;
+            },
+            // a function for building JSONs for the gird's columns
+            buildcolumns(){
+                let new_cols = []
+                const router = useRouter()
+                // fixed rows for identifiers and structure image
+                new_cols.push(
+                    {
+                        headerName:'Map ID', 
+                        field:'map_ID',
+                        sortable: true, 
+                        resizable: true,
+                        // code for adding an internal link using the vue router to a grid column
+                        cellRenderer: (params) => {
+                            var link = document.createElement('a');
+                            if(params.data.map_ID != ''){
+                                link.innerText = "Map "+params.data.map_ID;
+                                link.href = '#'
+                                link.addEventListener("click", e => {
+                                    e.preventDefault();
+                                    router.push('/reaction/reactionmap/'+params.data.map_ID+'/mapid');
+                                })
+                            } else {
+                                link.innerText = "No Map"
+                            };
+                            return link;
+                        },
+                        width:250,
+                        tooltipField:'primary_name',
+                    },
+                    {headerName:'Reference', field:'reference', sortable: true, resizable: true, filter: 'agTextColumnFilter', width:450},
+                )
+                return new_cols
+            },
             // function for deleting a chemical
             handleDelete() {
                 // confirmation popup
@@ -91,7 +146,7 @@
                     axios
                         // tell the backend to delete the chemical
                         .post(this.$apiname + "chemicals/chemdelete", {
-                            chemID: this.chemical.local_IDnum,
+                            chemID: this.chemical.dtxsid,
                         })
                         // reroute to the database
                         .then( this.$router.push('/chemical/database') 
@@ -103,140 +158,6 @@
                 this.srcvar = x;
                 this.showhide2=true;
             },
-        },
-        setup(){
-
-            // this is necessary to access the router during setup
-            const router = useRouter() 
-            // this is necessary to access the apiname global variable during setup
-            const apiname = inject('apiname')
-        
-            const metaurl = apiname + "chemicals/mapinfo/" + useRoute().params.chemid + "/metapath";
-            const pfasurl = apiname + "chemicals/mapinfo/" + useRoute().params.chemid + "/pfas";
-            
-            const metarowData = reactive({
-                value: [],
-            });
-            const pfasrowData = reactive({
-                value: [],
-            });
-                    
-            // Defines the columns for metapath AG Grid 
-            const metapathColDefs = reactive({
-                value: [
-                    {
-                        headerName:'Reaction Map', 
-                        field:'mapid', 
-                        resizable: true, 
-                        filter: 'agTextColumnFilter', 
-                        width: 150,
-                        // code for adding an internal link using the vue router to a grid column
-                        cellRenderer: (params) => {
-                            var link = document.createElement('a');
-                            if(params.data.mapid != ''){
-                                link.innerText = "Map "+params.data.mapid;
-                                link.href = '#'
-                                link.addEventListener("click", e => {
-                                    e.preventDefault();
-                                    router.push('/reaction/reactionmap/'+params.data.mapid+'/mapid');
-                                })
-                            } else {
-                                link.innerText = "No Map"
-                            };
-                            return link;
-                        }
-                    },
-                    {headerName:'Species', field:'species', sortable: true, resizable: true, width:200},
-                    {
-                        headerName:'Reference', 
-                        field:'reference', 
-                        sortable: true,  
-                        resizable: true, 
-                        filter: 'agTextColumnFilter', 
-                        width: 1050,
-                        // code for adding an external link to a grid column
-                        cellRenderer: (params) => {
-                            var link = document.createElement('a');
-                            if(params.data.DOI != ''){
-                                link.href = 'https://www.doi.org/'+params.data.DOI;
-                            };
-                            link.target = 'blank_';
-                            link.innerText = params.data.reference;
-                            return link;
-                        }
-                    },
-                ],
-            });
-
-            // Defines the columns for pfas AG Grid 
-            const pfasColDefs = reactive({
-                value: [
-                    {
-                        headerName:'Reaction Map', 
-                        field:'mapid', 
-                        resizable: true, 
-                        filter: 'agTextColumnFilter', 
-                        width: 150,
-                        // code for adding an internal link using the vue router to a grid column
-                        cellRenderer: (params) => {
-                            var link = document.createElement('a');
-                            if(params.data.mapid != ''){
-                                link.innerText = "Map "+params.data.mapid;
-                                link.href = '#'
-                                link.addEventListener("click", e => {
-                                    e.preventDefault();
-                                    router.push('/reaction/reactionmap/'+params.data.mapid+'/mapid');
-                                })
-                            } else {
-                                link.innerText = "No Map"
-                            };
-                            return link;
-                        }
-                    },
-                    {headerName:'Reaction System', field:'reaction_system', sortable: true, resizable: true, width:200},
-                    {
-                        headerName:'Reference', 
-                        field:'reference', 
-                        sortable: true,  
-                        resizable: true, 
-                        filter: 'agTextColumnFilter', 
-                        width: 1050,
-                        // code for adding an external link to a grid column
-                        cellRenderer: (params) => {
-                            var link = document.createElement('a');
-                            if(params.data.DOI != ''){
-                                link.href = 'https://www.doi.org/'+params.data.DOI;
-                            };
-                            link.target = 'blank_';
-                            link.innerText = params.data.reference;
-                            return link;
-                        }
-                    },
-                ],
-            });
-
-            
-            // function for getting the data for the grid
-            onMounted(() => {
-                fetch(metaurl)
-                    .then((result) => result.json())
-                    .then((remoteRowData) => (metarowData.value = remoteRowData))
-                    .then();
-                
-                fetch(pfasurl)
-                    .then((result) => result.json())
-                    .then((remoteRowData) => (pfasrowData.value = remoteRowData))
-                    .then();
-            });
-            
-            return{
-                metapathColDefs,
-                pfasColDefs,
-                metarowData,
-                pfasrowData,
-                metaurl,
-                pfasurl,
-            };
         },
     }
 

@@ -5,8 +5,6 @@
             <EPA_header />
         </div>
     </transition>
-    <!-- Commented out, if returned remove the corresponding item from the header component -->
-    <!-- <crossnav/> -->
     <!-- Inherits Show/Hide value from component -->
     <Header v-on:toggleHeader="(value) => this.showhide = value"/>
     <!-- Displays the page specified by the URL -->
@@ -24,7 +22,7 @@
         </div>
     </transition>
     <div style="position:fixed; bottom:5px; right:25px">
-        Version: 1.2.0
+        Version: 1.3.0
     </div>
 </template>
 
@@ -32,7 +30,6 @@
 <script>
 
 import { RouterLink, RouterView } from 'vue-router'
-import crossnav from '@/components/crossnav.vue'
 import Header from '@/components/Header.vue'
 import EPA_header from '@/components/EPA_Header.vue'
 import EPA_footer from '@/components/Footer.vue'
@@ -45,7 +42,6 @@ export default {
         Header,
         EPA_header,
         EPA_footer,
-        crossnav
     },
     data () {
         return {

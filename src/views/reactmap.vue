@@ -27,27 +27,15 @@
         <button @click="showhide=true">Show Instructions</button>
     </div>
     <!-- the grid setup is in the script section, the grid will only display if there are entries -->
-    <div v-if="this.$route.params.searchtype == 'chemical' && (metarowData.value.length != 0 | pfasrowData.value.length != 0)">
-        <div v-if="metarowData.value.length != 0">
-            <ag-grid-vue
-                class="ag-theme-balham"
-                domLayout="autoHeight"
-                @grid-ready="onGridReady"
-                :columnDefs="metapathColDefs.value"
-                :rowData="metarowData.value"
-                :enableBrowserTooltips="true">
-            </ag-grid-vue>
-        </div>
-        <div v-if="pfasrowData.value.length != 0">
-            <ag-grid-vue
-                class="ag-theme-balham"
-                domLayout="autoHeight"
-                @grid-ready="onGridReady"
-                :columnDefs="pfasColDefs.value"
-                :rowData="pfasrowData.value"
-                :enableBrowserTooltips="true">
-            </ag-grid-vue>
-        </div>
+    <div v-if="(this.$route.params.searchtype == 'chemical' && mapRowData.value.length > 0)">
+        <ag-grid-vue
+            class="ag-theme-balham"
+            domLayout="autoHeight"
+            :columnDefs="mapColDefs.value"
+            :rowData="mapRowData.value"
+            :enableBrowserTooltips="true"
+            @grid-ready="onGridReady">>
+        </ag-grid-vue> 
         <div v-if="(this.openMaps.length == 2)">
             <router-link v-bind:to="'/reaction/reactionmap/'+this.openMaps[0]+'_'+this.openMaps[1]+'/compare'">Compare Open Maps</router-link>
         </div>
@@ -57,26 +45,6 @@
         <div v-else>
             Open Two or Three Maps to Compare Them
         </div>
-    </div>
-    <div v-if="this.$route.params.searchtype == 'compare' && metarowData.value.length != 0">
-        <ag-grid-vue
-            class="ag-theme-balham"
-            domLayout="autoHeight"
-            @grid-ready="onGridReady"
-            :columnDefs="compareColDefs.value"
-            :rowData="metarowData.value"
-            :enableBrowserTooltips="true">
-        </ag-grid-vue>
-    </div>
-    <div v-if="this.$route.params.searchtype == 'compare' && pfasrowData.value.length != 0">
-        <ag-grid-vue
-            class="ag-theme-balham"
-            domLayout="autoHeight"
-            @grid-ready="onGridReady"
-            :columnDefs="compareColDefs.value"
-            :rowData="pfasrowData.value"
-            :enableBrowserTooltips="true">
-        </ag-grid-vue>
     </div>
     <div v-if="(this.$route.params.searchtype == 'compare')">
         Map {{this.$route.params.searchinput.split('_')[0]}} <span style="color:#0072B2">&#9632;</span> <br>
@@ -97,7 +65,7 @@
 <script>
 
 import {ref, reactive} from 'vue'
-import { useRoute } from 'vue-router'
+import { useRouter } from 'vue-router'
 import ForceGraph from 'force-graph'
 import axios from 'axios'
 import {AgGridVue} from 'ag-grid-vue3'
@@ -111,188 +79,17 @@ export default {
     },
     data(){
         const input = ref("");
-        const metaurl = this.$apiname + "chemicals/mapinfo/" + useRoute().params.searchinput + "/metapath";
-        const pfasurl = this.$apiname + "chemicals/mapinfo/" + useRoute().params.searchinput + "/pfas";
-        const metarowData = reactive({
-            value: [],
+        const mapRowData = reactive({
+            value: []
         });
-        const pfasrowData = reactive({
-            value: [],
-        });
-        // Defines the columns for AG Grid for the single chemical view 
-        const metapathColDefs = reactive({
-            value: [
-                {
-                    headerName:'Show/Hide Map', 
-                    field:'mapid', 
-                    resizable: true, 
-                    filter: 'agTextColumnFilter', 
-                    width: 150,
-                    // code for coloring cells when they are included in an open map, forceRefresh necessary below
-                    cellStyle: params => {
-                        if(this.openMaps.includes(params.data.mapid)){
-                            return {backgroundColor:'#c7dbed'};
-                        } else {
-                            return {backgroundColor:''}
-                        };
-                    },
-                    // code for setting up a link in the cell which emits an event which will show or hide the chemicals and reactions in a map
-                    cellRenderer: (params) => {
-                        var link = document.createElement('a');
-                        if(params.data.mapid != ''){
-                            link.innerText = "Map "+params.data.mapid;
-                            link.href = '#'
-                            link.addEventListener("click", e => {
-                                e.preventDefault();
-                                this.openmap(params.data.mapid);
-                            })
-                        } else {
-                            link.innerText = "No Map"
-                        };
-                        return link;
-                    },
-                },
-                {
-                    headerName:'Highlight Map', 
-                    field:'mapid', 
-                    resizable: true, 
-                    filter: 'agTextColumnFilter', 
-                    width: 150,
-                    // code for coloring cells when they are included in a highlighted map, forceRefresh necessary below
-                    cellStyle: params => {
-                        if(this.highlightMaps.includes(params.data.mapid)){
-                            return {backgroundColor:'#c7dbed'};
-                        } else {
-                            return {backgroundColor:''}
-                        };
-                    },
-                    // code for setting up a link in the cell which emits an event which will highlight the chemicals and reactions in a map
-                    cellRenderer: (params) => {
-                        var link = document.createElement('a');
-                        if(params.data.mapid != ''){
-                            link.innerText = "Map "+params.data.mapid;
-                            link.href = '#'
-                            link.addEventListener("click", e => {
-                                e.preventDefault();
-                                this.highlightmap(params.data.mapid);
-                            })
-                        } else {
-                            link.innerText = "No Map"
-                        };
-                        return link;
-                    }
-                },
-                {headerName:'Species', field:'species', sortable: true, resizable: true, width:200},
-                {
-                    headerName:'Reference', 
-                    field:'reference', 
-                    sortable: true,  
-                    resizable: true, 
-                    filter: 'agTextColumnFilter', 
-                    width: 1050,
-                    // code for adding an external link to a grid column
-                    cellRenderer: (params) => {
-                        var link = document.createElement('a');
-                        if(params.data.DOI != ''){
-                            link.href = 'https://www.doi.org/'+params.data.DOI;
-                        };
-                        link.target = 'blank_';
-                        link.innerText = params.data.reference;
-                        return link;
-                    }
-                },
-            ],
-        });
-
-        // Defines the columns for AG Grid for the single chemical view 
-        const pfasColDefs = reactive({
-            value: [
-                {
-                    headerName:'Show/Hide Map', 
-                    field:'mapid', 
-                    resizable: true, 
-                    filter: 'agTextColumnFilter', 
-                    width: 150,
-                    // code for coloring cells when they are included in an open map, forceRefresh necessary below
-                    cellStyle: params => {
-                        if(this.openMaps.includes(params.data.mapid)){
-                            return {backgroundColor:'#c7dbed'};
-                        } else {
-                            return {backgroundColor:''}
-                        };
-                    },
-                    // code for setting up a link in the cell which emits an event which will show or hide the chemicals and reactions in a map
-                    cellRenderer: (params) => {
-                        var link = document.createElement('a');
-                        if(params.data.mapid != ''){
-                            link.innerText = "Map "+params.data.mapid;
-                            link.href = '#'
-                            link.addEventListener("click", e => {
-                                e.preventDefault();
-                                this.openmap(params.data.mapid);
-                            })
-                        } else {
-                            link.innerText = "No Map"
-                        };
-                        return link;
-                    },
-                },
-                {
-                    headerName:'Highlight Map', 
-                    field:'mapid', 
-                    resizable: true, 
-                    filter: 'agTextColumnFilter', 
-                    width: 150,
-                    // code for coloring cells when they are included in a highlighted map, forceRefresh necessary below
-                    cellStyle: params => {
-                        if(this.highlightMaps.includes(params.data.mapid)){
-                            return {backgroundColor:'#c7dbed'};
-                        } else {
-                            return {backgroundColor:''}
-                        };
-                    },
-                    // code for setting up a link in the cell which emits an event which will highlight the chemicals and reactions in a map
-                    cellRenderer: (params) => {
-                        var link = document.createElement('a');
-                        if(params.data.mapid != ''){
-                            link.innerText = "Map "+params.data.mapid;
-                            link.href = '#'
-                            link.addEventListener("click", e => {
-                                e.preventDefault();
-                                this.highlightmap(params.data.mapid);
-                            })
-                        } else {
-                            link.innerText = "No Map"
-                        };
-                        return link;
-                    }
-                },
-                {headerName:'Reaction System', field:'reaction_system', sortable: true, resizable: true, width:200},
-                {
-                    headerName:'Reference', 
-                    field:'reference', 
-                    sortable: true,  
-                    resizable: true, 
-                    filter: 'agTextColumnFilter', 
-                    width: 1050,
-                    // code for adding an external link to a grid column
-                    cellRenderer: (params) => {
-                        var link = document.createElement('a');
-                        if(params.data.DOI != ''){
-                            link.href = 'https://www.doi.org/'+params.data.DOI;
-                        };
-                        link.target = 'blank_';
-                        link.innerText = params.data.reference;
-                        return link;
-                    }
-                },
-            ],
+        const mapColDefs = reactive({
+            value: []
         });
 
         // Defines the columns for AG Grid for the map comparison view 
         const compareColDefs = reactive({
             value: [
-                {headerName:'Map ID', field:'mapid', resizable: true, filter: 'agTextColumnFilter', width: 150},
+                {headerName:'Map ID', field:'map_ID', resizable: true, filter: 'agTextColumnFilter', width: 150},
                 {headerName:'Species', field:'species', sortable: true, resizable: true, width:200},
                 {headerName:'Reaction System', field:'reaction_system', sortable: true, resizable: true, width:200},
                 {
@@ -324,16 +121,12 @@ export default {
             openMaps: [],
             highlightMaps: [],
             reactlist:[],
-            metarowData,
-            pfasrowData,
             rootid:'',
             Graph: '',
             input,
-            metapathColDefs,
-            pfasColDefs,
+            mapColDefs,
+            mapRowData,
             compareColDefs,
-            metaurl,
-            pfasurl,
             showhide:false,
             chemname:'',
             chemical:'',
@@ -344,23 +137,28 @@ export default {
         chemurl() {
             return this.$apiname + "chemicals/" + this.$route.params.searchinput
         },
+        mapurl() {
+            return this.$apiname + "chemicals/maps/" + this.$route.params.searchinput
+        },
     },
     // get the chemical info and map info from the backend
     created: async function(){
         const chemResponse = await fetch(this.chemurl);
         const chemObject = await chemResponse.json();
         this.chemical = chemObject[0];
+        
+        const mapResponse = await fetch(this.mapurl);
+        const mapObject = await mapResponse.json();
+        this.mapRowData.value = mapObject;
     },
     mounted() {        
+        this.mapColDefs.value = this.buildcolumns()
+
         this.visibleNodes = []
         this.openNodes = []
         this.reactlist = []
         this.searchstring = '____'
 
-        // gets the row data from the backend for AG grid
-        fetch(this.metaurl).then((result) => result.json()).then((remoteRowData) => (this.metarowData.value = remoteRowData));
-        fetch(this.pfasurl).then((result) => result.json()).then((remoteRowData) => (this.pfasrowData.value = remoteRowData));
-        
         // gets the map data from the backend, then sets up the forcegraph map
         fetch(this.$apiname + "reaction/reactionmap/" + this.$route.params.searchinput + "/" + this.$route.params.searchtype).then(res => res.json()).then(data => {
             // defines the graph and places it in the HTML element named 'graph'
@@ -368,7 +166,7 @@ export default {
             const N = 10
             let k = 0
             if(this.$route.params.searchtype == 'chemical'){
-                this.rootID = String(this.chemical.local_IDnum)
+                this.rootID = String(this.chemical.chemical_ID)
             }
             // defines a root node, either the chemical we entered with or the first chemical in the map, this node will always be visible
             const rootnode = (this.$route.params.searchtype == 'chemical' ? this.rootID : data.nodes[0]['id'])
@@ -492,6 +290,75 @@ export default {
             this.gridApi = params.api;
             this.gridColumnApi = params.columnApi;
         },
+        // a function for building JSONs for the gird's columns
+        buildcolumns(){
+            let new_cols = []
+            // fixed rows for identifiers and structure image
+            new_cols.push(
+                {
+                    headerName:'Show/Hide Map', 
+                    field:'map_ID',
+                    sortable: true, 
+                    resizable: true,
+                    width:250,
+                    // code for coloring cells when they are included in an open map, forceRefresh necessary below
+                    cellStyle: params => {
+                        if(this.openMaps.includes(params.data.map_ID)){
+                            return {backgroundColor:'#c7dbed'};
+                        } else {
+                            return {backgroundColor:''}
+                        };
+                    },
+                    // code for setting up a link in the cell which emits an event which will show or hide the chemicals and reactions in a map
+                    cellRenderer: (params) => {
+                        var link = document.createElement('a');
+                        if(params.data.map_ID != ''){
+                            link.innerText = "Map "+params.data.map_ID;
+                            link.href = '#'
+                            link.addEventListener("click", e => {
+                                e.preventDefault();
+                                this.openmap(params.data.map_ID);
+                            })
+                        } else {
+                            link.innerText = "No Map"
+                        };
+                        return link;
+                    }
+                },
+                {
+                    headerName:'Highlight Map', 
+                    field:'map_ID',
+                    sortable: true, 
+                    resizable: true,
+                    width:250,
+                    // code for coloring cells when they are included in a highlighted map, forceRefresh necessary below
+                    cellStyle: params => {
+                        if(this.highlightMaps.includes(params.data.map_ID)){
+                            return {backgroundColor:'#c7dbed'};
+                        } else {
+                            return {backgroundColor:''}
+                        };
+                    },
+                    // code for setting up a link in the cell which emits an event which will highlight the chemicals and reactions in a map
+                    cellRenderer: (params) => {
+                        var link = document.createElement('a');
+                        if(params.data.map_ID != ''){
+                            link.innerText = "Map "+params.data.map_ID;
+                            link.href = '#'
+                            link.addEventListener("click", e => {
+                                e.preventDefault();
+                                this.highlightmap(params.data.map_ID);
+                            })
+                        } else {
+                            link.innerText = "No Map"
+                        };
+                        return link;
+                    }
+                },
+                {headerName:'Reference', field:'reference', sortable: true, resizable: true, filter: 'agTextColumnFilter', width:450},
+            )
+            return new_cols
+        },
         // opens all nodes in the graph (JSON.pares(JSON.stringify()) syntax used because we are not in the graph object)
         openall: async function(){
             // get the list of all nodes in the graph and their neighbors
@@ -549,7 +416,7 @@ export default {
                 this.highlightMaps = this.highlightMaps.filter(v => v != id);
                 // remove the reaction id's within the map from the list of highlighted reactions
                 mapreactions.forEach( reaction => {
-                    const x = JSON.stringify(reaction.reaction_id);
+                    const x = JSON.stringify(reaction.reaction_ID);
                     const index = this.reactlist.findIndex(v => v==x);
                     this.reactlist.splice(index,1);
                 });
@@ -558,7 +425,7 @@ export default {
                 this.highlightMaps.push(id);
                 // add the reaction id's within the map to the list of highlighted reactions
                 mapreactions.forEach(reaction => {
-                    const x = JSON.stringify(reaction.reaction_id);
+                    const x = JSON.stringify(reaction.reaction_ID);
                     this.reactlist.push(x);
                 })
             }
@@ -578,7 +445,7 @@ export default {
             const gData = await(fetch(this.$apiname + "reaction/reactionmap/" + this.$route.params.searchinput + "/" + this.$route.params.searchtype).then(res => res.json()).then(data => {return data}))
             // determine the root node
             if(this.$route.params.searchtype == 'chemical'){
-                this.rootID = String(this.chemical.local_IDnum)
+                this.rootID = String(this.chemical.chemical_ID)
             }
             const rootnode = (this.$route.params.searchtype == 'chemical' ? this.rootID : gData.nodes[0]['id'])
             // set open and visible maps, nodes, and links
@@ -597,7 +464,7 @@ export default {
                 .post(this.$apiname + "reaction/map_DL", {
                     searchtype : this.$route.params.searchtype,
                     mapid : this.$route.params.searchinput,
-                    chemicals : this.visibleNodes,
+                    chemicals : this.openNodes,
                     responseType: 'blob',
                 })
                 // get the file setup by the backend and open a download window

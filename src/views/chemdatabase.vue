@@ -1,5 +1,5 @@
 <template>
-
+    <!-- row view -->
     <div v-if="rowtile"> 
         <button v-on:click="rowtile = !rowtile">Tile View</button>
         <button v-on:click="handleGridExport()">Export Chemical List</button><br><br>
@@ -10,11 +10,12 @@
             domLayout="autoHeight"
             rowHeight="100px"
             :columnDefs="chemColDefs.value"
-            :rowData="rowData.value"
+            :rowData="buildrows(rowData.value,countsdata)"
             :enableBrowserTooltips="true"
             @grid-ready="onGridReady">
         </ag-grid-vue>
     </div>
+    <!-- tile view -->
     <div v-else id="tiles">
         <button v-on:click="rowtile = !rowtile">Table View</button>
         <button v-on:click="handleExport">Export Chemical List</button> <br><br>
@@ -29,7 +30,7 @@
         <!-- tile formatting is handled mostly by the css styling -->
         <div class="tile" v-for="row in filteredlist">
             <p style="text-overflow: ellipsis; overflow: hidden; white-space: nowrap;">Name: <router-link v-bind:to="'/chemical/'+row.dtxsid"> {{row.primary_name}} </router-link> </p>
-            <p><img v-bind:src="'data:image/png;base64,'+row.image" v-on:click="magnify('data:image/png;base64,'+row.image)" alt="missing image" style="display: block; margin-left: auto; margin-right: auto; width:150px; height:150px;" /> </p>
+            <p><img v-bind:src="'data:image/png;base64,'+row.image" v-on:click="magnify(['data:image/png;base64,'+row.image,row.primary_name])" alt="missing image" style="display: block; margin-left: auto; margin-right: auto; width:150px; height:150px;" /> </p>
             <p>DTXSID: <a :href="'https://comptox.epa.gov/dashboard/chemical/details/' + row.dtxsid" target="_blank"> {{row.dtxsid}} ↗</a></p>
         </div>
         </div>
@@ -45,10 +46,10 @@
 
     <!-- popup windown for showing a larger image of a chemical -->
     <div v-if="showhide" class="chemcheck">
-        <img v-bind:src="srcvar" alt="missing image" style="display: block; margin-left: auto; margin-right: auto; width:300px; height:300px;" /><hr>
+        <img v-bind:src="srcvar" alt="missing image" style="display: block; margin-left: auto; margin-right: auto; width:300px; height:300px;" /><br>
+        {{ srcname }}<hr>
         <button @click="showhide=false"> [X] </button>     
     </div>
-    
 </template>
 
 <script>
@@ -68,13 +69,24 @@
         data () {        
             // input needs to be reactive for filtering to work
             const input = ref("");
+            const rowData = reactive({
+                value: []
+            });
+            const chemColDefs = reactive({
+                value: []
+            });
             return {
                 rowtile: false,
-                bigout: '',
+                chemColDefs,
+                rowData,
+                bigout:'',
                 input,
                 showhide: false,
                 srcvar:'',
+                srcname:'',
                 timer:true,
+                library_list:[],
+                countsdata:[],
             }
         },
         // get the database JSON from the backend
@@ -87,6 +99,23 @@
             } catch (error){
                 this.timer = false
             }
+        },
+        mounted() {
+            const liburl = this.$apiname + "reaction/libraries"
+            fetch(liburl)
+                .then((result) => result.json())
+                .then((remoteRowData) => (
+                    this.chemColDefs.value = this.buildcolumns(remoteRowData),
+                    this.library_list = remoteRowData
+                ));
+            const counturl = this.$apiname + "chemicals/counts"
+            fetch(counturl)
+                .then((result) => result.json())
+                .then((remoteRowData) => (this.countsdata = remoteRowData));
+            const chemurl = this.$apiname + "chemicals/database"
+            fetch(chemurl)
+                .then((result) => result.json())
+                .then((remoteRowData) => (this.rowData.value = remoteRowData));
         },
         computed: {
             // function for filtering the database JSON
@@ -110,18 +139,17 @@
                 }
             },
         },
-        setup(){
-            // this is necessary to access the apiname global variable during setup
-            const apiname = inject('apiname')
-            // this is necessary to access the router during setup
-            const router = useRouter()
-            const url = apiname + "chemicals/database"
-            const rowData = reactive({
-                value: [],
-            });
-            // Defines the columns for AG Grid
-            const chemColDefs = reactive({
-                value: [
+        methods: {
+            // sets up the grid
+            onGridReady(params) {
+                this.gridApi = params.api;
+                this.gridColumnApi = params.columnApi;
+            },
+            // a function for building JSONs for the gird's columns
+            buildcolumns(liblist){
+                let new_cols = []
+                // fixed rows for identifiers and structure image
+                new_cols.push(
                     {
                         headerName:'Structure', 
                         autoHeight: true,
@@ -166,7 +194,7 @@
                             link.innerText = params.data.primary_name;
                             link.addEventListener('click', (e) => {
                                 e.preventDefault();
-                                router.push('/reaction/searchresults/' + params.data.dtxsid + '/ID');
+                                this.$router.push('/reaction/searchresults/' + params.data.dtxsid + '/ID');
                                 }
                             );
                             return link;
@@ -174,117 +202,50 @@
                         width:250,
                         tooltipField:'primary_name',
                     },
-                    {headerName:'Synonyms', field:'other_names', tooltipField:'other_names', sortable: true, filter: 'agTextColumnFilter', floatingFilter: true, width:350},
                     {headerName:'CASRN', field:'casrn', sortable: true, resizable: true, filter: 'agTextColumnFilter', floatingFilter: true, width:115},
-                    {headerName:'InChI KEY', field:'inchi', sortable: true, hide: true, filter: 'agTextColumnFilter', floatingFilter: true, width:350},
-                    {
-                        headerName: 'Number of Reactions',
-                        // code for sub-headers below the major header
-                        children: [
-                            {
-                                headerName:'Hydrolysis', 
-                                field:'hydro_count', 
-                                resizable: true, 
-                                sortable: true, 
-                                cellStyle: { 'justify-content': 'center' },
-                                width:80,
-                                // code for adding an internal link using the vue router to a grid column
-                                cellRenderer: (params) => {
-                                    var link = document.createElement('a');
-                                    link.href = '#';
-                                    link.innerText = params.data.hydro_count;
-                                    link.addEventListener('click', (e) => {
-                                        e.preventDefault();
-                                        router.push('/reaction/searchresults/'+params.data.local_IDnum+'/hydrolysis');
-                                    });
-                                    // don't link out if there are no reactions
-                                    if (params.data.hydro_count == 0) return '0';
-                                    else return link;
-                                },
-                            },
-                            {
-                                headerName:'PFAS', 
-                                field:'pfas_count', 
-                                resizable: true, 
-                                sortable: true, 
-                                cellStyle: { 'justify-content': 'center' },
-                                width:50,
-                                // code for adding an internal link using the vue router to a grid column
-                                cellRenderer: (params) => {
-                                    var link = document.createElement('a');
-                                    link.href = '#';
-                                    link.innerText = params.data.pfas_count;
-                                    link.addEventListener('click', (e) => {
-                                        e.preventDefault();
-                                        router.push('/reaction/searchresults/'+params.data.local_IDnum+'/PFAS');
-                                    });
-                                    // don't link out if there are no reactions
-                                    if (params.data.pfas_count == 0) return '0';
-                                    else return link;
-                                },
-                            },
-                            {
-                                headerName:'MetaPath', 
-                                field:'meta_count', 
-                                resizable: true, 
-                                sortable: true, 
-                                cellStyle: { 'justify-content': 'center' },
-                                width:80,
-                                // code for adding an internal link using the vue router to a grid column
-                                cellRenderer: (params) => {
-                                    var link = document.createElement('a');
-                                    link.href = '#';
-                                    link.innerText = params.data.meta_count;
-                                    link.addEventListener('click', (e) => {
-                                        e.preventDefault();
-                                        router.push('/reaction/searchresults/'+params.data.local_IDnum+'/metapath');
-                                    });
-                                    // don't link out if there are no reactions
-                                    if (params.data.meta_count == 0) return '0';
-                                    else return link;
-                                },
-                            },
-                            {
-                                headerName:'Photolysis', 
-                                field:'photo_count', 
-                                resizable: true, 
-                                sortable: true, 
-                                cellStyle: { 'justify-content': 'center' },
-                                width:80,
-                                // code for adding an internal link using the vue router to a grid column
-                                cellRenderer: (params) => {
-                                    var link = document.createElement('a');
-                                    link.href = '#';
-                                    link.innerText = params.data.photo_count;
-                                    link.addEventListener('click', (e) => {
-                                        e.preventDefault();
-                                        router.push('/reaction/searchresults/'+params.data.local_IDnum+'/Photolysis');
-                                    });
-                                    // don't link out if there are no reactions
-                                    if (params.data.photo_count == 0) return '0';
-                                    else return link;
-                                },
-                            },
-                        ]
-                    },
-                ],
-            });
-
-            // function for getting the data for the grid
-            onMounted(() => {
-                fetch(url)
-                    .then((result) => result.json())
-                    .then((remoteRowData) => (rowData.value = remoteRowData))
-                    .then();
-            });
-
-            return{
-                chemColDefs,
-                rowData,
-                url,
-            };
-        },
-        methods: {
+                    {headerName:'InChI KEY', field:'inchi', sortable: true, hide:true, resizable: true, filter: 'agTextColumnFilter', floatingFilter: true, width:350},
+                    {headerName:'Number of Reactions', children:[]},
+                )
+                for(let i of liblist){
+                    new_cols[5].children.push({
+                        headerName : i.lib_name,
+                        field : i.lib_name,
+                        resizable: true, 
+                        sortable: true, 
+                        cellStyle: { 'justify-content': 'center' },
+                        width:80,
+                        // code for adding an internal link using the vue router to a grid column
+                        cellRenderer: (params) => {
+                            var link = document.createElement('a');
+                            link.href = '#';
+                            link.innerText = params.data[i.lib_name];
+                            link.addEventListener('click', (e) => {
+                                e.preventDefault();
+                                this.$router.push('/reaction/searchresults/'+params.data.dtxsid+'/'+i.lib_ID);
+                            });
+                            // don't link out if there are no reactions
+                            if (params.data.hydro_count == 0) return '0';
+                            else return link;
+                        },
+                    })
+                }
+                return new_cols
+            },
+            // a function for building JSONs for the grid's rows
+            buildrows(row_raw, counts){
+                let new_rows = row_raw
+                for(let row of new_rows){
+                    for(let library of this.library_list){
+                        if(counts.filter((item) => {return item.lib_ID == library.lib_ID && item.chemical_ID == row.chemical_ID}).length > 0){
+                            row[library.lib_name] = counts.filter((item) => {return item.lib_ID == library.lib_ID && item.chemical_ID == row.chemical_ID})[0].chem_lib_count
+                        }
+                        else{
+                            row[library.lib_name] = 0
+                        }
+                    }
+                }
+                return(new_rows)
+            },
             // code for exporting the contents of a tile view search
             async handleExport() {
                 axios
@@ -307,14 +268,10 @@
             handleGridExport() {
                 this.gridApi.exportDataAsCsv({allColumns:true});
             },
-            // sets up the grid
-            onGridReady(params) {
-                this.gridApi = params.api;
-                this.gridColumnApi = params.columnApi;
-            },
             // code for zooming on a chemical, sets the image in the popup window to the clicked item then shows the popup
             magnify(x) {
-                this.srcvar = x;
+                this.srcvar = x[0];
+                this.srcname = x [1];
                 this.showhide=true;
             },
         },
