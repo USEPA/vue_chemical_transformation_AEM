@@ -14,7 +14,7 @@ app.use(BootstrapVue3)
 
 //sets up a global variable for the rest of the app to use so that the location of the backend only needs to be specified once
 //change the apiname variable to the location of the server for the backend for any new deployed location
-app.config.globalProperties.$apiname = 'http://v2626umcth889.rtord.epa.gov:9413/'
-app.provide('apiname', 'http://v2626umcth889.rtord.epa.gov:9413/')
+app.config.globalProperties.$apiname = 'https://ccte-cced-api-chet.epa.gov/'
+app.provide('apiname', 'https://ccte-cced-api-chet.epa.gov/')
 
 app.mount('#app')
