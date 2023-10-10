@@ -42,13 +42,13 @@ jobs:
           ENV_TEXT: ${{vars.ENV_TEXT}}
 
       - name: Docker build
-        run: docker build -f Dockerfile -t vue_chemical_transformation_AEM-security-${{ github.head_ref || github.ref_name }} .
+        run: docker build -f Dockerfile -t vue_chemical_transformation_aem-security-${{ github.head_ref || github.ref_name }} .
           
       - name: Run security scan on the container
         uses: aquasecurity/trivy-action@0.12.0
         id:   scan
         with:
-          image-ref: 'vue_chemical_transformation_AEM-security-${{ github.head_ref || github.ref_name }}'
+          image-ref: 'vue_chemical_transformation_aem-security-${{ github.head_ref || github.ref_name }}'
           format: 'table'
           severity: 'CRITICAL,HIGH'
           exit-code: 1  
@@ -58,7 +58,7 @@ jobs:
       - name: Delete Package Versions
         uses: actions/delete-package-versions@v4.1.0
         with: 
-          package-name: vue_chemical_transformation_AEM
+          package-name: vue_chemical_transformation_aem
           package-type: 'container'
           min-versions-to-keep: 3
           delete-only-untagged-versions: 'true'   
