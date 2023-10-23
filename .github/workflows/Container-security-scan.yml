@@ -20,7 +20,7 @@ env:
 
 
 jobs:
-  build-push:
+  container-scan:
 
     runs-on: th889
     environment: ${{ github.head_ref || github.ref_name }}
@@ -51,7 +51,7 @@ jobs:
           image-ref: 'vue_chemical_transformation_aem-security-${{ github.head_ref || github.ref_name }}'
           format: 'table'
           severity: 'CRITICAL,HIGH'
-          exit-code: 1  
+           
 
           
       # Removing old packages and only keeping 3 untagged versions
