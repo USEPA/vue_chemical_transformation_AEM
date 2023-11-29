@@ -7,7 +7,7 @@ name: Container-security-scan
 
 on:
   push:
-    branches: [ dev, staging ]
+    branches: [ dev, staging, dev-651 ]
     # Publish semver tags as releases.
     tags: [ 'v*.*.*' ]
 
