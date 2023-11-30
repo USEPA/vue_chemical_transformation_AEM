@@ -40,7 +40,7 @@
         </div>
         <!-- if the data have loaded but all elements have been filtered out of the list, indicate that there is no match -->
         <div v-else-if="filteredlist.length == 0">
-            <br> <p style="font-size:25px">THE DATABASE COULD NOT BE REACHED</p>
+            <br> <p style="font-size:25px">NO CHEMICALS MATCH THAT SEARCH</p>
         </div>
     </div>
 

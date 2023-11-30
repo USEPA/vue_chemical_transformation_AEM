@@ -14,6 +14,18 @@
         </tr>
     </table>
     <button @click="detailSubmit">Submit New Details</button>
+    <div v-if="showhide4" class="chemcheck">
+        <!-- if there is an error display it -->
+        <div v-if="this.errormessage == ''">
+            Entering New Details . . .
+        </div>
+        <!-- otherwise display the chemical from the check and confirm submission -->
+        <div v-else>
+            {{ errormessage }} <br>
+            <button @click="this.$router.push(this.return_route)"> Browse Chemicals </button>
+            <button @click="showhide4=false"> [X] </button>
+        </div>
+    </div>
     
 </template>
 
@@ -28,12 +40,15 @@ export default{
             reaction: [],
             detail_list: [],
             return_route: '/reaction/' + this.$route.params.reactid,
-            reacturl: this.$apiname + "reaction/" + this.$route.params.reactid
+            reacturl: this.$apiname + "reaction/" + this.$route.params.reactid,
+            showhide4: false,
+            errormessage: ''
         }
     },
     methods: {
         // function for submitting a hydrolysis reaction detail
         detailSubmit() {
+            this.showhide4 = true;
             let parent = this.reaction.parent_dtxsid[0]
             for(let id of this.reaction.parent_dtxsid){
                 if(id != parent){
@@ -47,7 +62,7 @@ export default{
                 } 
             }
             axios
-                // Send the chemical to the backend
+                // Send the details to the backend
                 .post(this.$apiname + "reaction/newreaction", {
                     parent: parent,
                     product: product,
@@ -57,8 +72,10 @@ export default{
                     library: this.reaction.lib_ID,
                     details: this.detail_list,
                 })
-                // redirect the user to the database
-                .then( this.$router.push(this.return_route));
+                // display the result of the new detail
+                .then((res) => {
+                    this.errormessage = (res.data)
+                });
         },        
         get_details(libID) {
             const detailurl = this.$apiname + "reaction/details/" + libID
@@ -85,3 +102,16 @@ export default{
 }
 
 </script>
+
+<style>
+
+.chemcheck{
+    position:fixed;
+    top:20%;
+    right:40%;
+    left:40%;
+    text-align: center;
+    border: 2px solid black;
+}
+
+</style>

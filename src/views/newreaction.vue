@@ -63,6 +63,18 @@
             <button v-if="reactionfile != null" type="submit">Submit</button> <br><br>
         </form>
     </div>
+    <div v-if="showhide4" class="chemcheck">
+        <!-- if there is an error display it -->
+        <div v-if="this.errormessage == ''">
+            Entering Reaction(s) . . .
+        </div>
+        <!-- otherwise display the chemical from the check and confirm submission -->
+        <div v-else>
+            {{ errormessage }} <br>
+            <button @click="this.$router.push('/reaction/database')"> Browse Reactions </button>
+            <button @click="showhide4=false"> [X] </button>
+        </div>
+    </div>
 </template>
 
 <script>
@@ -76,6 +88,7 @@ export default{
             showhide1: false,
             showhide2: false,
             showhide3: false,
+            showhide4: false,
             showhide_map: false,
             showhide_detail: false,
             library_list: [],
@@ -89,6 +102,7 @@ export default{
             type: '',
             scheme: '',
             reactionfile: null,
+            errormessage: '',
         }
     },
     mounted() {
@@ -120,6 +134,7 @@ export default{
         },
         // function for submitting a new reaction
         handleSubmit() {
+            this.showhide4 = true;
             axios
                 // Send the chemical to the backend
                 .post(this.$apiname + "reaction/newreaction", {
@@ -132,8 +147,10 @@ export default{
                     details: this.detail_list,
                 })
                 // redirect the user to the database
-                .then( this.$router.push('/reaction/database')
-                );
+                .then((res) => {
+                    this.errormessage = (res.data)
+                })
+                ;
         },
         // function to download template for entering multiple reactions at once
         async templateDL() {
@@ -159,6 +176,7 @@ export default{
         },
         // submits a list of reactions to the database
         handleSubmitFile() {
+            this.showhide4 = true;
             // create a html form and adds the file to it
             let formData = new FormData();
             formData.append('reactionfile', this.reactionfile);
@@ -169,9 +187,10 @@ export default{
                         'Content-Type': 'multipart/form-data'
                     }
                 })
-                // redirects the user to the database
-                .then( this.$router.push('/reaction/database') 
-                )
+                // redirect the user to the database
+                .then((res) => {
+                    this.errormessage = (res.data)
+                })
         },
     },
 }

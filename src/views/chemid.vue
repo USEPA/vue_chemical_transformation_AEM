@@ -13,7 +13,7 @@
             &nbsp; &nbsp; <button v-on:click="alias_showhide = !alias_showhide">Synonyms</button>
             <div v-if="alias_showhide" v-for="name in aliases"> &nbsp; &nbsp; &nbsp; &nbsp; {{name.alias}}</div> <br>
         </div>
-        <a :href="'http://v2626umcth819.rtord.epa.gov:5173/search/' + chemical.dtxsid + '?initial_results_tab=all'" target="_blank"> Search Methods and Spectra ↗ </a><br><br>
+        <a :href="'https://ccte-cced-amos.epa.gov/search/' + chemical.dtxsid + '?initial_results_tab=all'" target="_blank"> Search Methods and Spectra ↗ </a><br><br>
 
         <router-link v-bind:to="'/reaction/searchresults/'+this.$route.params.chemid+'/ID'">List of Reactions Containing this Chemical</router-link><br>
         <router-link v-bind:to="'/reaction/reactionmap/'+ this.$route.params.chemid +'/chemical'">Map of all Reactions Linked to this Chemical</router-link><br><br>

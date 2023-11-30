@@ -9,7 +9,7 @@
     <table style="width:100%; border:2px">
         <template v-for="row,index in filteredlist">
             <tr v-if="index % 2 == 0">
-                <td v-if="filteredlist[index]" style="width:50%; border:2px solid black;">                    
+                <td v-if="filteredlist[index]" style="max-width:700px; width:50%; border:2px solid black;">                    
                     <span v-if="row.searchterm" style="font-weight: bold">Search Term: {{row.searchterm}}</span><br>
                     <span v-if="row.searchterm" style="font-weight: bold" v-on:mouseover="show_hover($event,row)" v-on:mouseout="showhide = false">Resulting Chemical: {{row.searchchem}}</span>
                     <template v-if="filteredlist[index]['restype'] == 'chemical'">
@@ -49,7 +49,7 @@
                         <p v-if="row.reaction_scheme">Reaction Scheme: <router-link v-bind:to="'/reaction/searchresults/'+row.reaction_scheme+'/reaction_scheme'" style="text-transform: capitalize;">{{row.reaction_scheme}}</router-link></p>
                     </template>
                 </td>
-                <td v-if="filteredlist[index+1]" style="width:50%; border:2px solid black;">                    
+                <td v-if="filteredlist[index+1]" style="max-width:700px; width:50%; border:2px solid black;">                    
                     <span v-if="filteredlist[index+1].searchterm" style="font-weight: bold">Search Term: {{filteredlist[index+1].searchterm}}</span><br>
                     <span v-if="filteredlist[index+1].searchterm" style="font-weight: bold" v-on:mouseover="show_hover($event,filteredlist[index+1])" v-on:mouseout="showhide = false">Resulting Chemical: {{filteredlist[index+1].searchchem}}</span>
                     <template v-if="filteredlist[index+1]['restype'] == 'chemical'">

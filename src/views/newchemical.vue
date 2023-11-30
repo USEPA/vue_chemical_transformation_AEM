@@ -35,6 +35,18 @@
             <button style="width:130px" @click="handleSubmit">Yes</button><button style="width:130px" @click="showhide3=false">No</button>
         </div>
     </div>
+    <div v-if="showhide4" class="chemcheck">
+        <!-- if there is an error display it -->
+        <div v-if="this.errormessage == ''">
+            Entering Chemical(s) . . .
+        </div>
+        <!-- otherwise display the chemical from the check and confirm submission -->
+        <div v-else>
+            {{ errormessage }} <br>
+            <button @click="this.$router.push('/chemical/database')"> Browse Chemicals </button>
+            <button @click="showhide4=false"> [X] </button>
+        </div>
+    </div>
 </template>
 
 <script>
@@ -48,10 +60,12 @@ export default{
             showhide1: false,
             showhide2: false,
             showhide3: false,
+            showhide4: false,
             chemical: [],
             dtxsid: '',
             chemfile: null,
             checkchem:[],
+            errormessage:'',
         }
     },
     methods: {
@@ -65,14 +79,17 @@ export default{
         },
         // function for submitting a new chemical
         async handleSubmit() {
-            axios
+            this.showhide3 = false;
+            this.showhide4 = true;
+            await axios
                 // Send the chemical to the backend
                 .post(this.$apiname + "chemicals/newchemical", {
                     dtxsid: this.dtxsid,
                 })
-                // redirect the user to the database
-                .then(this.$router.push('/chemical/database') 
-                );
+                .then((res) => {
+                    this.errormessage = (res.data)
+                })
+                ;
         },
         // function to download template for entering multiple chemicals at once
         async templateDL() {
@@ -98,6 +115,7 @@ export default{
             // create a html form and adds the file to it
             let formData = new FormData();
             formData.append('chemfile', this.chemfile);
+            this.showhide4 = true;
             axios
                 // sends the file to the backend to be added to the database
                 .post(this.$apiname + "chemicals/newchemfile", formData, {
@@ -105,8 +123,9 @@ export default{
                         'Content-Type': 'multipart/form-data'
                     }
                 })
-                // redirects the user to the database
-                .then( this.$router.push('/chemical/database') )
+                .then((res) => {
+                    this.errormessage = (res.data)
+                })
         },
     },
 }

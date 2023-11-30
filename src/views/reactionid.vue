@@ -7,6 +7,7 @@
         <p v-if="reaction.reaction_process">Reaction Process: <router-link v-bind:to="'/reaction/searchresults/'+reaction.reaction_process+'/reaction_process'" style="text-transform: capitalize;">{{reaction.reaction_process}}</router-link></p>
         <p v-if="reaction.reaction_type">Reaction Type: <router-link v-bind:to="'/reaction/searchresults/'+reaction.reaction_type+'/reaction_type'" style="text-transform: capitalize;">{{reaction.reaction_type}}</router-link></p>
         <p v-if="reaction.reaction_scheme">Reaction Scheme: <router-link v-bind:to="'/reaction/searchresults/'+reaction.reaction_scheme+'/reaction_scheme'" style="text-transform: capitalize;">{{reaction.reaction_scheme}}</router-link></p>
+        <p> Maps Containing this Reaction: <span v-for="(map,index) in mapdata"><span v-if="index != 0">, </span><router-link v-bind:to="'/reaction/reactionmap/'+map.map_ID+'/mapid'">{{map.map_ID}}</router-link></span> </p>
     <!-- displays a grid based on the reaction library that the reaction belongs to -->
     <!-- the grid setup is in the script section -->
         <button v-on:click="showhide = !showhide">Reaction Details</button> 
@@ -62,6 +63,7 @@ export default {
             details: '',
             columnDefs,
             rowData,
+            mapdata:'',
             showhide: true,
             colShowHide: true,
         }
@@ -84,13 +86,22 @@ export default {
         this.details = libObject;
     },
     
+    //// async call to built columns?
     mounted(){
         const detailurl = this.$apiname + "reaction/table/" + useRoute().params.reactid;
+        const mapurl = this.$apiname + "reaction/react_maps/" + this.$route.params.reactid;
+
         fetch(detailurl)
             .then((result) => result.json())
             .then((remoteRowData) => (
                 this.rowData.value = remoteRowData,
                 this.columnDefs.value = this.buildcolumns()
+                ))
+
+        fetch(mapurl)
+            .then((result) => result.json())
+            .then((resultData) => (
+                this.mapdata = resultData
                 ))
     },
 

@@ -3,10 +3,12 @@
         Reaction Map For {{chemical.primary_name}}
     </h2>
     <h2 v-else-if="this.$route.params.searchtype == 'mapid'">
-        Reaction Map {{this.$route.params.searchinput}}
+        Reaction Map {{this.$route.params.searchinput}} :
+        {{ firstmap }}
     </h2>
     <h2 v-else-if="this.$route.params.searchtype == 'compare'">
-        Reaction Maps {{this.$route.params.searchinput.replace('_',' & ').replace('_',' & ')}}
+        Reaction Maps {{this.$route.params.searchinput.replace('_',' & ').replace('_',' & ')}} <br>
+        <span v-for="(map,index) in maplist"><span v-if="index != 0">&nbsp; & &nbsp;</span>{{ map }}</span>
     </h2>
     <div v-if="(showhide && this.$route.params.searchtype != 'compare')">
         <button @click="showhide=false">Hide Instructions</button> <br>
@@ -131,6 +133,8 @@ export default {
             chemname:'',
             chemical:'',
             gridApi:null,
+            firstmap:'',
+            maplist:[],
         }
     },
     computed: {
@@ -140,6 +144,9 @@ export default {
         mapurl() {
             return this.$apiname + "chemicals/maps/" + this.$route.params.searchinput
         },
+        mapIDurl() {
+            return this.$apiname + "reaction/mapid/" + this.$route.params.searchinput
+        },
     },
     // get the chemical info and map info from the backend
     created: async function(){
@@ -147,9 +154,25 @@ export default {
         const chemObject = await chemResponse.json();
         this.chemical = chemObject[0];
         
-        const mapResponse = await fetch(this.mapurl);
-        const mapObject = await mapResponse.json();
-        this.mapRowData.value = mapObject;
+        if(this.$route.params.searchtype == 'chemical'){
+            const mapResponse = await fetch(this.mapurl);
+            const mapObject = await mapResponse.json();
+            this.mapRowData.value = mapObject;
+        }
+        if(this.$route.params.searchtype == 'mapid'){
+            const mapResponse = await fetch(this.mapIDurl);
+            const mapObject = await mapResponse.json();
+            this.firstmap = mapObject[0].reference;
+        }
+        if(this.$route.params.searchtype == 'compare'){
+            for(let id of this.$route.params.searchinput.split('_')){
+                const tempurl = this.$apiname + "reaction/mapid/" + id
+                const mapResponse = await fetch(tempurl);
+                const mapObject = await mapResponse.json();
+                this.maplist.push(mapObject[0].reference)
+            }
+            
+        }
     },
     mounted() {        
         this.mapColDefs.value = this.buildcolumns()
@@ -207,7 +230,7 @@ export default {
                 ctx.lineTo(x-(N/2),y-(N/2)-(1)); //necessary to prevent blank corner
                 ctx.lineWidth = 2;
                 // color the node highlighting, first based on whether it is searched, then based on whether it is the root node, then whether it is open, then whether there is more information if it was to be opened, then finally a default black
-                ctx.strokeStyle = (name.toLowerCase().includes(this.searchstring.toLowerCase())) ? 'yellow' : (id == rootnode) ? '#06c43c' : (this.openNodes.includes(id) ? '#0072B2' : (neighbors.some(node => !this.visibleNodes.includes(node))) ? 'red': 'black');
+                ctx.strokeStyle = (name.toLowerCase().includes(this.searchstring.toLowerCase())) ? 'yellow' : (id == rootnode & this.$route.params.searchtype == 'chemical') ? '#06c43c' : (this.openNodes.includes(id) ? '#0072B2' : (neighbors.some(node => !this.visibleNodes.includes(node))) ? 'red': 'black');
                 ctx.stroke();
                 // draws the image of the chemical
                 ctx.drawImage(this.imgconvert(img), x-size/2, y-size/2, size, size);
@@ -278,6 +301,8 @@ export default {
                 this.Graph.linkVisibility(link => this.visibleNodes.includes(link.source.id) && this.visibleNodes.includes(link.target.id));
             })
         });
+
+        this.openall()
     },
     methods:{
         // returns an image object from a bas64 image string, used to get images as force-graph nodes
