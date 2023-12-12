@@ -72,8 +72,4 @@ jobs:
           name: container-scan-report
           path: /data/watchtower/chet/container-results/chet-ui 
           
-      - name:  send email every monday and thursday
-        run: |
-          cd /data/watchtower/chet/container-results/chet-ui
-           ls -la
-           python email.py 
+      
