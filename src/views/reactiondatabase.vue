@@ -6,6 +6,7 @@
     </datalist>
     <br>
     <br> <button v-on:click="handleDownload">Export Reaction Details</button><br><br>
+    {{ filteredlist.length }} Reactions found out of {{ bigout.length }} <br><br>
     <!-- reactions display -->
     <table style="width:100%; border:2px">
         <template v-for="row,index in filteredlist">
@@ -137,6 +138,7 @@ export default {
                             || item.reaction_process?.toLowerCase().includes(v)
                             || item.reaction_type?.toLowerCase().includes(v)
                             || item.reaction_scheme?.toLowerCase().includes(v)
+                            || item.synonyms?.toLowerCase().includes(v)
                             );
                 });
             } else {
@@ -161,7 +163,7 @@ export default {
                     const blob = new Blob([data])
                     let link = document.createElement('a')
                     link.href = window.URL.createObjectURL(blob)
-                    link.download = 'CTDB_reaction_list_'+this.searchinput+'.csv'
+                    link.download = 'CTDB_reaction_list_'+this.searchinput+Date.now()+'.csv'
                     link.click()
                 });
         },

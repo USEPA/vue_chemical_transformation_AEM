@@ -5,9 +5,9 @@
                 <h1 class="navstyle" style="font-size:22px"><RouterLink to="/">Chemical Transformations Database &nbsp; &nbsp;</RouterLink></h1>  
             </div>
             <b-nav-item-dropdown text="Search" class="navstyle" style="font-size:16px">
+                <b-dropdown-item to="/">Homepage (Search Reactions)</b-dropdown-item>
                 <b-dropdown-item to="/chemical/database">Browse Chemicals</b-dropdown-item>
                 <b-dropdown-item to="/reaction/database">Browse Reactions</b-dropdown-item>
-                <b-dropdown-item to="/">Search Reactions</b-dropdown-item>
                 <b-dropdown-item to="/reaction/batchsearch">Batch Search</b-dropdown-item>
             </b-nav-item-dropdown>
             <b-nav-item-dropdown text="Reaction Libraries" class="navstyle" style="font-size:16px">

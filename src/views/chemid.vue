@@ -177,4 +177,8 @@ h2 {
     text-align: center;
     border: 2px solid black;
 }
+
+.ag-theme-balham{
+  --ag-header-foreground-color:Black;
+}
 </style>

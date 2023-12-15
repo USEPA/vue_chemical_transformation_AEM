@@ -1,9 +1,10 @@
-<template>
+<template>  
     <!-- row view -->
     <div v-if="rowtile"> 
-        <button v-on:click="rowtile = !rowtile">Tile View</button>
+        <button v-on:click="rowtile = !rowtile">Tile View</button> &nbsp;
         <button v-on:click="handleGridExport()">Export Chemical List</button><br><br>
         Enter terms of interest into filter boxes to filter the table on that column.<br><br>
+        {{ rowcount }} Chemicals found out of {{ bigout.length }}<br><br>
         <!-- the grid setup is in the script section -->
         <ag-grid-vue
             class="ag-theme-balham"
@@ -12,15 +13,20 @@
             :columnDefs="chemColDefs.value"
             :rowData="buildrows(rowData.value,countsdata)"
             :enableBrowserTooltips="true"
+            :pagination="true"
+            :paginationPageSize="50"
+            @filterChanged="onFilter"
             @grid-ready="onGridReady">
         </ag-grid-vue>
     </div>
     <!-- tile view -->
     <div v-else id="tiles">
-        <button v-on:click="rowtile = !rowtile">Table View</button>
+        <button v-on:click="rowtile = !rowtile">Table View</button> &nbsp;
         <button v-on:click="handleExport">Export Chemical List</button> <br><br>
         Filter Chemical List: <input style="width:245px" type="text" list="typeaheadlist" v-model="input" placeholder="Name, DTXSID, CASRN, InChI key" /> <br>
+        {{ filteredlist.length }} Chemicals found out of {{ bigout.length }}<br><br>
         Searching in the Tile View will perform a search across all names, synonyms, and chemical identifiers.<br>
+        Names and Synonyms will match on substring, chemical identifiers will be matched exactly or by identifier block.<br>
         <!-- sets up substring filtered search suggestions for DTXSID and Name -->
         <!-- search or get rid of suggestion when clicked -->
         <datalist v-if="input.length > 2" id="typeaheadlist">
@@ -87,6 +93,7 @@
                 timer:true,
                 library_list:[],
                 countsdata:[],
+                rowcount:0,
             }
         },
         // get the database JSON from the backend
@@ -128,9 +135,11 @@
                             .split(" ")
                             .every((v) => 
                                 item.primary_name?.toLowerCase().includes(v)
-                                || item.dtxsid?.toLowerCase().includes(v)
-                                || item.inchi?.toLowerCase().includes(v)
-                                || item.casrn?.toLowerCase().includes(v)
+                                || item.dtxsid?.toLowerCase() == v
+                                || item.inchi?.toLowerCase() == v
+                                || item.inchi?.toLowerCase().split('-')[0] == v
+                                || item.casrn?.toLowerCase() == v
+                                || item.casrn?.toLowerCase().split('_')[1] == v
                                 || item.other_names?.toLowerCase().includes(v));
                     });
                 } else {
@@ -144,6 +153,11 @@
             onGridReady(params) {
                 this.gridApi = params.api;
                 this.gridColumnApi = params.columnApi;
+                this.rowcount = this.gridApi.getDisplayedRowCount();
+            },
+            // changes row count when filtering
+            onFilter() {
+                this.rowcount = this.gridApi.getDisplayedRowCount();
             },
             // a function for building JSONs for the gird's columns
             buildcolumns(liblist){
@@ -260,13 +274,21 @@
                         const blob = new Blob([data], { type: 'application/zip' })
                         let link = document.createElement('a')
                         link.href = window.URL.createObjectURL(blob)
-                        link.download = this.input+'_chemical_list.csv'
+                        link.download = this.input+'_chemical_list_'+Date.now()+'.csv'
                         link.click()
                     });
             },
             // code for exporting the contents of the AGgrid object using a pre-built function
             handleGridExport() {
-                this.gridApi.exportDataAsCsv({allColumns:true});
+                let colSet = []
+                for(let i of this.chemColDefs.value){
+                    if (i.headerName != 'Structure'){
+                        colSet.push(i.field)
+                    }
+                }
+                const params = {columnKeys:colSet}
+                console.log(params)
+                this.gridApi.exportDataAsCsv(params);
             },
             // code for zooming on a chemical, sets the image in the popup window to the clicked item then shows the popup
             magnify(x) {
@@ -311,5 +333,9 @@
 .ag-row .ag-cell {
   display: flex;
   align-items: center;
+}
+
+.ag-theme-balham{
+  --ag-header-foreground-color:Black;
 }
 </style>

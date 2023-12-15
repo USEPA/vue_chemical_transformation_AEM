@@ -6,6 +6,9 @@
     Filter Results:<br>
     <input style="width:255px" type="text" v-model="searchinput" placeholder="Name, DTXSID, or Reaction Detail" /> <br>
     <br> <button v-on:click="handleDownload">Export Reaction Details</button> <br><br>
+    <div v-if="search_type!='batch'">
+        {{ filteredlist.length }} Reactions found out of {{ bigout.length }} <br><br>
+    </div>
     <table style="width:100%; border:2px">
         <template v-for="row,index in filteredlist">
             <tr v-if="index % 2 == 0">
@@ -186,7 +189,7 @@ export default {
                     const blob = new Blob([data], { type: 'application/zip' })
                     let link = document.createElement('a')
                     link.href = window.URL.createObjectURL(blob)
-                    link.download = 'CTDB_reaction_list_'+this.$route.params.searchinput+'_'+this.$route.params.searchtype+'.csv'
+                    link.download = 'CTDB_reaction_list_'+this.$route.params.searchinput+'_'+this.$route.params.searchtype+'_'+Date.now()+'.csv'
                     link.click()
                 });
         },

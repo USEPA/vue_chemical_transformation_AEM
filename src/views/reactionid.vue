@@ -86,10 +86,10 @@ export default {
         this.details = libObject;
     },
     
-    //// async call to built columns?
+    // async call to built columns
     mounted(){
         const detailurl = this.$apiname + "reaction/table/" + useRoute().params.reactid;
-        const mapurl = this.$apiname + "reaction/react_maps/" + this.$route.params.reactid;
+        const mapurl = this.$apiname + "reaction/react_maps/" + useRoute().params.reactid;
 
         fetch(detailurl)
             .then((result) => result.json())
@@ -206,4 +206,9 @@ export default {
 </script>
 
 <style>
+
+.ag-theme-balham{
+  --ag-header-foreground-color:Black;
+}
+
 </style>
