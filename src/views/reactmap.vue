@@ -229,8 +229,8 @@ export default {
                 ctx.lineTo(x-(N/2),y+(N/2));
                 ctx.lineTo(x-(N/2),y-(N/2)-(1)); //necessary to prevent blank corner
                 ctx.lineWidth = 2;
-                // color the node highlighting, first based on whether it is searched, then based on whether it is the root node, then whether it is open, then whether there is more information if it was to be opened, then finally a default black
-                ctx.strokeStyle = (name.toLowerCase().includes(this.searchstring.toLowerCase())) ? 'yellow' : (id == rootnode & this.$route.params.searchtype == 'chemical') ? '#06c43c' : (this.openNodes.includes(id) ? '#0072B2' : (neighbors.some(node => !this.visibleNodes.includes(node))) ? 'red': 'black');
+                // color the node
+                ctx.strokeStyle = this.highlightColors(name,id,neighbors,rootnode);
                 ctx.stroke();
                 // draws the image of the chemical
                 ctx.drawImage(this.imgconvert(img), x-size/2, y-size/2, size, size);
@@ -311,6 +311,7 @@ export default {
             image.src = 'data:image/png;base64,'+ img;
             return image;
         },
+        // basic ag grid setup
         onGridReady(params) {
             this.gridApi = params.api;
             this.gridColumnApi = params.columnApi;
@@ -383,6 +384,20 @@ export default {
                 {headerName:'Reference', field:'reference', sortable: true, resizable: true, filter: 'agTextColumnFilter', width:450},
             )
             return new_cols
+        },
+        // function for choosing highlight color, separated out because SONARQUBE is acting up
+        highlightColors(name,id,neighbors,rootnode){
+            if (name.toLowerCase().includes(this.searchstring.toLowerCase())) {
+                return 'yellow'
+            } else if(id == rootnode && this.$route.params.searchtype == 'chemical') {
+                return '#06c43c'
+            } else if(this.openNodes.includes(id)){
+                return '#0072B2'
+            } else if(neighbors.some(node => !this.visibleNodes.includes(node))){
+                return 'red'
+            } else {
+                return 'black'
+            }
         },
         // opens all nodes in the graph (JSON.pares(JSON.stringify()) syntax used because we are not in the graph object)
         openall: async function(){
