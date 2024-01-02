@@ -150,24 +150,24 @@ export default {
     },
     // get the chemical info and map info from the backend
     created: async function(){
-        const chemResponse = await fetch(this.chemurl);
+        const chemResponse = await fetch(this.chemurl, {mode:'cors'});
         const chemObject = await chemResponse.json();
         this.chemical = chemObject[0];
         
         if(this.$route.params.searchtype == 'chemical'){
-            const mapResponse = await fetch(this.mapurl);
+            const mapResponse = await fetch(this.mapurl, {mode:'cors'});
             const mapObject = await mapResponse.json();
             this.mapRowData.value = mapObject;
         }
         if(this.$route.params.searchtype == 'mapid'){
-            const mapResponse = await fetch(this.mapIDurl);
+            const mapResponse = await fetch(this.mapIDurl, {mode:'cors'});
             const mapObject = await mapResponse.json();
             this.firstmap = mapObject[0].reference;
         }
         if(this.$route.params.searchtype == 'compare'){
             for(let id of this.$route.params.searchinput.split('_')){
                 const tempurl = this.$apiname + "reaction/mapid/" + id
-                const mapResponse = await fetch(tempurl);
+                const mapResponse = await fetch(tempurl, {mode:'cors'});
                 const mapObject = await mapResponse.json();
                 this.maplist.push(mapObject[0].reference)
             }
@@ -183,7 +183,7 @@ export default {
         this.searchstring = '____'
 
         // gets the map data from the backend, then sets up the forcegraph map
-        fetch(this.$apiname + "reaction/reactionmap/" + this.$route.params.searchinput + "/" + this.$route.params.searchtype).then(res => res.json()).then(data => {
+        fetch(this.$apiname + "reaction/reactionmap/" + this.$route.params.searchinput + "/" + this.$route.params.searchtype, {mode:'cors'}).then(res => res.json()).then(data => {
             // defines the graph and places it in the HTML element named 'graph'
             this.Graph = ForceGraph()(document.getElementById('graph'))
             const N = 10
@@ -198,11 +198,11 @@ export default {
             this.Graph.width(window.innerWidth-115)
             this.Graph.backgroundColor('#a9b2ba')
             // necessary for snapping to the center
-            this.Graph.autoPauseRedraw(false)
+            //this.Graph.autoPauseRedraw(false)
             // this makes the graph self organize into a useful tree when there are no cycles
             this.Graph.dagMode('td')
             this.Graph.dagLevelDistance(2.2*N)
-            this.Graph.zoom(15)
+            //this.Graph.zoom(15)
             // gets the data for the graph
             this.Graph.graphData(data)
             this.Graph.nodeVal(1)
@@ -402,7 +402,7 @@ export default {
         // opens all nodes in the graph (JSON.pares(JSON.stringify()) syntax used because we are not in the graph object)
         openall: async function(){
             // get the list of all nodes in the graph and their neighbors
-            const gData = await(fetch(this.$apiname + "reaction/reactionmap/" + this.$route.params.searchinput + "/" + this.$route.params.searchtype).then(res => res.json()).then(data => {return data}))
+            const gData = await(fetch(this.$apiname + "reaction/reactionmap/" + this.$route.params.searchinput + "/" + this.$route.params.searchtype, {mode:'cors'}).then(res => res.json()).then(data => {return data}))
             gData.nodes.forEach(node => {
                 // add nodes to the list of open and visible nodes
                 this.openNodes = JSON.parse(JSON.stringify(this.openNodes)).concat(node.id);
@@ -415,11 +415,13 @@ export default {
             })
             // update the cell color
             this.gridApi.refreshCells({force:true})
+            console.log('test')
+            this.Graph.zoomToFit(0,5)
         },
         // opens/closes the nodes in a single pre-built map
         openmap: async function(id){
             // get the list of nodes and reactions within the map
-            const mapreactions = await(fetch(this.$apiname + "reaction/mapid/" + id)).then(res => res.json());
+            const mapreactions = await(fetch(this.$apiname + "reaction/mapid/" + id, {mode:'cors'})).then(res => res.json());
             if(this.openMaps.includes(id)){
                 // remove the map id from the list of open maps
                 this.openMaps = this.openMaps.filter(v => v != id);
@@ -450,7 +452,7 @@ export default {
         // highlights the links in a single pre-built map
         highlightmap: async function(id){
             // get the list of nodes and reactions within the map
-            const mapreactions = await(fetch(this.$apiname + "reaction/mapid/" + id)).then(res => res.json());
+            const mapreactions = await(fetch(this.$apiname + "reaction/mapid/" + id, {mode:'cors'})).then(res => res.json());
             if(this.highlightMaps.includes(id)){
                 // remove the map id from the list of highlighted maps
                 this.highlightMaps = this.highlightMaps.filter(v => v != id);
@@ -482,7 +484,7 @@ export default {
         // closes all nodes except the root
         closeall: async function(){
             // get the list of nodes
-            const gData = await(fetch(this.$apiname + "reaction/reactionmap/" + this.$route.params.searchinput + "/" + this.$route.params.searchtype).then(res => res.json()).then(data => {return data}))
+            const gData = await(fetch(this.$apiname + "reaction/reactionmap/" + this.$route.params.searchinput + "/" + this.$route.params.searchtype, {mode:'cors'}).then(res => res.json()).then(data => {return data}))
             // determine the root node
             if(this.$route.params.searchtype == 'chemical'){
                 this.rootID = String(this.chemical.chemical_ID)

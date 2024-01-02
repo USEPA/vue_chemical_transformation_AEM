@@ -100,7 +100,7 @@
         created: async function(){
             try{
                 const url = this.$apiname + "chemicals/database";
-                const gResponse = await fetch(url);
+                const gResponse = await fetch(url, {mode:'cors'});
                 const gObject = await gResponse.json();
                 this.bigout = gObject;
             } catch (error){
@@ -109,18 +109,18 @@
         },
         mounted() {
             const liburl = this.$apiname + "reaction/libraries"
-            fetch(liburl)
+            fetch(liburl, {mode:'cors'})
                 .then((result) => result.json())
                 .then((remoteRowData) => (
                     this.chemColDefs.value = this.buildcolumns(remoteRowData),
                     this.library_list = remoteRowData
                 ));
             const counturl = this.$apiname + "chemicals/counts"
-            fetch(counturl)
+            fetch(counturl, {mode:'cors'})
                 .then((result) => result.json())
                 .then((remoteRowData) => (this.countsdata = remoteRowData));
             const chemurl = this.$apiname + "chemicals/database"
-            fetch(chemurl)
+            fetch(chemurl, {mode:'cors'})
                 .then((result) => result.json())
                 .then((remoteRowData) => (this.rowData.value = remoteRowData));
         },

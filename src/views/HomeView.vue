@@ -48,7 +48,7 @@ export default {
     // get the chemical info from the backend for the suggested search list
     created: async function(){
         const url = this.$apiname + "chemicals/database";
-        const gResponse = await fetch(url);
+        const gResponse = await fetch(url, {mode:'cors'});
         const gObject = await gResponse.json();
         this.bigout = gObject;
     },

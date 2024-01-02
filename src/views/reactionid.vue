@@ -10,7 +10,9 @@
         <p> Maps Containing this Reaction: <span v-for="(map,index) in mapdata"><span v-if="index != 0">, </span><router-link v-bind:to="'/reaction/reactionmap/'+map.map_ID+'/mapid'">{{map.map_ID}}</router-link></span> </p>
     <!-- displays a grid based on the reaction library that the reaction belongs to -->
     <!-- the grid setup is in the script section -->
-        <button v-on:click="showhide = !showhide">Reaction Details</button> 
+        <button v-if="showhide" v-on:click="showhide = !showhide">Hide Reaction Details</button> 
+        <button v-if="!showhide" v-on:click="showhide = !showhide">Show Reaction Details</button> &nbsp;
+        <button v-if="showhide" v-on:click="handleDownload">Export Reaction Details</button> 
         <br>
         <div v-if="showhide">
             <ag-grid-vue
@@ -22,12 +24,10 @@
                 @grid-ready="onGridReady">
             </ag-grid-vue>
         </div>
-        <br> <button v-on:click="handleDownload">Export Reaction Details</button> 
 
         <!-- only shows the option to add new details or delete the reaction to registered users -->
         <div v-if="this.$cookie.getCookie('user')">
             <router-link v-bind:to="'/reaction/newdetail/'+this.$route.params.reactid"> Add New Reaction Details </router-link>
-
             <br><br> <button v-on:click="handleDelete">Delete this Reaction</button> 
         </div>
     </div>
@@ -77,28 +77,25 @@ export default {
     
     // get the reaction details from the backend
     created: async function(){
-        const gResponse = await fetch(this.url);
+        const gResponse = await fetch(this.url, {mode:'cors'});
         const gObject = await gResponse.json();
         this.reaction = gObject[0];
         const liburl = this.$apiname + "reaction/details/" + this.reaction.lib_ID;
-        const libResponse = await fetch(liburl);
+        const libResponse = await fetch(liburl, {mode:'cors'});
         const libObject = await libResponse.json();
         this.details = libObject;
+        const rowlurl = this.$apiname + "reaction/table/" + this.$route.params.reactid;
+        const rowResponse = await fetch(rowlurl, {mode:'cors'})
+        const rowObject = await rowResponse.json()
+        this.rowData.value = rowObject
+        this.columnDefs.value = this.buildcolumns()
     },
     
     // async call to built columns
     mounted(){
-        const detailurl = this.$apiname + "reaction/table/" + useRoute().params.reactid;
         const mapurl = this.$apiname + "reaction/react_maps/" + useRoute().params.reactid;
 
-        fetch(detailurl)
-            .then((result) => result.json())
-            .then((remoteRowData) => (
-                this.rowData.value = remoteRowData,
-                this.columnDefs.value = this.buildcolumns()
-                ))
-
-        fetch(mapurl)
+        fetch(mapurl, {mode:'cors'})
             .then((result) => result.json())
             .then((resultData) => (
                 this.mapdata = resultData
@@ -123,9 +120,11 @@ export default {
                     } else {
                         displayname = key.detail_name + ' ('+ key.units +')'
                     }
+                    let wVal = Math.min(key.detail_name.length*15,200)
+                    console.log(key.detail_name,wVal)
                     new_cols.push(
                         {
-                            headerName:displayname, field:key.detail_name, sortable: true, resizable: true, filter: 'agTextColumnFilter', floatingFilter: true, width:115,
+                            headerName:displayname, field:key.detail_name, sortable: true, resizable: true, filter: 'agTextColumnFilter', floatingFilter: true, width:wVal,
                         }
                     )
                 }

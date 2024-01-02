@@ -7,7 +7,7 @@
     <input style="width:255px" type="text" v-model="searchinput" placeholder="Name, DTXSID, or Reaction Detail" /> <br>
     <br> <button v-on:click="handleDownload">Export Reaction Details</button> <br><br>
     <div v-if="search_type!='batch'">
-        {{ filteredlist.length }} Reactions found out of {{ bigout.length }} <br><br>
+        {{ filteredlist.length }} Reactions displayed out of {{ bigout.length }} <br><br>
     </div>
     <table style="width:100%; border:2px">
         <template v-for="row,index in filteredlist">
@@ -137,7 +137,7 @@ export default {
     },
     // get the results of the search from the backend
     created: async function(){
-        const gResponse = await fetch(this.url);
+        const gResponse = await fetch(this.url, {mode:'cors'});
         const gObject = await gResponse.json();
         this.bigout = gObject;
         if(gObject == ''){

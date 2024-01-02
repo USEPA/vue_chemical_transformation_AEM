@@ -33,7 +33,7 @@ export default {
     },
     // get the error info from the backend
     created: async function(){
-        const gResponse = await fetch(this.$apiname + "admin/database");
+        const gResponse = await fetch(this.$apiname + "admin/database", {mode:'cors'});
         const gObject = await gResponse.json();
         this.bigout = gObject;
     },

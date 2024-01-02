@@ -107,11 +107,11 @@ export default{
     },
     mounted() {
         const liburl = this.$apiname + "reaction/libraries"
-        fetch(liburl)
+        fetch(liburl, {mode:'cors'})
             .then((result) => result.json())
             .then((remoteRowData) => (this.library_list = remoteRowData));
         const mapurl = this.$apiname + "reaction/maps"
-        fetch(mapurl)
+        fetch(mapurl, {mode:'cors'})
             .then((result) => result.json())
             .then((remoteRowData) => (this.map_list = remoteRowData));
     },
@@ -122,7 +122,7 @@ export default{
             const detailurl = this.$apiname + "reaction/details/" + libID
             axios
                 // get the list of details from the backend
-                fetch(detailurl)
+                fetch(detailurl, {mode:'cors'})
                     .then((result) => result.json())
                     .then((remoteRowData) => (this.detail_list = remoteRowData));
             

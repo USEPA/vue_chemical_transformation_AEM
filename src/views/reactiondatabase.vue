@@ -6,7 +6,7 @@
     </datalist>
     <br>
     <br> <button v-on:click="handleDownload">Export Reaction Details</button><br><br>
-    {{ filteredlist.length }} Reactions found out of {{ bigout.length }} <br><br>
+    {{ filteredlist.length }} Reactions displayed out of {{ bigout.length }} <br><br>
     <!-- reactions display -->
     <table style="width:100%; border:2px">
         <template v-for="row,index in filteredlist">
@@ -110,11 +110,11 @@ export default {
     created: async function(){
         try{
             const url = this.$apiname + "reaction/database";
-            const gResponse = await fetch(url);
+            const gResponse = await fetch(url, {mode:'cors'});
             const gObject = await gResponse.json();
             this.bigout = gObject;
             const url2 = this.$apiname + "chemicals/database";
-            const gResponse2 = await fetch(url2);
+            const gResponse2 = await fetch(url2, {mode:'cors'});
             const gObject2 = await gResponse2.json();
             this.chemout = gObject2;
         } catch (error){

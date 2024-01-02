@@ -81,7 +81,7 @@ export default{
             const detailurl = this.$apiname + "reaction/details/" + libID
             axios
                 // get the list of details from the backend
-                fetch(detailurl)
+                fetch(detailurl, {mode:'cors'})
                     .then((result) => result.json())
                     .then((remoteRowData) => (this.detail_list = remoteRowData));
             
@@ -94,7 +94,7 @@ export default{
     },
     // get information on the reaction to determine which fields to display
     created: async function(){
-        const gResponse = await fetch(this.reacturl);
+        const gResponse = await fetch(this.reacturl, {mode:'cors'});
         const gObject = await gResponse.json();
         this.reaction = gObject[0];
         this.get_details(this.reaction.lib_ID);

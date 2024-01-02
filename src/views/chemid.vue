@@ -87,13 +87,13 @@
         },
         // get the chemical info from the backend
         created: async function(){
-            const gResponse = await fetch(this.url);
+            const gResponse = await fetch(this.url, {mode:'cors'});
             const gObject = await gResponse.json();
             this.chemical = gObject[0];
-            const aliasResponse = await fetch(this.aliasurl);
+            const aliasResponse = await fetch(this.aliasurl, {mode:'cors'});
             const aliasObject = await aliasResponse.json();
             this.aliases = aliasObject;
-            const mapResponse = await fetch(this.mapurl);
+            const mapResponse = await fetch(this.mapurl, {mode:'cors'});
             const mapObject = await mapResponse.json();
             this.mapRowData.value = mapObject;
         },
