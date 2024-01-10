@@ -12,7 +12,7 @@
             </b-nav-item-dropdown>
             <b-nav-item-dropdown text="Reaction Libraries" class="navstyle" style="font-size:16px">
                 <b-dropdown-item to="/reaction/database">Complete Reaction Database</b-dropdown-item>
-                <b-dropdown-item v-for="library in library_list" :to="'/reaction/searchresults/'+library.lib_name+'/reaction_library'">{{library.lib_name}}</b-dropdown-item>
+                <b-dropdown-item v-for="library in library_list" :to="'/reaction/searchresults/'+library.lib_name+'/reaction_library/false'">{{library.lib_name}}</b-dropdown-item>
             </b-nav-item-dropdown>
             <b-nav-item-dropdown text="Tools" class="navstyle" style="font-size:16px">
                 <div v-if="this.$cookie.getCookie('user')">
@@ -67,7 +67,7 @@ export default {
     mounted() {  
         document.title = 'CHET - Chemical Transformations DataBase';  
         const liburl = this.$apiname + "reaction/libraries"
-        fetch(liburl)
+        fetch(liburl, {mode:'cors'})
             .then((result) => result.json())
             .then((remoteRowData) => (this.library_list = remoteRowData));
     }, 

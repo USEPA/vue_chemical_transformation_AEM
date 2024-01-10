@@ -15,6 +15,10 @@
         A number of articles describing the Chemical Transformation Simulator have been published 
         (<a href="https://doi.org/10.1021/acs.est.6b05412" target="_blank">1</a>,<a href="https://doi.org/10.1021/acs.est.0c00484" target="_blank">2</a>,<a href="https://doi.org/10.1021/acs.est.0c08745" target="_blank">3</a>,<a href="https://doi.org/10.1039/D1EM00445J" target="_blank">4</a>)
         </p>
+        <h1 style="font-size:25px">Statistics</h1>
+        <p>
+        Currently CHET has {{ counts[0]['COUNT(*)'] }} chemicals and {{ counts[1]['COUNT(*)'] }} transformations represented in the database.
+        </p>
         <h1 style="font-size:25px">Disclaimer</h1>
         <p>
         This resource is a compilation of information sourced from many databases and literature sources, including U.S. Federal and 
@@ -40,5 +44,17 @@
 <script>
     export default{
         name: 'about',
+        data() {
+            return {counts:[[],[]]}
+        },
+        mounted() {
+            const countURL = this.$apiname + "reaction/dbcounts"
+            fetch(countURL, {mode:'cors'})
+                .then((result) => result.json())
+                .then((remoteRowData) => (
+                    this.counts = remoteRowData
+                ));
+        },
     }
 </script>
+

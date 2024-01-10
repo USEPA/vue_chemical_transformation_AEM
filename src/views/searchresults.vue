@@ -7,8 +7,12 @@
     <input style="width:255px" type="text" v-model="searchinput" placeholder="Name, DTXSID, or Reaction Detail" /> <br>
     <br> <button v-on:click="handleDownload">Export Reaction Details</button> <br><br>
     <div v-if="search_type!='batch'">
-        {{ filteredlist.length }} Reactions displayed out of {{ bigout.length }} <br><br>
+        {{ filteredlist.length }} Reactions displayed out of {{ bigout.length }} <br>
     </div>
+    <div v-if="substring_TF != false">
+        Results found using substring matching of primary names and common aliases. <br>
+    </div>
+    <br>
     <table style="width:100%; border:2px">
         <template v-for="row,index in filteredlist">
             <tr v-if="index % 2 == 0">
@@ -46,10 +50,10 @@
                                     height: 145 * 4/(Math.max(row.parent_name.length + row.product_name.length,4)) +'px'}"  
                                 style="vertical-align:middle;border: 2px solid blue" />
                             </router-link><span v-if="e_index != row.product_image.length - 1"> + </span> </span></p>
-                        <p v-if="row.lib_name">Reaction Library: <router-link v-bind:to="'/reaction/searchresults/'+row.lib_name+'/reaction_library'" style="text-transform: capitalize;">{{row.lib_name}}</router-link></p>
-                        <p v-if="row.reaction_process">Reaction Process: <router-link v-bind:to="'/reaction/searchresults/'+row.reaction_process+'/reaction_process'" style="text-transform: capitalize;">{{row.reaction_process}}</router-link></p>
-                        <p v-if="row.reaction_type">Reaction Type: <router-link v-bind:to="'/reaction/searchresults/'+row.reaction_type+'/reaction_type'" style="text-transform: capitalize;">{{row.reaction_type}}</router-link></p>
-                        <p v-if="row.reaction_scheme">Reaction Scheme: <router-link v-bind:to="'/reaction/searchresults/'+row.reaction_scheme+'/reaction_scheme'" style="text-transform: capitalize;">{{row.reaction_scheme}}</router-link></p>
+                        <p v-if="row.lib_name">Reaction Library: <router-link v-bind:to="'/reaction/searchresults/'+row.lib_name+'/reaction_library/false'" style="text-transform: capitalize;">{{row.lib_name}}</router-link></p>
+                        <p v-if="row.reaction_process">Reaction Process: <router-link v-bind:to="'/reaction/searchresults/'+row.reaction_process+'/reaction_process/false'" style="text-transform: capitalize;">{{row.reaction_process}}</router-link></p>
+                        <p v-if="row.reaction_type">Reaction Type: <router-link v-bind:to="'/reaction/searchresults/'+row.reaction_type+'/reaction_type/false'" style="text-transform: capitalize;">{{row.reaction_type}}</router-link></p>
+                        <p v-if="row.reaction_scheme">Reaction Scheme: <router-link v-bind:to="'/reaction/searchresults/'+row.reaction_scheme+'/reaction_scheme/false'" style="text-transform: capitalize;">{{row.reaction_scheme}}</router-link></p>
                     </template>
                 </td>
                 <td v-if="filteredlist[index+1]" style="max-width:700px; width:50%; border:2px solid black;">                    
@@ -85,10 +89,10 @@
                                         height: 145 * 4/(Math.max(filteredlist[index+1].parent_name.length + filteredlist[index+1].product_name.length,4)) +'px'}"  
                                     style="vertical-align:middle;border: 2px solid blue" />
                                 </router-link><span v-if="e_index != filteredlist[index+1].product_image.length - 1"> + </span> </span></p>
-                        <p v-if="filteredlist[index+1].lib_name">Reaction Library: <router-link v-bind:to="'/reaction/searchresults/'+filteredlist[index+1].lib_name+'/reaction_library'" style="text-transform: capitalize;">{{filteredlist[index+1].lib_name}}</router-link></p>
-                        <p v-if="filteredlist[index+1].reaction_process">Reaction Process: <router-link v-bind:to="'/reaction/searchresults/'+filteredlist[index+1].reaction_process+'/reaction_process'" style="text-transform: capitalize;">{{filteredlist[index+1].reaction_process}}</router-link></p>
-                        <p v-if="filteredlist[index+1].reaction_type">Reaction Type: <router-link v-bind:to="'/reaction/searchresults/'+filteredlist[index+1].reaction_type+'/reaction_type'" style="text-transform: capitalize;">{{filteredlist[index+1].reaction_type}}</router-link></p>
-                        <p v-if="filteredlist[index+1].reaction_scheme">Reaction Scheme: <router-link v-bind:to="'/reaction/searchresults/'+filteredlist[index+1].reaction_scheme+'/reaction_scheme'" style="text-transform: capitalize;">{{filteredlist[index+1].reaction_scheme}}</router-link></p>
+                        <p v-if="filteredlist[index+1].lib_name">Reaction Library: <router-link v-bind:to="'/reaction/searchresults/'+filteredlist[index+1].lib_name+'/reaction_library/false'" style="text-transform: capitalize;">{{filteredlist[index+1].lib_name}}</router-link></p>
+                        <p v-if="filteredlist[index+1].reaction_process">Reaction Process: <router-link v-bind:to="'/reaction/searchresults/'+filteredlist[index+1].reaction_process+'/reaction_process/false'" style="text-transform: capitalize;">{{filteredlist[index+1].reaction_process}}</router-link></p>
+                        <p v-if="filteredlist[index+1].reaction_type">Reaction Type: <router-link v-bind:to="'/reaction/searchresults/'+filteredlist[index+1].reaction_type+'/reaction_type/false'" style="text-transform: capitalize;">{{filteredlist[index+1].reaction_type}}</router-link></p>
+                        <p v-if="filteredlist[index+1].reaction_scheme">Reaction Scheme: <router-link v-bind:to="'/reaction/searchresults/'+filteredlist[index+1].reaction_scheme+'/reaction_scheme/false'" style="text-transform: capitalize;">{{filteredlist[index+1].reaction_scheme}}</router-link></p>
                     </template>
                 </td>
             </tr>
@@ -118,13 +122,15 @@ export default {
     name: 'SearchResults',
     data () {
         const searchinput = ref("");
-        const url = this.$apiname + "reaction/search/" + this.$route.params.searchinput + '/' + this.$route.params.searchtype ;
+        const url = this.$apiname + "reaction/search/" + this.$route.params.searchinput + '/' + this.$route.params.searchtype + '/' + this.$route.params.substring_TF;
         const search_type = this.$route.params.searchtype
+        const substring_TF = this.$route.params.substring_TF
 
         return {
             bigout: '',
             searchinput,
             search_type,
+            substring_TF,
             url,
             showhide:false,
             calcx:0,

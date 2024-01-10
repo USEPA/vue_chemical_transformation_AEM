@@ -38,10 +38,10 @@
                                 height: 145 * 4/(Math.max(row.parent_name.length + row.product_name.length,4)) +'px'}"  
                             style="vertical-align:middle;border: 2px solid blue" />
                         </router-link><span v-if="e_index != row.product_image.length - 1"> + </span> </span></p>
-                    <p v-if="row.lib_name">Reaction Library: <router-link v-bind:to="'/reaction/searchresults/'+row.lib_name+'/reaction_library'" style="text-transform: capitalize;">{{row.lib_name}}</router-link></p>
-                    <p v-if="row.reaction_process">Reaction Process: <router-link v-bind:to="'/reaction/searchresults/'+row.reaction_process+'/reaction_process'" style="text-transform: capitalize;">{{row.reaction_process}}</router-link></p>
-                    <p v-if="row.reaction_type">Reaction Type: <router-link v-bind:to="'/reaction/searchresults/'+row.reaction_type+'/reaction_type'" style="text-transform: capitalize;">{{row.reaction_type}}</router-link></p>
-                    <p v-if="row.reaction_scheme">Reaction Scheme: <router-link v-bind:to="'/reaction/searchresults/'+row.reaction_scheme+'/reaction_scheme'" style="text-transform: capitalize;">{{row.reaction_scheme}}</router-link></p>
+                    <p v-if="row.lib_name">Reaction Library: <router-link v-bind:to="'/reaction/searchresults/'+row.lib_name+'/reaction_library/false'" style="text-transform: capitalize;">{{row.lib_name}}</router-link></p>
+                    <p v-if="row.reaction_process">Reaction Process: <router-link v-bind:to="'/reaction/searchresults/'+row.reaction_process+'/reaction_process/false'" style="text-transform: capitalize;">{{row.reaction_process}}</router-link></p>
+                    <p v-if="row.reaction_type">Reaction Type: <router-link v-bind:to="'/reaction/searchresults/'+row.reaction_type+'/reaction_type/false'" style="text-transform: capitalize;">{{row.reaction_type}}</router-link></p>
+                    <p v-if="row.reaction_scheme">Reaction Scheme: <router-link v-bind:to="'/reaction/searchresults/'+row.reaction_scheme+'/reaction_scheme/false'" style="text-transform: capitalize;">{{row.reaction_scheme}}</router-link></p>
                 </td>
                 <td v-if="filteredlist[index+1]" style="width:50%; border:2px solid black;">
                     <p><router-link v-bind:to="'/reaction/'+filteredlist[index+1].reaction_ID">
@@ -68,10 +68,10 @@
                                     height: 145 * 4/(Math.max(filteredlist[index+1].parent_name.length + filteredlist[index+1].product_name.length,4)) +'px'}"  
                                 style="vertical-align:middle;border: 2px solid blue" />
                             </router-link><span v-if="e_index != filteredlist[index+1].product_image.length - 1"> + </span> </span></p>
-                    <p v-if="filteredlist[index+1].lib_name">Reaction Library: <router-link v-bind:to="'/reaction/searchresults/'+filteredlist[index+1].lib_name+'/reaction_library'" style="text-transform: capitalize;">{{filteredlist[index+1].lib_name}}</router-link></p>
-                    <p v-if="filteredlist[index+1].reaction_process">Reaction Process: <router-link v-bind:to="'/reaction/searchresults/'+filteredlist[index+1].reaction_process+'/reaction_process'" style="text-transform: capitalize;">{{filteredlist[index+1].reaction_process}}</router-link></p>
-                    <p v-if="filteredlist[index+1].reaction_type">Reaction Type: <router-link v-bind:to="'/reaction/searchresults/'+filteredlist[index+1].reaction_type+'/reaction_type'" style="text-transform: capitalize;">{{filteredlist[index+1].reaction_type}}</router-link></p>
-                    <p v-if="filteredlist[index+1].reaction_scheme">Reaction Scheme: <router-link v-bind:to="'/reaction/searchresults/'+filteredlist[index+1].reaction_scheme+'/reaction_scheme'" style="text-transform: capitalize;">{{filteredlist[index+1].reaction_scheme}}</router-link></p>
+                    <p v-if="filteredlist[index+1].lib_name">Reaction Library: <router-link v-bind:to="'/reaction/searchresults/'+filteredlist[index+1].lib_name+'/reaction_library/false'" style="text-transform: capitalize;">{{filteredlist[index+1].lib_name}}</router-link></p>
+                    <p v-if="filteredlist[index+1].reaction_process">Reaction Process: <router-link v-bind:to="'/reaction/searchresults/'+filteredlist[index+1].reaction_process+'/reaction_process/false'" style="text-transform: capitalize;">{{filteredlist[index+1].reaction_process}}</router-link></p>
+                    <p v-if="filteredlist[index+1].reaction_type">Reaction Type: <router-link v-bind:to="'/reaction/searchresults/'+filteredlist[index+1].reaction_type+'/reaction_type/false'" style="text-transform: capitalize;">{{filteredlist[index+1].reaction_type}}</router-link></p>
+                    <p v-if="filteredlist[index+1].reaction_scheme">Reaction Scheme: <router-link v-bind:to="'/reaction/searchresults/'+filteredlist[index+1].reaction_scheme+'/reaction_scheme/false'" style="text-transform: capitalize;">{{filteredlist[index+1].reaction_scheme}}</router-link></p>
                 </td>
             </tr>
         </template>

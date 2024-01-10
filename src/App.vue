@@ -22,7 +22,7 @@
         </div>
     </transition>
     <div style="position:fixed; bottom:5px; right:25px">
-        Version: 1.3.8
+        Version: 1.3.9
     </div>
 </template>
 

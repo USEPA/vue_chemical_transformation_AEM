@@ -286,7 +286,11 @@
                         colSet.push(i.field)
                     }
                 }
-                const params = {columnKeys:colSet}
+                let fname = 'CHET_grid_view_chemical_list_'+Date.now()
+                const params = {
+                    columnKeys:colSet,
+                    fileName:fname,
+                }
                 console.log(params)
                 this.gridApi.exportDataAsCsv(params);
             },
