@@ -94,7 +94,7 @@ const router = createRouter({
       component: batchsearch
     },
     {
-      path: '/reaction/searchresults/:searchinput/:searchtype',
+      path: '/reaction/searchresults/:searchinput/:searchtype/:substring_TF',
       component: SearchResults
     },
     {
