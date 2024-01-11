@@ -29,9 +29,9 @@
             <br><br> <button v-on:click="handleDelete">Delete this Reaction</button> 
         </div>
         <br>
-        <button v-if="maps_showhide" v-on:click="maps_showhide = !maps_showhide">Hide Map Details</button> 
-        <button v-if="!maps_showhide" v-on:click="maps_showhide = !maps_showhide">Show Map Details</button> &nbsp;
-        <div v-if="maps_showhide">
+        <button v-if="maps_showhide && mapRowData.value.length>0" v-on:click="maps_showhide = !maps_showhide">Hide Map Details</button> 
+        <button v-if="!maps_showhide && mapRowData.value.length>0" v-on:click="maps_showhide = !maps_showhide">Show Map Details</button> &nbsp;
+        <div v-if="maps_showhide && mapRowData.value.length>0">
             <div> Maps Containing this Reaction: <span v-for="(map,index) in mapdata"><span v-if="index != 0">, </span><router-link v-bind:to="'/reaction/reactionmap/'+map.map_ID+'/mapid'">{{map}}</router-link></span> </div>
             <ag-grid-vue
                 class="ag-theme-balham"
