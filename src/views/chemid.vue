@@ -15,7 +15,7 @@
         </div>
         <a :href="'https://ccte-cced-amos.epa.gov/search/' + chemical.dtxsid + '?initial_results_tab=all'" target="_blank"> Search Methods and Spectra ↗ </a><br><br>
 
-        <router-link v-bind:to="'/reaction/searchresults/'+this.$route.params.chemid+'/ID'">List of Reactions Containing this Chemical</router-link><br>
+        <router-link v-bind:to="'/reaction/searchresults/'+this.$route.params.chemid+'/ID/true'">List of Reactions Containing this Chemical</router-link><br>
         <router-link v-bind:to="'/reaction/reactionmap/'+ this.$route.params.chemid +'/chemical'">Map of all Reactions Linked to this Chemical</router-link><br><br>
         <!-- the grid setup is in the script section, the grid will only display if there are entries -->
         <div v-if="(mapRowData.value.length!=0)">
