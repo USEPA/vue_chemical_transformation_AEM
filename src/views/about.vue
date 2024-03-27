@@ -34,6 +34,10 @@
         assumes any legal liability or responsibility for the accuracy, completeness, or usefulness of any information, apparatus, 
         product, or process disclosed, or represents that its use would not infringe privately owned rights.
         </p>
+        <h1 style="font-size:25px">User Manual</h1>
+        <p>
+        For additional help using the Chemical Transformations Database a user manual is available <a href="https://work.epa.gov/ccte/chet-chemical-transformations-database-help" target="_blank">here</a>.
+        </p>
     </body>
 </template>
   
