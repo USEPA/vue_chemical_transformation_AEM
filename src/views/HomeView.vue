@@ -11,8 +11,12 @@
             </datalist>
             <button @click="$router.push('/reaction/searchresults/' + input + '/any/' + checked)">Search</button> <br> Substring Matching: <input type="checkbox" v-model="checked"> <br><br>
         </div>
+        <div style="text-align:center">
+            For information on using this application see the manual <a href="https://work.epa.gov/ccte/chet-chemical-transformations-database-help" target="_blank">here</a>.<br>
+            For information about the application see the <router-link v-bind:to="'/about'">About</router-link> page.
+        </div>
         <div style="font-size:small">
-            <br><br><br><br><br><br><br>
+            <br><br><br><br><br>
             This resource is a compilation of information sourced from many databases and literature sources, including U.S. Federal and 
             state sources and international bodies, which can save the user time by providing information in one location. The data are not 
             fully reviewed by USEPA – the user must apply judgment in use of the information. You should consult the original scientific 

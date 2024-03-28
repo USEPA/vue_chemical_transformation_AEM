@@ -33,10 +33,8 @@
                 <b-dropdown-item to="/contactpage">Contact Us</b-dropdown-item>
             </b-nav-item-dropdown>
             <b-nav-item-dropdown text="Related Applications" class="navstyle" style="font-size:16px">
-                <b-dropdown-item href="http://v2626umcth819.rtord.epa.gov:9414/">Chemical Transformations Database</b-dropdown-item>
-                <b-dropdown-item href="http://v2626umcth819.rtord.epa.gov:81/substances">Analytical QC</b-dropdown-item>
-                <b-dropdown-item href="http://v2626umcth819.rtord.epa.gov:5173/">Spectral and Methods Database</b-dropdown-item>
-                <b-dropdown-item href="http://v2626umcth819.rtord.epa.gov:9004/molmass_web.py">Molecular Mass Calculator</b-dropdown-item>
+                <b-dropdown-item href="https://ccte-cced-amos.epa.gov/#/">Analytical Methods and Open Spectra Database</b-dropdown-item>
+                <b-dropdown-item href="https://ccte-cced-chemster.epa.gov/#/">Chemical Space Mapping Tool</b-dropdown-item>
             </b-nav-item-dropdown>
             <b-nav style="position: absolute; right:15px">
                 <div  v-if="showhide" >
