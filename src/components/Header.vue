@@ -12,7 +12,7 @@
             </b-nav-item-dropdown>
             <b-nav-item-dropdown text="Reaction Libraries" class="navstyle" style="font-size:16px">
                 <b-dropdown-item to="/reaction/database">Complete Reaction Database</b-dropdown-item>
-                <b-dropdown-item v-for="library in library_list" :to="'/reaction/searchresults/'+library.lib_name+'/reaction_library/false'">{{library.lib_name}}</b-dropdown-item>
+                <b-dropdown-item v-for="library in library_list" :to="'/about/'+library.lib_name">{{library.lib_name}}</b-dropdown-item>
             </b-nav-item-dropdown>
             <b-nav-item-dropdown text="Tools" class="navstyle" style="font-size:16px">
                 <div v-if="this.$cookie.getCookie('user')">

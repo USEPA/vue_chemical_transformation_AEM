@@ -1,13 +1,15 @@
 <template>  
-    <div style="font-size:25px">
-        CHET Chemicals List<br><br>
-    </div>
     <!-- row view -->
-    <div v-if="rowtile"> 
-        <button v-on:click="rowtile = !rowtile">Tile View</button> &nbsp;
+    <div> 
+        <div style="font-size:25px">
+            {{$route.params.setid}} Associated Chemicals<br>
+        </div>
+        <div>
+            <router-link v-bind:to="'/about/'+$route.params.setid" style="text-transform: capitalize;">About this Library</router-link><br>
+            <router-link v-bind:to="'/reaction/searchresults/'+$route.params.setid+'/reaction_library/false'" style="text-transform: capitalize;">List of Reactions in this Reaction Library</router-link><br><br>
+        </div>
         <button v-on:click="handleGridExport()">Export Chemical List</button><br><br>
         Enter terms of interest into filter boxes to filter the table on that column.<br><br>
-        {{ rowcount }} Chemicals found out of {{ bigout.length }}<br><br>
         <!-- the grid setup is in the script section -->
         <ag-grid-vue
             class="ag-theme-balham"
@@ -22,42 +24,14 @@
             @grid-ready="onGridReady">
         </ag-grid-vue>
     </div>
-    <!-- tile view -->
-    <div v-else id="tiles">
-        <button v-on:click="rowtile = !rowtile">Table View</button> &nbsp;
-        <button v-on:click="handleExport">Export Chemical List</button> <br><br>
-        Filter Chemical List: <input style="width:245px" type="text" list="typeaheadlist" v-model="input" placeholder="Name, DTXSID, CASRN, InChI key" /> <br>
-        {{ filteredlist.length }} Chemicals found out of {{ bigout.length }}<br><br>
-        Searching in the Tile View will perform a search across all names, synonyms, and chemical identifiers.<br>
-        Names and Synonyms will match on substring, chemical identifiers will be matched exactly or by identifier block.<br>
-        <!-- sets up substring filtered search suggestions for DTXSID and Name -->
-        <!-- search or get rid of suggestion when clicked -->
-        <datalist v-if="input.length > 2" id="typeaheadlist">
-            <option v-for="row in bigout" :value="row.dtxsid" :label="row.primary_name"></option>
-        </datalist>
-        <div class="tileset">
-        <!-- tile formatting is handled mostly by the css styling -->
-        <div class="tile" v-for="row in filteredlist">
-            <p style="text-overflow: ellipsis; overflow: hidden; white-space: nowrap;">Name: <router-link v-bind:to="'/chemical/'+row.dtxsid"> {{row.primary_name}} </router-link> </p>
-            <p><img v-bind:src="'data:image/png;base64,'+row.image" v-on:click="magnify(['data:image/png;base64,'+row.image,row.primary_name])" alt="missing image" style="display: block; margin-left: auto; margin-right: auto; width:150px; height:150px;" /> </p>
-            <p>DTXSID: <a :href="'https://comptox.epa.gov/dashboard/chemical/details/' + row.dtxsid" target="_blank"> {{row.dtxsid}} ↗</a></p>
-        </div>
-        </div>
-        <!-- if the data have not loaded yet indicates that a search is underway -->
-        <div v-if="!bigout.length & timer">
-            <br> <p style="font-size:25px">Searching...</p>
-        </div>
-        <!-- if the data have loaded but all elements have been filtered out of the list, indicate that there is no match -->
-        <div v-else-if="filteredlist.length == 0">
-            <br> <p style="font-size:25px">NO CHEMICALS MATCH THAT SEARCH</p>
-        </div>
-    </div>
 
     <!-- popup windown for showing a larger image of a chemical -->
-    <div v-if="showhide" class="chemcheck">
-        <img v-bind:src="srcvar" alt="missing image" style="display: block; margin-left: auto; margin-right: auto; width:300px; height:300px;" /><br>
-        {{ srcname }}<hr>
-        <button @click="showhide=false"> [X] </button>     
+    <div v-if="!rowData.value.length & timer" class="chemcheck" style="font-size:25px">
+        SEARCHING . . .          
+    </div>
+    <div v-else-if="rowData.value.length == 0 & showhide" class="chemcheck" style="font-size:25px">
+        NO CHEMICALS FOUND<hr>
+        <button @click="showhide=false"> [X] </button>  
     </div>
 </template>
 
@@ -71,7 +45,7 @@
     import axios from "axios"
 
     export default {
-        name: 'chemdatabase',
+        name: 'chemset',
         components: {
             AgGridVue,
         },
@@ -88,9 +62,8 @@
                 rowtile: false,
                 chemColDefs,
                 rowData,
-                bigout:'',
                 input,
-                showhide: false,
+                showhide: true,
                 srcvar:'',
                 srcname:'',
                 timer:true,
@@ -100,17 +73,8 @@
             }
         },
         // get the database JSON from the backend
-        created: async function(){
-            try{
-                const url = this.$apiname + "chemicals/database";
-                const gResponse = await fetch(url, {mode:'cors'});
-                const gObject = await gResponse.json();
-                this.bigout = gObject;
-            } catch (error){
-                this.timer = false
-            }
-        },
         mounted() {
+            this.showhide = true
             const liburl = this.$apiname + "reaction/libraries"
             fetch(liburl, {mode:'cors'})
                 .then((result) => result.json())
@@ -122,34 +86,14 @@
             fetch(counturl, {mode:'cors'})
                 .then((result) => result.json())
                 .then((remoteRowData) => (this.countsdata = remoteRowData));
-            const chemurl = this.$apiname + "chemicals/database"
-            fetch(chemurl, {mode:'cors'})
-                .then((result) => result.json())
-                .then((remoteRowData) => (this.rowData.value = remoteRowData));
-        },
-        computed: {
-            // function for filtering the database JSON
-            filteredlist() {
-                if (this.input) {
-                    return this.bigout.filter((item) => {
-                        // substring match, split multiple search terms, check if searchable fields have a match
-                        return this.input
-                            .toLowerCase()
-                            .split(" ")
-                            .every((v) => 
-                                item.primary_name?.toLowerCase().includes(v)
-                                || item.dtxsid?.toLowerCase() == v
-                                || item.inchi?.toLowerCase() == v
-                                || item.inchi?.toLowerCase().split('-')[0] == v
-                                || item.casrn?.toLowerCase() == v
-                                || item.casrn?.toLowerCase().split('_')[1] == v
-                                || item.other_names?.toLowerCase().includes(v));
-                    });
-                } else {
-                // don't filter if there's no input
-                return this.bigout
-                }
-            },
+            try{                
+                const chemurl = this.$apiname + "chemicals/chemset/" + this.$route.params.setid
+                fetch(chemurl, {mode:'cors'})
+                    .then((result) => result.json())
+                    .then((remoteRowData) => (this.rowData.value = remoteRowData));
+            } catch (error){
+                this.timer = false
+            }        
         },
         methods: {
             // sets up the grid
@@ -296,12 +240,6 @@
                 }
                 console.log(params)
                 this.gridApi.exportDataAsCsv(params);
-            },
-            // code for zooming on a chemical, sets the image in the popup window to the clicked item then shows the popup
-            magnify(x) {
-                this.srcvar = x[0];
-                this.srcname = x [1];
-                this.showhide=true;
             },
         },
     }

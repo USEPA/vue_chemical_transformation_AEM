@@ -12,6 +12,14 @@
                 <td style ="border: 1px solid"><input type="text" v-model="product"/></td>
             </tr>
             <tr>
+                <td style ="border: 1px solid">Parent Ratio(s)</td>
+                <td style ="border: 1px solid"><input type="text" v-model="parent_ratio"/></td>
+            </tr>
+            <tr>
+                <td style ="border: 1px solid">Product Ratio(s)</td>
+                <td style ="border: 1px solid"><input type="text" v-model="product_ratio"/></td>
+            </tr>
+            <tr>
                 <td style ="border: 1px solid">Reaction Process</td>
                 <td style ="border: 1px solid"><input type="text" v-model="process"/></td>
             </tr>
@@ -22,6 +30,10 @@
             <tr>
                 <td style ="border: 1px solid">Reaction Scheme</td>
                 <td style ="border: 1px solid"><input type="text" v-model="scheme"/></td>
+            </tr>
+            <tr>
+                <td style ="border: 1px solid">Reaction Phase</td>
+                <td style ="border: 1px solid"><input type="text" v-model="phase"/></td>
             </tr>
             <!-- Rows for reaction details based on selected library -->
             <tr v-if="showhide_detail" v-for="row in detail_list">
@@ -101,6 +113,7 @@ export default{
             process: '',
             type: '',
             scheme: '',
+            phase: '',
             reactionfile: null,
             errormessage: '',
         }
@@ -134,6 +147,7 @@ export default{
         },
         // function for submitting a new reaction
         handleSubmit() {
+            this.errormessage = ''
             this.showhide4 = true;
             axios
                 // Send the chemical to the backend
@@ -143,6 +157,7 @@ export default{
                     process: this.process,
                     type: this.type,
                     scheme: this.scheme,
+                    phase: this.phase,
                     library: this.selected_library.lib_ID,
                     details: this.detail_list,
                 })

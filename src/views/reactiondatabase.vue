@@ -1,4 +1,7 @@
 <template>
+    <div style="font-size:25px">
+        CHET Full Reaction List<br><br>
+    </div>
     Search: <input style="width:255px" type="text" list="typeaheadlist" v-model="searchinput" placeholder="Name, DTXSID, or Reaction Detail" /> <br>
     <!-- sets up substring filtered search suggestions for DTXSID and Name -->
     <datalist  v-if="searchinput.length > 2" id="typeaheadlist">
@@ -14,13 +17,14 @@
             <tr v-if="index % 2 == 0">
                 <td v-if="filteredlist[index]" style="width:50%; border:2px solid black;">
                     <p><router-link v-bind:to="'/reaction/'+row.reaction_ID">
-                        <span v-for="(name,n_index) in row.parent_name">{{name}}
+                        <span v-for="(name,n_index) in row.parent_name"><span v-if="row.parent_ratio[n_index]">{{row.parent_ratio[n_index]}} * </span>{{name}}
                             <span v-if="n_index != row.parent_name.length - 1"> + </span>
                         </span> → 
-                        <span v-for="(name,n_index) in row.product_name">{{name}}
+                        <span v-for="(name,n_index) in row.product_name"><span v-if="row.product_ratio[n_index]">{{row.product_ratio[n_index]}} * </span>{{name}}
                             <span v-if="n_index != row.product_name.length - 1"> + </span>
                         </span></router-link></p>
                     <p><span v-for="(element,e_index) in row.parent_image">
+                        <span style="font-size:25px;vertical-align:middle" v-if="row.parent_ratio[e_index]">{{row.parent_ratio[e_index]}} &nbsp;</span>
                         <router-link v-bind:to="'/chemical/'+row.parent_dtxsid[e_index]">
                             <img v-bind:src="'data:image/png;base64,'+element" alt="missing image" 
                             :style="{
@@ -31,6 +35,7 @@
                         <span v-if="e_index != row.parent_image.length - 1"> + </span> 
                     </span> → 
                     <span v-for="(element,e_index) in row.product_image"> 
+                        <span style="font-size:25px;vertical-align:middle" v-if="row.product_ratio[e_index]">{{row.product_ratio[e_index]}} &nbsp;</span>
                         <router-link v-bind:to="'/chemical/'+row.product_dtxsid[e_index]">
                             <img v-bind:src="'data:image/png;base64,'+element" alt="missing image" 
                             :style="{
@@ -45,13 +50,14 @@
                 </td>
                 <td v-if="filteredlist[index+1]" style="width:50%; border:2px solid black;">
                     <p><router-link v-bind:to="'/reaction/'+filteredlist[index+1].reaction_ID">
-                        <span v-for="(name,n_index) in filteredlist[index+1].parent_name">{{name}}
+                        <span v-for="(name,n_index) in filteredlist[index+1].parent_name"><span v-if="filteredlist[index+1].parent_ratio[n_index]">{{filteredlist[index+1].parent_ratio[n_index]}} * </span>{{name}}
                             <span v-if="n_index != filteredlist[index+1].parent_name.length - 1"> + </span>
                         </span> → 
-                        <span v-for="(name,n_index) in filteredlist[index+1].product_name">{{name}}
+                        <span v-for="(name,n_index) in filteredlist[index+1].product_name"><span v-if="filteredlist[index+1].product_ratio[n_index]">{{filteredlist[index+1].product_ratio[n_index]}} * </span>{{name}}
                             <span v-if="n_index != filteredlist[index+1].product_name.length - 1"> + </span>
                         </span></router-link></p>
                     <p><span v-for="(element,e_index) in filteredlist[index+1].parent_image">
+                        <span style="font-size:25px;vertical-align:middle" v-if="filteredlist[index+1].parent_ratio[e_index]">{{filteredlist[index+1].parent_ratio[e_index]}} &nbsp;</span>
                         <router-link v-bind:to="'/chemical/'+filteredlist[index+1].parent_dtxsid[e_index]">
                             <img v-bind:src="'data:image/png;base64,'+element" alt="missing image" 
                             :style="{
@@ -61,6 +67,7 @@
                             </router-link><span v-if="e_index != filteredlist[index+1].parent_image.length - 1"> + </span> 
                         </span> → 
                         <span v-for="(element,e_index) in filteredlist[index+1].product_image"> 
+                            <span style="font-size:25px;vertical-align:middle" v-if="filteredlist[index+1].product_ratio[e_index]">{{filteredlist[index+1].product_ratio[e_index]}} &nbsp;</span>
                             <router-link v-bind:to="'/chemical/'+filteredlist[index+1].product_dtxsid[e_index]">
                                 <img v-bind:src="'data:image/png;base64,'+element" alt="missing image" 
                                 :style="{

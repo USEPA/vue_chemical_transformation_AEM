@@ -1,15 +1,21 @@
 <template>
-    <h2 v-if="this.$route.params.searchtype == 'chemical'">
-        Reaction Map For {{chemical.primary_name}}
-    </h2>
+    <div v-if="this.$route.params.searchtype == 'chemical'">
+        <h2>Reaction Map For {{chemical.primary_name}}</h2>
+    </div>
     <h2 v-else-if="this.$route.params.searchtype == 'mapid'">
         Reaction Map {{this.$route.params.searchinput}} :
-        {{ firstmap }}
+        <span v-if="this.firstlink">
+            <a :href="'https://doi.org/' + this.firstlink" target="_blank">{{ firstmap }}</a>
+        </span>
+        <span v-else>
+            {{ firstmap }}
+        </span>
     </h2>
     <h2 v-else-if="this.$route.params.searchtype == 'compare'">
         Reaction Maps {{this.$route.params.searchinput.replace('_',' & ').replace('_',' & ')}} <br>
         <span v-for="(map,index) in maplist"><span v-if="index != 0">&nbsp; & &nbsp;</span>{{ map }}</span>
     </h2>
+    <button @click="$router.push('/reaction/searchresults/' + this.openNodes + '/map/false')">Search CHET for Visible Reactions</button>
     <div v-if="(showhide && this.$route.params.searchtype != 'compare')">
         <button @click="showhide=false">Hide Instructions</button> <br>
         Click and Drag the Background or Scroll with the Mouse Wheel to Alter the Viewport <br>
@@ -134,6 +140,7 @@ export default {
             chemical:'',
             gridApi:null,
             firstmap:'',
+            firstlink:'',
             maplist:[],
         }
     },
@@ -162,14 +169,15 @@ export default {
         if(this.$route.params.searchtype == 'mapid'){
             const mapResponse = await fetch(this.mapIDurl, {mode:'cors'});
             const mapObject = await mapResponse.json();
-            this.firstmap = mapObject[0].reference;
+            this.firstmap = mapObject.reference;
+            this.firstlink = mapObject.doi;
         }
         if(this.$route.params.searchtype == 'compare'){
             for(let id of this.$route.params.searchinput.split('_')){
                 const tempurl = this.$apiname + "reaction/mapid/" + id
                 const mapResponse = await fetch(tempurl, {mode:'cors'});
                 const mapObject = await mapResponse.json();
-                this.maplist.push(mapObject[0].reference)
+                this.maplist.push(mapObject.reference)
             }
             
         }

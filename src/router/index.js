@@ -3,6 +3,7 @@ import HomeView from '../views/HomeView.vue'
 import chemid from '../views/chemid.vue'
 import reactid from '../views/reactionid.vue'
 import chemdatabase from '../views/chemdatabase.vue'
+import chemset from '../views/chemset.vue'
 import reactiondatabase from '../views/reactiondatabase.vue'
 import newchemical from '../views/newchemical.vue'
 import newreaction from '../views/newreaction.vue'
@@ -15,6 +16,7 @@ import login from '../views/login.vue'
 import SearchResults from '../views/searchresults.vue'
 import contactpage from '../views/contactpage.vue'
 import about from '../views/about.vue'
+import libabout from '../views/libabout.vue'
 import reactmap from '../views/reactmap.vue'
 import batchsearch from '../views/batchsearch.vue'
 
@@ -50,6 +52,10 @@ const router = createRouter({
       component: about
     },
     {
+      path: '/about/:libid',
+      component: libabout
+    },
+    {
       path: '/errorlist',
       component: errorlist
     },
@@ -68,6 +74,10 @@ const router = createRouter({
     {
       path: '/chemical/database',
       component: chemdatabase
+    },
+    {
+      path: '/chemical/chemset/:setid',
+      component: chemset
     },
     {
       path: '/reaction/database',

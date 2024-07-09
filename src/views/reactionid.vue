@@ -1,9 +1,29 @@
 <template>
     <div>
-        <h2> <span v-for="(name,index) in reaction.parent_name"><router-link v-bind:to="'/chemical/'+reaction.parent_dtxsid[index]">{{name}}</router-link><span v-if="index != reaction.parent_name.length - 1"> + </span></span> → <span v-for="(name,index) in reaction.product_name"><router-link v-bind:to="'/chemical/'+reaction.product_dtxsid[index]">{{name}}</router-link><span v-if="index != reaction.product_name.length - 1"> + </span></span></h2>
-        <span v-for="(element,index) in reaction.parent_image"> <img v-bind:src="'data:image/png;base64,'+element" alt="missing image" style="width:150px;height:150px;vertical-align:middle;" /><span v-if="index != reaction.parent_image.length - 1"> + </span> </span> → <span v-for="(element,index) in reaction.product_image"> <img v-bind:src="'data:image/png;base64,'+element" alt="missing image" style="width:150px;height:150px;vertical-align:middle;" /><span v-if="index != reaction.product_image.length - 1"> + </span> </span>
+        <h2> 
+        <span v-for="(name,index) in reaction.parent_name">
+            <router-link v-bind:to="'/chemical/'+reaction.parent_dtxsid[index]"><span v-if="reaction.parent_ratio[index]">{{reaction.parent_ratio[index]}} * </span>{{name}}</router-link>
+            <span v-if="index != reaction.parent_name.length - 1"> + </span>
+        </span> → 
+        <span v-for="(name,index) in reaction.product_name">
+            <router-link v-bind:to="'/chemical/'+reaction.product_dtxsid[index]"><span v-if="reaction.product_ratio[index]">{{reaction.product_ratio[index]}} * </span>{{name}}</router-link>
+            <span v-if="index != reaction.product_name.length - 1"> + </span>
+        </span>
+        </h2>
+        <span v-for="(element,index) in reaction.parent_image"> 
+            <span style="font-size:25px;vertical-align:middle" v-if="reaction.parent_ratio[index]">{{reaction.parent_ratio[index]}} &nbsp;</span>
+            <img v-bind:src="'data:image/png;base64,'+element" alt="missing image" style="width:150px;height:150px;vertical-align:middle;border:2px solid black" />
+            <span v-if="index != reaction.parent_image.length - 1"> + </span> 
+        </span> → 
+        <span v-for="(element,index) in reaction.product_image"> 
+            <span style="font-size:25px;vertical-align:middle" v-if="reaction.product_ratio[index]">{{reaction.product_ratio[index]}} &nbsp;</span>
+            <img v-bind:src="'data:image/png;base64,'+element" alt="missing image" style="width:150px;height:150px;vertical-align:middle;border:2px solid black" />
+            <span v-if="index != reaction.product_image.length - 1"> + </span> 
+        </span>
         <br>
         <p v-if="reaction.lib_name">Reaction Library: <router-link v-bind:to="'/reaction/searchresults/'+reaction.lib_name+'/reaction_library/false'" style="text-transform: capitalize;">{{reaction.lib_name}}</router-link></p>
+        <p v-if="reaction.reaction_phase">Reaction Phase: <router-link v-bind:to="'/reaction/searchresults/'+reaction.reaction_phase+'/reaction_phase/false'" style="text-transform: capitalize;">{{reaction.reaction_phase}}</router-link></p>
+        <p v-if="reaction.CRACCM_ID">CRACCM ID: <router-link v-bind:to="'/reaction/searchresults/'+reaction.CRACCM_ID+'/CRACCM_ID/false'" style="text-transform: capitalize;">{{reaction.CRACCM_ID}}</router-link></p>
         <p v-if="reaction.reaction_process">Reaction Process: <router-link v-bind:to="'/reaction/searchresults/'+reaction.reaction_process+'/reaction_process/false'" style="text-transform: capitalize;">{{reaction.reaction_process}}</router-link></p>
         <p v-if="reaction.reaction_type">Reaction Type: <router-link v-bind:to="'/reaction/searchresults/'+reaction.reaction_type+'/reaction_type/false'" style="text-transform: capitalize;">{{reaction.reaction_type}}</router-link></p>
         <p v-if="reaction.reaction_scheme">Reaction Scheme: <router-link v-bind:to="'/reaction/searchresults/'+reaction.reaction_scheme+'/reaction_scheme/false'" style="text-transform: capitalize;">{{reaction.reaction_scheme}}</router-link></p>
@@ -136,16 +156,31 @@ export default {
             for(let key of this.details){
                 if(!key.detail_name.toLowerCase().includes('_id') && !key.detail_name.toLowerCase().includes('reference') && !key.detail_name.toLowerCase().includes('doi')){
                     let displayname = ''
-                    if(key.units == " "){
-                        displayname = key.detail_name
+                    let tooltipname = ''
+                    // set header names considering abbreviations and units
+                    if(key.detail_abbreviation != ""){
+                        displayname = key.detail_abbreviation
+                        tooltipname = key.detail_name
                     } else {
-                        displayname = key.detail_name + ' ('+ key.units +')'
+                        displayname = key.detail_name
+                        tooltipname = key.detail_name
                     }
-                    let wVal = Math.min(key.detail_name.length*15,200)
-                    console.log(key.detail_name,wVal)
+                    if(key.units != " "){
+                        displayname = displayname + ' (' + key.units + ')'
+                        tooltipname = tooltipname + ' (' + key.units + ')'
+                    }
+                    // dynamically set width
+                    let wVal = Math.min(displayname.length*30,150)
+                    // hide the column from display if it is empty
+                    let hval = true
+                    for(let row of this.rowData.value){
+                        if(row[key.detail_name]!=''){
+                            hval = false
+                        }
+                    }
                     new_cols.push(
                         {
-                            headerName:displayname, field:key.detail_name, sortable: true, resizable: true, filter: 'agTextColumnFilter', floatingFilter: true, width:wVal,
+                            headerName:displayname, field:key.detail_name, headerTooltip:tooltipname, sortable: true, resizable: true, filter: 'agTextColumnFilter', floatingFilter: true, width:wVal, hide:hval,
                         }
                     )
                 }

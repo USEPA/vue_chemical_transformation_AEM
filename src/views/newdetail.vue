@@ -1,5 +1,5 @@
 <template>
-    <h2> <span v-for="(name,index) in reaction.parent_name">{{name}}<span v-if="index != reaction.parent_name.length - 1"> + </span></span> → <span v-for="(name,index) in reaction.product_name">{{name}}<span v-if="index != reaction.product_name.length - 1"> + </span></span></h2>
+    <h2> <span v-for="(name,index) in reaction.parent_name"><span v-if="reaction.parent_ratio[index]">{{reaction.parent_ratio[index]}}</span>{{name}}<span v-if="index != reaction.parent_name.length - 1"> + </span></span> → <span v-for="(name,index) in reaction.product_name"><span v-if="reaction.product_ratio[index]">{{reaction.product_ratio[index]}}</span>{{name}}<span v-if="index != reaction.product_name.length - 1"> + </span></span></h2>
     <span v-for="(element,index) in reaction.parent_image"> <img v-bind:src="'data:image/png;base64,'+element" alt="missing image" style="width:150px;height:150px;vertical-align:middle;" /><span v-if="index != reaction.parent_image.length - 1"> + </span> </span> → <span v-for="(element,index) in reaction.product_image"> <img v-bind:src="'data:image/png;base64,'+element" alt="missing image" style="width:150px;height:150px;vertical-align:middle;" /><span v-if="index != reaction.product_image.length - 1"> + </span> </span>
     <br>
     <p v-if="reaction.lib_name">Reaction Library: {{reaction.lib_name}}</p>

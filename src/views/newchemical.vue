@@ -79,6 +79,7 @@ export default{
         },
         // function for submitting a new chemical
         async handleSubmit() {
+            this.errormessage = ''
             this.showhide3 = false;
             this.showhide4 = true;
             await axios

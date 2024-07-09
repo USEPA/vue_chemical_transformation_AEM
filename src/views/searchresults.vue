@@ -1,5 +1,15 @@
 <template>
     <!-- displays information about number of hits if a batch search is performed -->
+    <div v-if="search_type=='reaction_library'" >
+        <div style="font-size:25px">
+            {{$route.params.searchinput}} Reaction Library<br>
+        </div>
+        <div>
+            <router-link v-bind:to="'/about/'+$route.params.searchinput" style="text-transform: capitalize;">About this Library</router-link><br>
+            <router-link v-bind:to="'/chemical/chemset/'+$route.params.searchinput" style="text-transform: capitalize;">Chemicals Found in this Reaction Library</router-link>
+        </div>
+        <br>
+    </div>
     <div v-if="search_type=='batch'">
         {{ filteredlist.length }} reactions returned from {{ searchinfo(filteredlist) }} search terms out of {{ bigout[bigout.length-1] }} searched <br><br>
     </div>
@@ -26,13 +36,16 @@
                     </template>
                     <template v-else>
                         <p><router-link v-bind:to="'/reaction/'+row.reaction_ID">
-                            <span v-for="(name,n_index) in row.parent_name">{{name}}
+                            <span v-for="(name,n_index) in row.parent_name">
+                                <span v-if="row.parent_ratio[n_index]">{{row.parent_ratio[n_index]}} * </span>{{name}}
                                 <span v-if="n_index != row.parent_name.length - 1"> + </span>
                             </span> → 
-                            <span v-for="(name,n_index) in row.product_name">{{name}}
+                            <span v-for="(name,n_index) in row.product_name">
+                                <span v-if="row.product_ratio[n_index]">{{row.product_ratio[n_index]}} * </span>{{name}}
                                 <span v-if="n_index != row.product_name.length - 1"> + </span>
                             </span></router-link></p>
                         <p><span v-for="(element,e_index) in row.parent_image">
+                            <span style="font-size:25px;vertical-align:middle" v-if="row.parent_ratio[e_index]">{{row.parent_ratio[e_index]}} &nbsp;</span>
                             <router-link v-bind:to="'/chemical/'+row.parent_dtxsid[e_index]">
                                 <img v-bind:src="'data:image/png;base64,'+element" alt="missing image" 
                                 :style="{
@@ -43,6 +56,7 @@
                             <span v-if="e_index != row.parent_image.length - 1"> + </span> 
                         </span> → 
                         <span v-for="(element,e_index) in row.product_image"> 
+                            <span style="font-size:25px;vertical-align:middle" v-if="row.product_ratio[e_index]">{{row.product_ratio[e_index]}} &nbsp;</span>
                             <router-link v-bind:to="'/chemical/'+row.product_dtxsid[e_index]">
                                 <img v-bind:src="'data:image/png;base64,'+element" alt="missing image" 
                                 :style="{
@@ -54,6 +68,8 @@
                         <p v-if="row.reaction_process">Reaction Process: <router-link v-bind:to="'/reaction/searchresults/'+row.reaction_process+'/reaction_process/false'" style="text-transform: capitalize;">{{row.reaction_process}}</router-link></p>
                         <p v-if="row.reaction_type">Reaction Type: <router-link v-bind:to="'/reaction/searchresults/'+row.reaction_type+'/reaction_type/false'" style="text-transform: capitalize;">{{row.reaction_type}}</router-link></p>
                         <p v-if="row.reaction_scheme">Reaction Scheme: <router-link v-bind:to="'/reaction/searchresults/'+row.reaction_scheme+'/reaction_scheme/false'" style="text-transform: capitalize;">{{row.reaction_scheme}}</router-link></p>
+                        <p v-if="row.reaction_phase">Reaction Phase: <router-link v-bind:to="'/reaction/searchresults/'+row.reaction_phase+'/reaction_phase/false'" style="text-transform: capitalize;">{{row.reaction_phase}}</router-link></p>
+                        <p v-if="row.CRACCM_ID">CRACCM ID: <router-link v-bind:to="'/reaction/searchresults/'+row.CRACCM_ID+'/CRACCM_ID/false'" style="text-transform: capitalize;">{{row.CRACCM_ID}}</router-link></p>
                     </template>
                 </td>
                 <td v-if="filteredlist[index+1]" style="max-width:700px; width:50%; border:2px solid black;">                    
@@ -66,33 +82,38 @@
                     </template>
                     <template v-else>
                         <p><router-link v-bind:to="'/reaction/'+filteredlist[index+1].reaction_ID">
-                            <span v-for="(name,n_index) in filteredlist[index+1].parent_name">{{name}}
+                            <span v-for="(name,n_index) in filteredlist[index+1].parent_name"><span v-if="filteredlist[index+1].parent_ratio[n_index]">{{filteredlist[index+1].parent_ratio[n_index]}} * </span>{{name}}
                                 <span v-if="n_index != filteredlist[index+1].parent_name.length - 1"> + </span>
                             </span> → 
-                            <span v-for="(name,n_index) in filteredlist[index+1].product_name">{{name}}
+                            <span v-for="(name,n_index) in filteredlist[index+1].product_name"><span v-if="filteredlist[index+1].product_ratio[n_index]">{{filteredlist[index+1].product_ratio[n_index]}} * </span>{{name}}
                                 <span v-if="n_index != filteredlist[index+1].product_name.length - 1"> + </span>
                             </span></router-link></p>
                         <p><span v-for="(element,e_index) in filteredlist[index+1].parent_image">
-                            <router-link v-bind:to="'/chemical/'+filteredlist[index+1].parent_dtxsid[e_index]">
-                                <img v-bind:src="'data:image/png;base64,'+element" alt="missing image" 
-                                :style="{
-                                    width: 145 * 4/(Math.max(filteredlist[index+1].parent_name.length + filteredlist[index+1].product_name.length,4)) +'px', 
-                                    height: 145 * 4/(Math.max(filteredlist[index+1].parent_name.length + filteredlist[index+1].product_name.length,4)) +'px'}"  
-                                    style="vertical-align:middle;border: 2px solid blue" />
-                                </router-link><span v-if="e_index != filteredlist[index+1].parent_image.length - 1"> + </span> 
+                                <span style="font-size:25px;vertical-align:middle" v-if="filteredlist[index+1].parent_ratio[e_index]">{{filteredlist[index+1].parent_ratio[e_index]}} &nbsp;</span>
+                                <router-link v-bind:to="'/chemical/'+filteredlist[index+1].parent_dtxsid[e_index]">
+                                    <img v-bind:src="'data:image/png;base64,'+element" alt="missing image" 
+                                    :style="{
+                                        width: 145 * 4/(Math.max(filteredlist[index+1].parent_name.length + filteredlist[index+1].product_name.length,4)) +'px', 
+                                        height: 145 * 4/(Math.max(filteredlist[index+1].parent_name.length + filteredlist[index+1].product_name.length,4)) +'px'}"  
+                                        style="vertical-align:middle;border: 2px solid blue" />
+                                    </router-link><span v-if="e_index != filteredlist[index+1].parent_image.length - 1"> + </span> 
                             </span> → 
                             <span v-for="(element,e_index) in filteredlist[index+1].product_image"> 
+                                <span style="font-size:25px;vertical-align:middle" v-if="filteredlist[index+1].product_ratio[e_index]">{{filteredlist[index+1].product_ratio[e_index]}} &nbsp;</span>
                                 <router-link v-bind:to="'/chemical/'+filteredlist[index+1].product_dtxsid[e_index]">
                                     <img v-bind:src="'data:image/png;base64,'+element" alt="missing image" 
                                     :style="{
                                         width: 145 * 4/(Math.max(filteredlist[index+1].parent_name.length + filteredlist[index+1].product_name.length,4)) +'px', 
                                         height: 145 * 4/(Math.max(filteredlist[index+1].parent_name.length + filteredlist[index+1].product_name.length,4)) +'px'}"  
                                     style="vertical-align:middle;border: 2px solid blue" />
-                                </router-link><span v-if="e_index != filteredlist[index+1].product_image.length - 1"> + </span> </span></p>
+                                </router-link><span v-if="e_index != filteredlist[index+1].product_image.length - 1"> + </span> 
+                            </span></p>
                         <p v-if="filteredlist[index+1].lib_name">Reaction Library: <router-link v-bind:to="'/reaction/searchresults/'+filteredlist[index+1].lib_name+'/reaction_library/false'" style="text-transform: capitalize;">{{filteredlist[index+1].lib_name}}</router-link></p>
                         <p v-if="filteredlist[index+1].reaction_process">Reaction Process: <router-link v-bind:to="'/reaction/searchresults/'+filteredlist[index+1].reaction_process+'/reaction_process/false'" style="text-transform: capitalize;">{{filteredlist[index+1].reaction_process}}</router-link></p>
                         <p v-if="filteredlist[index+1].reaction_type">Reaction Type: <router-link v-bind:to="'/reaction/searchresults/'+filteredlist[index+1].reaction_type+'/reaction_type/false'" style="text-transform: capitalize;">{{filteredlist[index+1].reaction_type}}</router-link></p>
                         <p v-if="filteredlist[index+1].reaction_scheme">Reaction Scheme: <router-link v-bind:to="'/reaction/searchresults/'+filteredlist[index+1].reaction_scheme+'/reaction_scheme/false'" style="text-transform: capitalize;">{{filteredlist[index+1].reaction_scheme}}</router-link></p>
+                        <p v-if="filteredlist[index+1].reaction_phase">Reaction Phase: <router-link v-bind:to="'/reaction/searchresults/'+filteredlist[index+1].reaction_phase+'/reaction_phase/false'" style="text-transform: capitalize;">{{filteredlist[index+1].reaction_phase}}</router-link></p>
+                        <p v-if="filteredlist[index+1].CRACCM_ID">CRACCM ID: <router-link v-bind:to="'/reaction/searchresults/'+filteredlist[index+1].CRACCM_ID+'/CRACCM_ID/false'" style="text-transform: capitalize;">{{filteredlist[index+1].CRACCM_ID}}</router-link></p>
                     </template>
                 </td>
             </tr>
