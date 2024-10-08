@@ -22,7 +22,7 @@ env:
 jobs:
   container-scan:
 
-    runs-on: th889
+    runs-on: th879
     environment: ${{ github.head_ref || github.ref_name }}
     permissions:
       contents: read
@@ -33,7 +33,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         
       # Create .env file for build  
       - name: Creating .env file
