@@ -6,7 +6,7 @@ on:
     
 jobs:
   send-email:
-    runs-on: "th889" 
+    runs-on: "th879" 
     steps:  
     - name: Checkout repository
       uses: actions/checkout@v3
