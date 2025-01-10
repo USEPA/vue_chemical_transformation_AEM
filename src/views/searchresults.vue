@@ -11,15 +11,17 @@
         <br>
     </div>
     <div v-if="search_type=='batch'">
-        {{ filteredlist.length }} reactions returned from {{ searchinfo(filteredlist) }} search terms out of {{ bigout[bigout.length-1] }} searched <br><br>
+        {{ filteredlist.length }} reactions returned from {{ searchinfo(filteredlist) }} search terms out of {{  counts[1]['COUNT(*)'] }} searched <br><br>
     </div>
     Filter Results:<br>
     <input style="width:255px" type="text" v-model="searchinput" placeholder="Name, DTXSID, or Reaction Detail" /> <br>
     <br> <button v-on:click="handleDownload">Export Reaction Details</button> <br><br>
     <div v-if="search_type!='batch'">
-        {{ filteredlist.length }} Reactions displayed out of {{ bigout.length }} <br>
+        {{ bigout.length }} Total Results Returned: <br>
+        {{ bigout.filter(x => x.restype == 'chemical').length }} Chemicals and {{ bigout.length - bigout.filter(x => x.restype == 'chemical').length }} Reactions <br>
+        {{ filteredlist.length }} Results after filtering
     </div>
-    <div v-if="substring_TF != false">
+    <div v-if="substring_TF">
         Results found using substring matching of primary names and common aliases. <br>
     </div>
     <br>
@@ -33,6 +35,9 @@
                         <p style="text-overflow: ellipsis; overflow: hidden; white-space: nowrap;">Name: <router-link v-bind:to="'/chemical/'+row.dtxsid"> {{row.primary_name}} </router-link> </p>
                         <p><img v-bind:src="'data:image/png;base64,'+row.image" alt="missing image" style="display: block; margin-left: auto; margin-right: auto; width:150px; height:150px;" /> </p>
                         <p>DTXSID: <a :href="'https://comptox.epa.gov/dashboard/chemical/details/' + row.dtxsid" target="_blank"> {{row.dtxsid}} ↗</a></p>
+                        <img v-if="filteredlist[index]['representative'].includes('DTXSID')" src="../additional_chemicals.png" style="position:relative; top:-205px; left:55px; z-index:10; width:25px; height:25px"/>
+                        <p><RouterLink :to="'/reaction/searchresults/' + row.dtxsid + '/ID/false'">Associated Reactions</RouterLink></p>
+                        <p v-if="show_array[row.dtxsid]==true">Maps: <span v-for="(i,i_index) in maps_array[row.dtxsid]"><RouterLink :to="'/reaction/reactionmap/'+i+'/mapid'">{{ i }}</RouterLink><span v-if="i_index < maps_array[row.dtxsid].length-1">, </span></span></p><br>
                     </template>
                     <template v-else>
                         <p><router-link v-bind:to="'/reaction/'+row.reaction_ID">
@@ -53,6 +58,7 @@
                                     height: 145 * 4/(Math.max(row.parent_name.length + row.product_name.length,4)) +'px'}"  
                                     style="vertical-align:middle;border: 2px solid blue" />
                             </router-link>
+                            <img v-if="row.parent_representative[e_index].includes('DTXSID')" src="../additional_chemicals.png" style="position:relative; top:-55px; left:-28px; z-index:10; width:25px; height:25px"/>
                             <span v-if="e_index != row.parent_image.length - 1"> + </span> 
                         </span> → 
                         <span v-for="(element,e_index) in row.product_image"> 
@@ -63,7 +69,10 @@
                                     width: 145 * 4/(Math.max(row.parent_name.length + row.product_name.length,4)) +'px', 
                                     height: 145 * 4/(Math.max(row.parent_name.length + row.product_name.length,4)) +'px'}"  
                                 style="vertical-align:middle;border: 2px solid blue" />
-                            </router-link><span v-if="e_index != row.product_image.length - 1"> + </span> </span></p>
+                            </router-link>
+                            <span v-if="e_index != row.product_image.length - 1"> + </span> 
+                            <img v-if="row.product_representative[e_index].includes('DTXSID')" src="../additional_chemicals.png" style="position:relative; top:-55px; left:-28px; z-index:10; width:25px; height:25px"/>
+                        </span></p>
                         <p v-if="row.lib_name">Reaction Library: <router-link v-bind:to="'/reaction/searchresults/'+row.lib_name+'/reaction_library/false'" style="text-transform: capitalize;">{{row.lib_name}}</router-link></p>
                         <p v-if="row.reaction_process">Reaction Process: <router-link v-bind:to="'/reaction/searchresults/'+row.reaction_process+'/reaction_process/false'" style="text-transform: capitalize;">{{row.reaction_process}}</router-link></p>
                         <p v-if="row.reaction_type">Reaction Type: <router-link v-bind:to="'/reaction/searchresults/'+row.reaction_type+'/reaction_type/false'" style="text-transform: capitalize;">{{row.reaction_type}}</router-link></p>
@@ -79,6 +88,9 @@
                         <p style="text-overflow: ellipsis; overflow: hidden; white-space: nowrap;">Name: <router-link v-bind:to="'/chemical/'+filteredlist[index+1].dtxsid"> {{filteredlist[index+1].primary_name}} </router-link> </p>
                         <p><img v-bind:src="'data:image/png;base64,'+filteredlist[index+1].image" alt="missing image" style="display: block; margin-left: auto; margin-right: auto; width:150px; height:150px;" /> </p>
                         <p>DTXSID: <a :href="'https://comptox.epa.gov/dashboard/chemical/details/' + filteredlist[index+1].dtxsid" target="_blank"> {{filteredlist[index+1].dtxsid}} ↗</a></p>
+                        <img v-if="filteredlist[index+1]['representative'].includes('DTXSID')" src="../additional_chemicals.png" style="position:relative; top:-205px; left:55px; z-index:10; width:25px; height:25px"/>
+                        <p><RouterLink :to="'/reaction/searchresults/' + filteredlist[index+1].dtxsid + '/ID/false'">Associated Reactions</RouterLink></p>
+                        <p v-if="show_array[filteredlist[index+1].dtxsid]==true">Maps: <span v-for="(i,i_index) in maps_array[filteredlist[index+1].dtxsid]"><RouterLink :to="'/reaction/reactionmap/'+i+'/mapid'">{{ i }}</RouterLink><span v-if="i_index < maps_array[filteredlist[index+1].dtxsid].length-1">, </span></span></p><br>
                     </template>
                     <template v-else>
                         <p><router-link v-bind:to="'/reaction/'+filteredlist[index+1].reaction_ID">
@@ -96,7 +108,9 @@
                                         width: 145 * 4/(Math.max(filteredlist[index+1].parent_name.length + filteredlist[index+1].product_name.length,4)) +'px', 
                                         height: 145 * 4/(Math.max(filteredlist[index+1].parent_name.length + filteredlist[index+1].product_name.length,4)) +'px'}"  
                                         style="vertical-align:middle;border: 2px solid blue" />
-                                    </router-link><span v-if="e_index != filteredlist[index+1].parent_image.length - 1"> + </span> 
+                                    </router-link>
+                                    <img v-if="filteredlist[index+1].parent_representative[e_index].includes('DTXSID')" src="../additional_chemicals.png" style="position:relative; top:-55px; left:-28px; z-index:10; width:25px; height:25px"/>
+                                    <span v-if="e_index != filteredlist[index+1].parent_image.length - 1"> + </span> 
                             </span> → 
                             <span v-for="(element,e_index) in filteredlist[index+1].product_image"> 
                                 <span style="font-size:25px;vertical-align:middle" v-if="filteredlist[index+1].product_ratio[e_index]">{{filteredlist[index+1].product_ratio[e_index]}} &nbsp;</span>
@@ -106,7 +120,9 @@
                                         width: 145 * 4/(Math.max(filteredlist[index+1].parent_name.length + filteredlist[index+1].product_name.length,4)) +'px', 
                                         height: 145 * 4/(Math.max(filteredlist[index+1].parent_name.length + filteredlist[index+1].product_name.length,4)) +'px'}"  
                                     style="vertical-align:middle;border: 2px solid blue" />
-                                </router-link><span v-if="e_index != filteredlist[index+1].product_image.length - 1"> + </span> 
+                                </router-link>
+                                <img v-if="filteredlist[index+1].product_representative[e_index].includes('DTXSID')" src="../additional_chemicals.png" style="position:relative; top:-55px; left:-28px; z-index:10; width:25px; height:25px"/>
+                                <span v-if="e_index != filteredlist[index+1].product_image.length - 1"> + </span> 
                             </span></p>
                         <p v-if="filteredlist[index+1].lib_name">Reaction Library: <router-link v-bind:to="'/reaction/searchresults/'+filteredlist[index+1].lib_name+'/reaction_library/false'" style="text-transform: capitalize;">{{filteredlist[index+1].lib_name}}</router-link></p>
                         <p v-if="filteredlist[index+1].reaction_process">Reaction Process: <router-link v-bind:to="'/reaction/searchresults/'+filteredlist[index+1].reaction_process+'/reaction_process/false'" style="text-transform: capitalize;">{{filteredlist[index+1].reaction_process}}</router-link></p>
@@ -123,9 +139,27 @@
         <!-- if the data have not loaded yet indicates that a search is underway -->
         <br> <p style="font-size:25px">Searching...</p>
     </div>
-    <div v-else-if="filteredlist.length == 0">
+    <div v-else-if="bigout.length != 0 & filteredlist.length == 0">
         <!-- if the data have loaded but all elements have been filtered out of the list, indicate that there is no match -->
         <br> <p style="font-size:25px">NO RESULTS WERE FOUND</p>
+    </div>
+    <div v-else-if="fallbackcheck">
+        <!-- if the data have loaded but all elements have been filtered out of the list, indicate that there is no match -->
+        <table style="border:none;">
+            <tr>
+                <td>
+                    <img style="color:white; width:200px; height:200px; border:1px solid black;" :src="'https://ccte-api-ccd-stg.epa.gov/ccdapp1/chemical-files/image/by-dtxsid/'+fallback.dtxsid" alt="">
+                </td>
+                <td style="text-align:left; left:15px; font-size:large;">
+                    <span style="font-weight:bold;">Preferred Name:</span> {{ fallback.name }}
+                    <br> <span style="font-weight:bold;">DTXSID:</span> {{ fallback.dtxsid }}
+                    <br> <span style="font-weight:bold;">CASRN:</span> {{ fallback.casrn }}
+                    <br> <span style="font-weight:bold;">InChIKey:</span> {{ fallback.inchi }}
+                    <br> <span style="font-weight:bold;">Molecular Formula:</span> {{ fallback.formula }}
+                    <br> <span style="font-weight:bold;">Molecular Mass:</span> {{ fallback.mass }}
+                </td>
+            </tr>
+        </table>
     </div>
     <span v-if="showhide" class="hoverinfo" v-bind:style="{ position:'fixed', left:calcx+'px', top:calcy+'px'}">
         <img v-bind:src="'data:image/png;base64,'+calcimg" alt="missing image" style="width:150px;height:150px;vertical-align:middle;" />
@@ -149,6 +183,8 @@ export default {
 
         return {
             bigout: '',
+            fallback:'',
+            fallbackcheck:false,
             searchinput,
             search_type,
             substring_TF,
@@ -160,6 +196,9 @@ export default {
             calctext:'',
             calcdtxsid:'',
             timer:true,
+            counts:[[],[]],
+            maps_array:{},
+            show_array:{},
         }
     },
     // get the results of the search from the backend
@@ -167,9 +206,41 @@ export default {
         const gResponse = await fetch(this.url, {mode:'cors'});
         const gObject = await gResponse.json();
         this.bigout = gObject;
+        for(let i of this.bigout){
+            try{
+                this.parsemaps(i.dtxsid)
+            } catch {
+                
+            }
+        }
         if(gObject == ''){
             this.timer = false
+            let intlist = ['1','2','3','4','5','6','7','8','9','0']
+            if(this.$route.params.searchinput.includes('DTXSID')){
+                let fallbackRes1 = await fetch(this.$apiname + "chemicals/chemtemp/DTXSID/" + this.$route.params.searchinput, {mode:'cors'})
+                let fallbackObj1 = await fallbackRes1.json()
+                this.fallback = fallbackObj1
+                this.fallbackcheck = true
+            } else if(intlist.some(x => this.$route.params.searchinput.split('-')[0].includes(x))){
+                let fallbackRes2 = await fetch(this.$apiname + "chemicals/chemtemp/casrn/" + this.$route.params.searchinput, {mode:'cors'})
+                let fallbackObj2 = await fallbackRes2.json()
+                this.fallback = fallbackObj2
+                this.fallbackcheck = true
+            } else{
+                let fallbackRes3 = await fetch(this.$apiname + "chemicals/chemtemp/inchi/" + this.$route.params.searchinput, {mode:'cors'})
+                let fallbackObj3 = await fallbackRes3.json()
+                this.fallback = fallbackObj3
+                this.fallbackcheck = true
+            }
         }
+    },
+    mounted() {
+        const countURL = this.$apiname + "reaction/dbcounts"
+        fetch(countURL, {mode:'cors'})
+            .then((result) => result.json())
+            .then((remoteRowData) => (
+                this.counts = remoteRowData
+            ));
     },
     computed: {
         // function for filtering the results of the search
@@ -238,6 +309,23 @@ export default {
             }
             let idset = new Set(idlist)
             return idset.size
+        },
+
+        async parsemaps(dtxsid){
+            if(dtxsid != undefined){
+                let res = await fetch(this.$apiname + "chemicals/maps/" + dtxsid, {mode:'cors'})
+                let obj = await res.json()
+                let retvalue = obj
+                this.maps_array[dtxsid] = []
+                for(let i in retvalue){
+                    this.maps_array[dtxsid][i] = retvalue[i]['map_ID']
+                }
+                if(retvalue.length != 0){
+                    this.show_array[dtxsid] = true
+                } else {
+                    this.show_array[dtxsid] = false
+                }
+            }
         }
     },
 }

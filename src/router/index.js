@@ -16,6 +16,8 @@ import login from '../views/login.vue'
 import SearchResults from '../views/searchresults.vue'
 import contactpage from '../views/contactpage.vue'
 import about from '../views/about.vue'
+import sources from '../views/sources.vue'
+import history from '../views/history.vue'
 import libabout from '../views/libabout.vue'
 import reactmap from '../views/reactmap.vue'
 import batchsearch from '../views/batchsearch.vue'
@@ -50,6 +52,14 @@ const router = createRouter({
     {
       path: '/about',
       component: about
+    },
+    {
+      path: '/sources',
+      component: sources
+    },
+    {
+      path: '/history',
+      component: history
     },
     {
       path: '/about/:libid',

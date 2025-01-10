@@ -1,6 +1,6 @@
 <template>  
     <div style="font-size:25px">
-        CHET Chemicals List<br><br>
+        CheT Chemicals List<br><br>
     </div>
     <!-- row view -->
     <div v-if="rowtile"> 
@@ -37,10 +37,13 @@
         </datalist>
         <div class="tileset">
         <!-- tile formatting is handled mostly by the css styling -->
-        <div class="tile" v-for="row in filteredlist">
+        <div class="dbtile" v-for="row in filteredlist">
             <p style="text-overflow: ellipsis; overflow: hidden; white-space: nowrap;">Name: <router-link v-bind:to="'/chemical/'+row.dtxsid"> {{row.primary_name}} </router-link> </p>
-            <p><img v-bind:src="'data:image/png;base64,'+row.image" v-on:click="magnify(['data:image/png;base64,'+row.image,row.primary_name])" alt="missing image" style="display: block; margin-left: auto; margin-right: auto; width:150px; height:150px;" /> </p>
-            <p>DTXSID: <a :href="'https://comptox.epa.gov/dashboard/chemical/details/' + row.dtxsid" target="_blank"> {{row.dtxsid}} ↗</a></p>
+            <p><img v-bind:src="'data:image/png;base64,'+row.image" v-on:click="magnify(['data:image/png;base64,'+row.image,row.primary_name])" alt="missing image" style="display: block; margin-left: auto; margin-right: auto; width:150px; height:150px;" />
+            DTXSID: <a :href="'https://comptox.epa.gov/dashboard/chemical/details/' + row.dtxsid" target="_blank"> {{row.dtxsid}} ↗</a> <br>
+            <img v-if="row.representative.includes('DTXSID')" src="../additional_chemicals.png" style="position:relative; top:-210px; left:160px; z-index:10; width:25px; height:25px"/>
+            <RouterLink :to="'/reaction/searchresults/' + row.dtxsid + '/ID/false'">Associated Reactions</RouterLink><br>
+            <span v-if="show_array[row.dtxsid]==true">Maps: <span v-for="(i,i_index) in maps_array[row.dtxsid]"><RouterLink :to="'/reaction/reactionmap/'+i+'/mapid'">{{ i }}</RouterLink><span v-if="i_index < maps_array[row.dtxsid].length-1">, </span></span></span></p>
         </div>
         </div>
         <!-- if the data have not loaded yet indicates that a search is underway -->
@@ -97,6 +100,8 @@
                 library_list:[],
                 countsdata:[],
                 rowcount:0,
+                maps_array:{},
+                show_array:{},
             }
         },
         // get the database JSON from the backend
@@ -108,6 +113,17 @@
                 this.bigout = gObject;
             } catch (error){
                 this.timer = false
+            }
+            if(this.timer != false){
+                // for some reason this try/catch block is not supressing error messages from empty maplists
+                // also for some reason there is an error message when empty maplists are returned
+                for(let i of this.bigout){
+                    try{
+                        this.parsemaps(i.dtxsid)
+                    } catch {
+                        
+                    }
+                }
             }
         },
         mounted() {
@@ -183,6 +199,7 @@
                     {
                         headerName:'DTXSID', 
                         field:'dtxsid', 
+                        tooltipField:'dtxsid', 
                         sortable: true, 
                         resizable: true, 
                         filter: 'agTextColumnFilter',
@@ -200,6 +217,7 @@
                     {
                         headerName:'Primary Name', 
                         field:'primary_name', 
+                        tooltipField:'primary_name', 
                         sortable: true, 
                         resizable: true, 
                         filter: 'agTextColumnFilter',
@@ -219,8 +237,8 @@
                         width:250,
                         tooltipField:'primary_name',
                     },
-                    {headerName:'CASRN', field:'casrn', sortable: true, resizable: true, filter: 'agTextColumnFilter', floatingFilter: true, width:115},
-                    {headerName:'InChI KEY', field:'inchi', sortable: true, hide:true, resizable: true, filter: 'agTextColumnFilter', floatingFilter: true, width:350},
+                    {headerName:'CASRN', field:'casrn', tooltipField:'casrn', sortable: true, resizable: true, filter: 'agTextColumnFilter', floatingFilter: true, width:115},
+                    {headerName:'InChI KEY', field:'inchi', tooltipField:'inchi', sortable: true, hide:true, resizable: true, filter: 'agTextColumnFilter', floatingFilter: true, width:350},
                     {headerName:'Number of Reactions', children:[]},
                 )
                 for(let i of liblist){
@@ -241,7 +259,7 @@
                                 this.$router.push('/reaction/searchresults/'+params.data.dtxsid+'/'+i.lib_ID+'/false');
                             });
                             // don't link out if there are no reactions
-                            if (params.data.hydro_count == 0) return '0';
+                            if (params.data[i.lib_name] == 0) return '0';
                             else return link;
                         },
                     })
@@ -289,7 +307,7 @@
                         colSet.push(i.field)
                     }
                 }
-                let fname = 'CHET_grid_view_chemical_list_'+Date.now()
+                let fname = 'CheT_grid_view_chemical_list_'+Date.now()
                 const params = {
                     columnKeys:colSet,
                     fileName:fname,
@@ -302,6 +320,23 @@
                 this.srcvar = x[0];
                 this.srcname = x [1];
                 this.showhide=true;
+            },
+            
+            async parsemaps(dtxsid){
+                if(dtxsid != undefined){
+                    let res = await fetch(this.$apiname + "chemicals/maps/" + dtxsid, {mode:'cors'})
+                    let obj = await res.json()
+                    let retvalue = obj
+                    this.maps_array[dtxsid] = []
+                    for(let i in retvalue){
+                        this.maps_array[dtxsid][i] = retvalue[i]['map_ID']
+                    }
+                    if(retvalue.length != 0){
+                        this.show_array[dtxsid] = true
+                    } else {
+                        this.show_array[dtxsid] = false
+                    }
+                }
             },
         },
     }
@@ -320,9 +355,9 @@
 }
 
 /* styles the tiles so they will be the proper size, relative positioning lets them properly wrap */
-.tile {
+.dbtile {
   width: 215px;
-  height: 240px;
+  height: 265px;
   border: 2px solid darkblue;
   box-sizing: border-box;
   position: relative;

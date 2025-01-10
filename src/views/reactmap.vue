@@ -4,7 +4,10 @@
     </div>
     <h2 v-else-if="this.$route.params.searchtype == 'mapid'">
         Reaction Map {{this.$route.params.searchinput}} :
-        <span v-if="this.firstlink">
+        <span v-if="this.firstlink && this.maptitle != ''">
+            <a :href="'https://doi.org/' + this.firstlink" target="_blank">{{ maptitle }}</a>
+        </span>
+        <span v-else-if="this.firstlink">
             <a :href="'https://doi.org/' + this.firstlink" target="_blank">{{ firstmap }}</a>
         </span>
         <span v-else>
@@ -13,9 +16,13 @@
     </h2>
     <h2 v-else-if="this.$route.params.searchtype == 'compare'">
         Reaction Maps {{this.$route.params.searchinput.replace('_',' & ').replace('_',' & ')}} <br>
-        <span v-for="(map,index) in maplist"><span v-if="index != 0">&nbsp; & &nbsp;</span>{{ map }}</span>
+        <span v-for="(map,index) in maplist">
+            <span v-if="index != 0">&nbsp; & &nbsp;</span>
+            <span v-if="map[1] != null">{{ map[1] }}</span>
+            <span v-else>{{ map[0] }}</span>
+        </span>
     </h2>
-    <button @click="$router.push('/reaction/searchresults/' + this.openNodes + '/map/false')">Search CHET for Visible Reactions</button>
+    <button @click="$router.push('/reaction/searchresults/' + this.openNodes + '/map/false')">Search CheT for Visible Reactions</button>
     <div v-if="(showhide && this.$route.params.searchtype != 'compare')">
         <button @click="showhide=false">Hide Instructions</button> <br>
         Click and Drag the Background or Scroll with the Mouse Wheel to Alter the Viewport <br>
@@ -66,8 +73,31 @@
     Search this map by DTXSID or Name: <input style="width:100px" type="text" v-model="input"/>
     <button @click="searchmap(input)">Submit</button>
     <button @click="searchmap('qqqqqq')">Clear Search</button> <br>
-    <button @click="handleMapExport()">Export Visible Map</button>
-    <div id="graph"></div>
+    <button @click="handleMapExport()">Export Visible Map</button> <br>
+    <div v-if="this.$cookie.getCookie('user')">
+        <button @click="fixMapPositions()">Save Map Positions</button><br>
+        {{ fixed_position_list }}
+    </div>
+    <table>
+        <tr>
+            <td style="vertical-align:top; width:300px;">
+                CONTROL PANEL<hr>
+                <button @click="centermap()">Center on Root Node</button><br>
+                <button @click="zoomin()">Zoom In</button>
+                <button @click="zoomout()">Zoom Out</button><hr>
+            </td>
+            <td>
+                <div id="graph" style="z-index:0"></div>
+            </td>
+        </tr>
+    </table>
+    <div v-if="rightClickShowhide" :style="popupStyle" @mouseleave="rightClickShowhide=false">
+        <a :href="'https://comptox.epa.gov/dashboard/chemical/details/' + popupID" target="_blank"> {{ popupID }} ↗ </a><br>
+        <router-link v-bind:to="'/chemical/'+popupID" target="_blank">View in CHET</router-link><br>
+        <router-link v-bind:to="'/reaction/searchresults/'+popupID+'/ID/true'" target="_blank">Search Reactions in CHET</router-link><br>
+        <a :href="'https://ccte-cced-amos.epa.gov/search/' + popupID + '?initial_results_tab=all'" target="_blank"> View in AMOS ↗ </a><br>
+    </div>
+    <!--  -->
 </template>
 
 <script>
@@ -129,7 +159,7 @@ export default {
             openMaps: [],
             highlightMaps: [],
             reactlist:[],
-            rootid:'',
+            rootID:'',
             Graph: '',
             input,
             mapColDefs,
@@ -141,7 +171,21 @@ export default {
             gridApi:null,
             firstmap:'',
             firstlink:'',
+            maptitle:'',
             maplist:[],
+            fixed_position_list:{},
+            currentZoom:5,
+            rightClickShowhide:false,
+            popupX:0,
+            popupY:0,
+            popupID:'',
+            popupStyle:{
+                position:'absolute',
+                backgroundColor:'white',
+                color: 'black',
+                border: '2px solid black',
+                padding: '5px',
+            },
         }
     },
     computed: {
@@ -169,15 +213,18 @@ export default {
         if(this.$route.params.searchtype == 'mapid'){
             const mapResponse = await fetch(this.mapIDurl, {mode:'cors'});
             const mapObject = await mapResponse.json();
-            this.firstmap = mapObject.reference;
-            this.firstlink = mapObject.doi;
+            if(mapObject[0].title != null){
+                this.maptitle = mapObject.title
+            }
+            this.firstmap = mapObject[0].reference;
+            this.firstlink = mapObject[0].doi;
         }
         if(this.$route.params.searchtype == 'compare'){
             for(let id of this.$route.params.searchinput.split('_')){
                 const tempurl = this.$apiname + "reaction/mapid/" + id
                 const mapResponse = await fetch(tempurl, {mode:'cors'});
                 const mapObject = await mapResponse.json();
-                this.maplist.push(mapObject.reference)
+                this.maplist.push([mapObject[0].reference,mapObject[0].title])
             }
             
         }
@@ -198,19 +245,24 @@ export default {
             let k = 0
             if(this.$route.params.searchtype == 'chemical'){
                 this.rootID = String(this.chemical.chemical_ID)
+            } else{
+                this.rootID = data.nodes[0]['id']
             }
             // defines a root node, either the chemical we entered with or the first chemical in the map, this node will always be visible
-            const rootnode = (this.$route.params.searchtype == 'chemical' ? this.rootID : data.nodes[0]['id'])
+            const rootnode = this.rootID      
             // sets up an object which keeps track of the visible nodes
             this.visibleNodes = [rootnode]
-            this.Graph.width(window.innerWidth-115)
+            this.Graph.width(1000)
+            this.Graph.height(700)
             this.Graph.backgroundColor('#a9b2ba')
             // necessary for snapping to the center
-            //this.Graph.autoPauseRedraw(false)
+            this.Graph.autoPauseRedraw(false)
             // this makes the graph self organize into a useful tree when there are no cycles
-            this.Graph.dagMode('td')
-            this.Graph.dagLevelDistance(2.2*N)
-            //this.Graph.zoom(15)
+            if("x" in data.nodes[0]){
+                this.Graph.dagMode('td')
+                this.Graph.dagLevelDistance(2.2*N)
+            }
+            this.Graph.zoom(5)
             // gets the data for the graph
             this.Graph.graphData(data)
             this.Graph.nodeVal(1)
@@ -221,6 +273,7 @@ export default {
             // builds the node hover with image, name, and DTXSID
             this.Graph.nodeLabel(node => {
                 const scrString = "<div style='text-align:center;'><img src='data:image/png;base64," + node.img + "' style='width:150px;height:150px;'/> <br>" + node.name + " </div>"
+                this.fixed_position_list[node.id]=[node.x,node.y]
                 return scrString
             })
             this.Graph.linkSource('source')
@@ -246,6 +299,7 @@ export default {
                 if(id == rootnode && k < 50){
                     this.Graph.centerAt(x,y)
                     k=k+1
+                    this.fixed_position_list[id]=[x,y]
                 };
             })
             this.Graph.linkVisibility(false)
@@ -278,7 +332,11 @@ export default {
                 this.Graph.d3Force('link',null),
                 this.Graph.d3Force('center',null))
             // fixes a node so that when you drag the node it stays in place after you release it
-            this.Graph.onNodeDragEnd(node => { node.fx = node.x; node.fy = node.y;})
+            this.Graph.onNodeDragEnd(node => { 
+                node.fx = node.x; 
+                node.fy = node.y;
+                this.fixed_position_list[node.id]=[node.fx,node.fy]
+            })
             // shows/hides the node's neighbors when you click on it
             this.Graph.onNodeClick(node => {
                 // case for when the node is already open
@@ -307,6 +365,13 @@ export default {
                 // update the graph's nodes and links
                 this.Graph.nodeVisibility(node => this.visibleNodes.includes(node.id));
                 this.Graph.linkVisibility(link => this.visibleNodes.includes(link.source.id) && this.visibleNodes.includes(link.target.id));
+            })
+            this.Graph.onNodeRightClick(node => {
+                // get node data for popup
+                let xy = this.Graph.graph2ScreenCoords(node.x,node.y)
+                let dtxsid = node.name.split('<br>')[1]
+                // call popup build function
+                this.buildRightClickMenu(xy,dtxsid)
             })
         });
 
@@ -389,7 +454,7 @@ export default {
                         return link;
                     }
                 },
-                {headerName:'Reference', field:'reference', sortable: true, resizable: true, filter: 'agTextColumnFilter', width:450},
+                {headerName:'Reference', tooltipField:'reference', field:'reference', sortable: true, resizable: true, filter: 'agTextColumnFilter', width:450},
             )
             return new_cols
         },
@@ -423,7 +488,6 @@ export default {
             })
             // update the cell color
             this.gridApi.refreshCells({force:true})
-            console.log('test')
             this.Graph.zoomToFit(0,5)
         },
         // opens/closes the nodes in a single pre-built map
@@ -507,6 +571,21 @@ export default {
             // update the cell color
             this.gridApi.refreshCells({force:true})
         },
+        // centers the map on the root node
+        centermap: function(){
+            let coords = this.fixed_position_list[this.rootID]
+            this.Graph.centerAt(coords[0],coords[1],200)
+        },
+        // zoom the map in
+        zoomin: function(){
+            this.currentZoom = this.currentZoom*1.2
+            this.Graph.zoom(this.currentZoom,200)
+        },
+        // zoom the map in
+        zoomout: function(){
+            this.currentZoom = this.currentZoom*0.8
+            this.Graph.zoom(this.currentZoom,200)
+        },
         // function for exporting the reactions currently visible in the map
         handleMapExport: function(){
             axios
@@ -534,6 +613,20 @@ export default {
                     }
                     link.click()
                 });
+        },
+        // function for sending positions to be saved by the backend
+        fixMapPositions: function(){
+            axios
+                .post(this.$apiname + "reaction/mapfix/"+this.$route.params.searchinput, this.fixed_position_list)
+        },
+        // function for building a popup at the mouse pointer based on node data
+        buildRightClickMenu(xy,dtxsid){
+            this.popupX=xy.x
+            this.popupY=xy.y
+            this.popupID=dtxsid
+            this.popupStyle.left=(xy.x+350)+'px'
+            this.popupStyle.top=(xy.y+170)+'px'
+            this.rightClickShowhide = true
         },
     },
 }

@@ -1,12 +1,14 @@
 <template>
     <div>
         <h2 :title=chemical.primary_name>{{chemical.primary_name}}</h2>
-        <img v-bind:src="'data:image/png;base64,'+chemical.image" v-on:click="magnify('data:image/png;base64,'+chemical.image)" alt="missing image" style="width:150px;height:150px;" />
+        <img v-bind:src="'data:image/png;base64,'+chemical.image" v-on:click="magnify('data:image/png;base64,'+chemical.image)" alt="missing image" style="width:150px;height:150px; border:1px solid black;" />
+        <img v-if="chemical.representative.includes('DTXSID')" src="../additional_chemicals.png" style="position:relative; top:-58px; left:-27px; z-index:10; width:25px; height:25px"/><br>
+        <span v-if="!chemical.representative.includes('DTXSID')">DTXSID: <a :href="'https://comptox.epa.gov/dashboard/chemical/details/' + chemical.dtxsid" target="_blank"> {{chemical.dtxsid}} ↗ </a></span>
+        <span style="font-weight:bold;" v-if="chemical.representative.includes('DTXSID')">Representative Substance: <a :href="'https://comptox.epa.gov/dashboard/chemical/details/' + chemical.representative" target="_blank"> {{chemical.representative}} ↗ </a><br><br></span>
+        <span v-if="chemical.representative.includes('DTXSID')">Member Substance Set: <a :href="'https://comptox.epa.gov/dashboard/chemical/details/' + chemical.dtxsid" target="_blank"> {{chemical.dtxsid}} ↗ </a></span>
         <br>
-        DTXSID: <a :href="'https://comptox.epa.gov/dashboard/chemical/details/' + chemical.dtxsid" target="_blank"> {{chemical.dtxsid}} ↗ </a>
-        <br>
-        <button v-on:click="showhide = !showhide">Chemical Identifiers</button> <br>
-        <div v-if="showhide">
+        <button v-if="!chemical.representative.includes('DTXSID')" v-on:click="showhide = !showhide">Chemical Identifiers</button> <br>
+        <div v-if="showhide & !chemical.representative.includes('DTXSID')">
             &nbsp; &nbsp; SMILES: {{ chemical.smiles }} <br>
             &nbsp; &nbsp; CASRN: {{ chemical.casrn }} <br>
             &nbsp; &nbsp; InChI KEY: {{ chemical.inchi }} <br>
@@ -135,7 +137,7 @@
                         width:250,
                         tooltipField:'primary_name',
                     },
-                    {headerName:'Reference', field:'reference', sortable: true, resizable: true, filter: 'agTextColumnFilter', width:450},
+                    {headerName:'Reference', field:'reference', tooltipField:'reference', sortable: true, resizable: true, filter: 'agTextColumnFilter', width:450},
                 )
                 return new_cols
             },

@@ -110,6 +110,8 @@ export default{
             detail_list: [],
             parent: '',
             product: '', 
+            parent_ratio: '',
+            product_ratio: '',
             process: '',
             type: '',
             scheme: '',
@@ -154,6 +156,8 @@ export default{
                 .post(this.$apiname + "reaction/newreaction", {
                     parent: this.parent,
                     product: this.product,
+                    parent_ratio: this.parent_ratio,
+                    product_ratio: this.product_ratio,
                     process: this.process,
                     type: this.type,
                     scheme: this.scheme,

@@ -5,8 +5,10 @@
         <!-- when a chemical is submitted, displays a popup -->
         <form @submit.prevent="chemcheck">
             DTXSID: <input type="text" placeholder="DTXSID#########" v-model="dtxsid"/> <br>
-            <button type="submit">Submit</button> <br><br>
+            <span v-if="refchecked">Representative Chemical: <input type="text" placeholder="DTXSID#########" v-model="refchem"/> <br></span>
+            <button type="submit">Submit</button> <br>
         </form>
+        <button @click="refchecked = !refchecked">Add/Remove Representative Chemical</button> <br><br>
     </div>
     <br>
     <button v-on:click="showhide2 = !showhide2" style="background-color:#8ad2ed">Enter Chemicals From a CSV</button> <br>
@@ -63,16 +65,24 @@ export default{
             showhide4: false,
             chemical: [],
             dtxsid: '',
+            refchem: '',
             chemfile: null,
             checkchem:[],
             errormessage:'',
+            refchecked:false,
         }
     },
     methods: {
         // function for determining whether an entered DTXSID is the intended chemical
         async chemcheck() {
             // use the backend to check with DSSTOX and get an image for the chemical
-            const url = this.$apiname + "chemicals/verify/" + this.dtxsid
+            let url = ''
+            if(this.refchem != ''){
+                console.log(this.refchem)
+                url = this.$apiname + "chemicals/verify/" + this.refchem
+            } else{
+                url = this.$apiname + "chemicals/verify/" + this.dtxsid
+            }
             // set the displayed chemical to the retreived image and show the verification popup
             this.checkchem = await axios.get(url)
             this.showhide3 = true
@@ -86,6 +96,7 @@ export default{
                 // Send the chemical to the backend
                 .post(this.$apiname + "chemicals/newchemical", {
                     dtxsid: this.dtxsid,
+                    representative: this.refchem,
                 })
                 .then((res) => {
                     this.errormessage = (res.data)

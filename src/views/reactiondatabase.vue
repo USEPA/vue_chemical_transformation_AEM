@@ -1,6 +1,6 @@
 <template>
     <div style="font-size:25px">
-        CHET Full Reaction List<br><br>
+        CheT Full Reaction List<br><br>
     </div>
     Search: <input style="width:255px" type="text" list="typeaheadlist" v-model="searchinput" placeholder="Name, DTXSID, or Reaction Detail" /> <br>
     <!-- sets up substring filtered search suggestions for DTXSID and Name -->
@@ -32,6 +32,7 @@
                                 height: 145 * 4/(Math.max(row.parent_name.length + row.product_name.length,4)) +'px'}"  
                                 style="vertical-align:middle;border: 2px solid blue" />
                         </router-link>
+                        <img v-if="row.parent_representative[e_index].includes('DTXSID')" src="../additional_chemicals.png" style="position:relative; top:-55px; left:-28px; z-index:10; width:25px; height:25px"/>
                         <span v-if="e_index != row.parent_image.length - 1"> + </span> 
                     </span> → 
                     <span v-for="(element,e_index) in row.product_image"> 
@@ -42,7 +43,10 @@
                                 width: 145 * 4/(Math.max(row.parent_name.length + row.product_name.length,4)) +'px', 
                                 height: 145 * 4/(Math.max(row.parent_name.length + row.product_name.length,4)) +'px'}"  
                             style="vertical-align:middle;border: 2px solid blue" />
-                        </router-link><span v-if="e_index != row.product_image.length - 1"> + </span> </span></p>
+                        </router-link>
+                        <span v-if="e_index != row.product_image.length - 1"> + </span> 
+                        <img v-if="row.product_representative[e_index].includes('DTXSID')" src="../additional_chemicals.png" style="position:relative; top:-55px; left:-28px; z-index:10; width:25px; height:25px"/>
+                    </span></p>
                     <p v-if="row.lib_name">Reaction Library: <router-link v-bind:to="'/reaction/searchresults/'+row.lib_name+'/reaction_library/false'" style="text-transform: capitalize;">{{row.lib_name}}</router-link></p>
                     <p v-if="row.reaction_process">Reaction Process: <router-link v-bind:to="'/reaction/searchresults/'+row.reaction_process+'/reaction_process/false'" style="text-transform: capitalize;">{{row.reaction_process}}</router-link></p>
                     <p v-if="row.reaction_type">Reaction Type: <router-link v-bind:to="'/reaction/searchresults/'+row.reaction_type+'/reaction_type/false'" style="text-transform: capitalize;">{{row.reaction_type}}</router-link></p>
@@ -64,7 +68,9 @@
                                 width: 145 * 4/(Math.max(filteredlist[index+1].parent_name.length + filteredlist[index+1].product_name.length,4)) +'px', 
                                 height: 145 * 4/(Math.max(filteredlist[index+1].parent_name.length + filteredlist[index+1].product_name.length,4)) +'px'}"  
                                 style="vertical-align:middle;border: 2px solid blue" />
-                            </router-link><span v-if="e_index != filteredlist[index+1].parent_image.length - 1"> + </span> 
+                            </router-link>
+                            <img v-if="filteredlist[index+1].parent_representative[e_index].includes('DTXSID')" src="../additional_chemicals.png" style="position:relative; top:-55px; left:-28px; z-index:10; width:25px; height:25px"/>
+                            <span v-if="e_index != filteredlist[index+1].parent_image.length - 1"> + </span> 
                         </span> → 
                         <span v-for="(element,e_index) in filteredlist[index+1].product_image"> 
                             <span style="font-size:25px;vertical-align:middle" v-if="filteredlist[index+1].product_ratio[e_index]">{{filteredlist[index+1].product_ratio[e_index]}} &nbsp;</span>
@@ -74,7 +80,9 @@
                                     width: 145 * 4/(Math.max(filteredlist[index+1].parent_name.length + filteredlist[index+1].product_name.length,4)) +'px', 
                                     height: 145 * 4/(Math.max(filteredlist[index+1].parent_name.length + filteredlist[index+1].product_name.length,4)) +'px'}"  
                                 style="vertical-align:middle;border: 2px solid blue" />
-                            </router-link><span v-if="e_index != filteredlist[index+1].product_image.length - 1"> + </span> </span></p>
+                            </router-link>
+                            <img v-if="filteredlist[index+1].product_representative[e_index].includes('DTXSID')" src="../additional_chemicals.png" style="position:relative; top:-55px; left:-28px; z-index:10; width:25px; height:25px"/>
+                            <span v-if="e_index != filteredlist[index+1].product_image.length - 1"> + </span> </span></p>
                     <p v-if="filteredlist[index+1].lib_name">Reaction Library: <router-link v-bind:to="'/reaction/searchresults/'+filteredlist[index+1].lib_name+'/reaction_library/false'" style="text-transform: capitalize;">{{filteredlist[index+1].lib_name}}</router-link></p>
                     <p v-if="filteredlist[index+1].reaction_process">Reaction Process: <router-link v-bind:to="'/reaction/searchresults/'+filteredlist[index+1].reaction_process+'/reaction_process/false'" style="text-transform: capitalize;">{{filteredlist[index+1].reaction_process}}</router-link></p>
                     <p v-if="filteredlist[index+1].reaction_type">Reaction Type: <router-link v-bind:to="'/reaction/searchresults/'+filteredlist[index+1].reaction_type+'/reaction_type/false'" style="text-transform: capitalize;">{{filteredlist[index+1].reaction_type}}</router-link></p>

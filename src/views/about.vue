@@ -1,6 +1,6 @@
 <template>
     <body>
-        <h1 style="font-size:25px">Staement Of Purpose</h1>
+        <h1 style="font-size:25px">Statement Of Purpose</h1>
         <p>
         Manufactured chemicals are often transformed into different molecules in environmental and biological systems, 
         and the resulting transformation products generally differ from the parent chemical in their toxicity and physicochemical
@@ -17,7 +17,7 @@
         </p>
         <h1 style="font-size:25px">Statistics</h1>
         <p>
-        Currently CHET has {{ counts[0]['COUNT(*)'] }} chemicals and {{ counts[1]['COUNT(*)'] }} transformations represented in the database.
+        Currently CheT has {{ counts[0]['COUNT(*)'] }} chemicals and {{ counts[1]['COUNT(*)'] }} transformations represented in the database.
         </p>
         <h1 style="font-size:25px">Disclaimer</h1>
         <p>

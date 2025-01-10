@@ -13,12 +13,14 @@
         <span v-for="(element,index) in reaction.parent_image"> 
             <span style="font-size:25px;vertical-align:middle" v-if="reaction.parent_ratio[index]">{{reaction.parent_ratio[index]}} &nbsp;</span>
             <img v-bind:src="'data:image/png;base64,'+element" alt="missing image" style="width:150px;height:150px;vertical-align:middle;border:2px solid black" />
-            <span v-if="index != reaction.parent_image.length - 1"> + </span> 
+            <span v-if="index != reaction.parent_image.length - 1"> + </span>
+            <img v-if="reaction.parent_representative[index].includes('DTXSID')" src="../additional_chemicals.png" style="position:relative; top:-58px; left:-28px; z-index:10; width:25px; height:25px"/>
         </span> → 
         <span v-for="(element,index) in reaction.product_image"> 
             <span style="font-size:25px;vertical-align:middle" v-if="reaction.product_ratio[index]">{{reaction.product_ratio[index]}} &nbsp;</span>
             <img v-bind:src="'data:image/png;base64,'+element" alt="missing image" style="width:150px;height:150px;vertical-align:middle;border:2px solid black" />
             <span v-if="index != reaction.product_image.length - 1"> + </span> 
+            <img v-if="reaction.product_representative[index].includes('DTXSID')" src="../additional_chemicals.png" style="position:relative; top:-58px; left:-28px; z-index:10; width:25px; height:25px"/>
         </span>
         <br>
         <p v-if="reaction.lib_name">Reaction Library: <router-link v-bind:to="'/reaction/searchresults/'+reaction.lib_name+'/reaction_library/false'" style="text-transform: capitalize;">{{reaction.lib_name}}</router-link></p>
@@ -62,7 +64,10 @@
                 @grid-ready="onGridReady">
             </ag-grid-vue>
         </div> <br><br>
-        <div v-if="mapID_showhide">
+        <button v-if="mapID_showhide && mapUI_showhide" v-on:click="mapUI_showhide = !mapUI_showhide">Hide Reaction Map UI</button>
+        <button v-if="mapID_showhide && !mapUI_showhide" v-on:click="mapUI_showhide = !mapUI_showhide">Show Reaction Map UI</button>
+        <br><br>
+        <div v-if="mapID_showhide && mapUI_showhide">
             <inset_map :searchtype="'mapid'" :searchval="selected_map"/>
         </div>
     </div>
@@ -111,6 +116,7 @@ export default {
             showhide: true,
             maps_showhide: true,
             mapID_showhide: false,
+            mapUI_showhide: true,
             selected_map:'',
             colShowHide: true,
         }
@@ -180,17 +186,24 @@ export default {
                     }
                     new_cols.push(
                         {
-                            headerName:displayname, field:key.detail_name, headerTooltip:tooltipname, sortable: true, resizable: true, filter: 'agTextColumnFilter', floatingFilter: true, width:wVal, hide:hval,
+                            headerName:displayname, field:key.detail_name, tooltipField:key.detail_name, headerTooltip:tooltipname, sortable: true, resizable: true, filter: 'agTextColumnFilter', floatingFilter: true, width:wVal, hide:hval,
                         }
                     )
                 }
             } 
             for(let key of (Object.keys(this.rowData.value[0]))){
                 if(key.toLowerCase().includes('reference')){
+                    let keychoice = ''
+                    if(this.rowData.value[0]['Title'].length > 0){
+                        keychoice = 'Title'
+                    } else {
+                        keychoice = key
+                    }
                     new_cols.push(
                         {
                             headerName:key, 
-                            field:key, 
+                            field:keychoice, 
+                            tooltipField:key,
                             sortable: true, 
                             resizable: true, 
                             filter: 'agTextColumnFilter', 
@@ -203,7 +216,7 @@ export default {
                                     link.href = 'https://www.doi.org/'+params.data.DOI;
                                 };
                                 link.target = 'blank_';
-                                link.innerText = params.data[key];
+                                link.innerText = params.data[keychoice];
                                 return link;
                             }
                         }
@@ -213,6 +226,7 @@ export default {
                         {
                             headerName:key, 
                             field:key, 
+                            tooltipField:key,
                             sortable: true, 
                             resizable: true, 
                             filter: 'agTextColumnFilter', 
@@ -252,7 +266,7 @@ export default {
                         },
                     width:100
                 },
-                {headerName:'Reference', field:'reference', sortable: true, resizable: true, filter: 'agTextColumnFilter', width:600},
+                {headerName:'Reference', tooltipField:'reference', field:'reference', sortable: true, resizable: true, filter: 'agTextColumnFilter', width:600},
             )
 
             return new_cols

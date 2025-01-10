@@ -41,7 +41,7 @@ export default{
         return{
             libname: '',
             libdesc: '',
-            detail_list: [['Reference',' ', ''],['DOI',' ', ''],['Notes',' ', '']],
+            detail_list: [['Reference',' ', ''],['Title',' ', ''],['DOI',' ', ''],['Notes',' ', '']],
             errormessage: '',
             showhide4: false,
         }

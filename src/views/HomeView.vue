@@ -47,7 +47,7 @@ export default {
             bigout: '',
             input,
             optionlength: '',
-            checked: true,
+            checked: false,
         }
     },
     // get the chemical info from the backend for the suggested search list

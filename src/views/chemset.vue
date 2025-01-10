@@ -127,6 +127,7 @@
                     {
                         headerName:'DTXSID', 
                         field:'dtxsid', 
+                        tooltipField:'dtxsid', 
                         sortable: true, 
                         resizable: true, 
                         filter: 'agTextColumnFilter',
@@ -144,6 +145,7 @@
                     {
                         headerName:'Primary Name', 
                         field:'primary_name', 
+                        tooltipField:'primary_name', 
                         sortable: true, 
                         resizable: true, 
                         filter: 'agTextColumnFilter',
@@ -163,8 +165,8 @@
                         width:250,
                         tooltipField:'primary_name',
                     },
-                    {headerName:'CASRN', field:'casrn', sortable: true, resizable: true, filter: 'agTextColumnFilter', floatingFilter: true, width:115},
-                    {headerName:'InChI KEY', field:'inchi', sortable: true, hide:true, resizable: true, filter: 'agTextColumnFilter', floatingFilter: true, width:350},
+                    {headerName:'CASRN', field:'casrn', tooltipField:'casrn', sortable: true, resizable: true, filter: 'agTextColumnFilter', floatingFilter: true, width:115},
+                    {headerName:'InChI KEY', field:'inchi', tooltipField:'inchi', sortable: true, hide:true, resizable: true, filter: 'agTextColumnFilter', floatingFilter: true, width:350},
                     {headerName:'Number of Reactions', children:[]},
                 )
                 for(let i of liblist){
@@ -185,7 +187,7 @@
                                 this.$router.push('/reaction/searchresults/'+params.data.dtxsid+'/'+i.lib_ID+'/false');
                             });
                             // don't link out if there are no reactions
-                            if (params.data.hydro_count == 0) return '0';
+                            if (params.data[i.lib_name] == 0) return '0';
                             else return link;
                         },
                     })
@@ -233,7 +235,7 @@
                         colSet.push(i.field)
                     }
                 }
-                let fname = 'CHET_grid_view_chemical_list_'+Date.now()
+                let fname = 'CheT_grid_view_chemical_list_'+Date.now()
                 const params = {
                     columnKeys:colSet,
                     fileName:fname,
