@@ -16,10 +16,7 @@ env:
   REGISTRY: ghcr.io
   # github.repository as <account>/<repo>
   IMAGE_NAME: ${{ github.repository }}-${{ github.head_ref || github.ref_name }}
-<<<<<<< HEAD
   
-=======
->>>>>>> origin/update
 
 
 jobs:
