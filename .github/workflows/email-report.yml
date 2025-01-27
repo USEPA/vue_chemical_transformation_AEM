@@ -14,4 +14,4 @@ jobs:
       run: |
           cd /data/watchtower/chet/container-results/chet-ui
            ls -la
-           python email.py 
+           python3 email.py 

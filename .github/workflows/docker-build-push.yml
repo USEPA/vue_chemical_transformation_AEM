@@ -1,4 +1,4 @@
-name: Docker
+name: Docker-ghcr
 
 # This workflow uses actions that are not certified by GitHub.
 # They are provided by a third-party and are governed by
@@ -15,8 +15,8 @@ env:
   # Use docker.io for Docker Hub if empty
   REGISTRY: ghcr.io
   # github.repository as <account>/<repo>
-  IMAGE_NAME: ${{ github.repository }}
-  BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
+  IMAGE_NAME: ${{ github.repository }}-${{ github.head_ref || github.ref_name }}
+  
 
 
 jobs:
@@ -33,7 +33,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         
       # Create .env file for build  
       - name: Creating .env file
@@ -43,13 +43,13 @@ jobs:
 
       # Workaround: https://github.com/docker/build-push-action/issues/461
       - name: Setup Docker buildx
-        uses: docker/setup-buildx-action@79abd3f86f79a9d68a23c75a09a9a85889262adf
+        uses: docker/setup-buildx-action@v3
 
       # Login against a Docker registry except on PR
       # https://github.com/docker/login-action
       - name: Log into registry ${{ env.REGISTRY }}
         if: github.event_name != 'pull_request'
-        uses: docker/login-action@28218f9b04b4f3f62068d7b6ce6ca5b26e35336c
+        uses: docker/login-action@v3
         with:
           registry: ${{ env.REGISTRY }}
           username: USEPA
@@ -59,15 +59,16 @@ jobs:
       # https://github.com/docker/metadata-action
       - name: Extract Docker metadata
         id: meta
-        uses: docker/metadata-action@98669ae865ea3cffbcbaa878cf57c20bbf1c6c38
+        uses: docker/metadata-action@v5
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: latest
 
       # Build and push Docker image with Buildx (don't push on PR)
       # https://github.com/docker/build-push-action
       - name: Build and push Docker image
         id: build-and-push
-        uses: docker/build-push-action@ac9327eae2b366085ac7f6a2d02df8aa8ead720a
+        uses: docker/build-push-action@v6
         with:
           context: .
           file: Dockerfile
@@ -79,9 +80,9 @@ jobs:
           
       # Removing old packages and only keeping 3 untagged versions
       - name: Delete Package Versions
-        uses: actions/delete-package-versions@v4.1.0
+        uses: actions/delete-package-versions@v5
         with: 
-          package-name: vue_chemical_transformation_AEM
+          package-name: vue_chemical_transformation_AEM-${{ github.head_ref || github.ref_name }}
           package-type: 'container'
           min-versions-to-keep: 3
           delete-only-untagged-versions: 'true'   
