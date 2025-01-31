@@ -2,7 +2,8 @@ import { createRouter, createWebHashHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
 import chemid from '../views/chemid.vue'
 import reactid from '../views/reactionid.vue'
-import chemdatabase from '../views/chemdatabase.vue'
+import chemrows from '../views/chemdatabase_rows.vue'
+import chemtiles from '../views/chemdatabase_tiles.vue'
 import chemset from '../views/chemset.vue'
 import reactiondatabase from '../views/reactiondatabase.vue'
 import newchemical from '../views/newchemical.vue'
@@ -82,8 +83,12 @@ const router = createRouter({
       component: reactid
     },
     {
-      path: '/chemical/database',
-      component: chemdatabase
+      path: '/chemical/database/tiles/:pagenum/:searchval',
+      component: chemtiles
+    },
+    {
+      path: '/chemical/database/rows',
+      component: chemrows
     },
     {
       path: '/chemical/chemset/:setid',

@@ -36,7 +36,7 @@
                         <p><img v-bind:src="'data:image/png;base64,'+row.image" alt="missing image" style="display: block; margin-left: auto; margin-right: auto; width:150px; height:150px;" /> </p>
                         <p>DTXSID: <a :href="'https://comptox.epa.gov/dashboard/chemical/details/' + row.dtxsid" target="_blank"> {{row.dtxsid}} ↗</a></p>
                         <img v-if="filteredlist[index]['representative'].includes('DTXSID')" src="../additional_chemicals.png" style="position:relative; top:-205px; left:55px; z-index:10; width:25px; height:25px"/>
-                        <p><RouterLink :to="'/reaction/searchresults/' + row.dtxsid + '/ID/false'">Associated Reactions</RouterLink></p>
+                        <p><RouterLink :to="'/reaction/searchresults/' + row.dtxsid + '/ID/false'">{{getcount(row.chemical_ID)}} Associated Reactions</RouterLink></p>
                         <p v-if="show_array[row.dtxsid]==true">Maps: <span v-for="(i,i_index) in maps_array[row.dtxsid]"><RouterLink :to="'/reaction/reactionmap/'+i+'/mapid'">{{ i }}</RouterLink><span v-if="i_index < maps_array[row.dtxsid].length-1">, </span></span></p><br>
                     </template>
                     <template v-else>
@@ -89,7 +89,8 @@
                         <p><img v-bind:src="'data:image/png;base64,'+filteredlist[index+1].image" alt="missing image" style="display: block; margin-left: auto; margin-right: auto; width:150px; height:150px;" /> </p>
                         <p>DTXSID: <a :href="'https://comptox.epa.gov/dashboard/chemical/details/' + filteredlist[index+1].dtxsid" target="_blank"> {{filteredlist[index+1].dtxsid}} ↗</a></p>
                         <img v-if="filteredlist[index+1]['representative'].includes('DTXSID')" src="../additional_chemicals.png" style="position:relative; top:-205px; left:55px; z-index:10; width:25px; height:25px"/>
-                        <p><RouterLink :to="'/reaction/searchresults/' + filteredlist[index+1].dtxsid + '/ID/false'">Associated Reactions</RouterLink></p>
+                        <!---->
+                        <p><RouterLink :to="'/reaction/searchresults/' + filteredlist[index+1].dtxsid + '/ID/false'">{{getcount(filteredlist[index+1].chemical_ID)}} Associated Reactions</RouterLink></p>
                         <p v-if="show_array[filteredlist[index+1].dtxsid]==true">Maps: <span v-for="(i,i_index) in maps_array[filteredlist[index+1].dtxsid]"><RouterLink :to="'/reaction/reactionmap/'+i+'/mapid'">{{ i }}</RouterLink><span v-if="i_index < maps_array[filteredlist[index+1].dtxsid].length-1">, </span></span></p><br>
                     </template>
                     <template v-else>
@@ -197,6 +198,7 @@ export default {
             calcdtxsid:'',
             timer:true,
             counts:[[],[]],
+            libcounts:[],
             maps_array:{},
             show_array:{},
         }
@@ -233,6 +235,12 @@ export default {
                 this.fallbackcheck = true
             }
         }
+        const libcountURL = this.$apiname + "chemicals/counts"
+        fetch(libcountURL, {mode:'cors'})
+            .then((result) => result.json())
+            .then((remoteRowData) => (
+                this.libcounts = remoteRowData
+            ))
     },
     mounted() {
         const countURL = this.$apiname + "reaction/dbcounts"
@@ -326,6 +334,15 @@ export default {
                     this.show_array[dtxsid] = false
                 }
             }
+        },
+
+        getcount(id){
+            let countOut = 0
+            let libs = this.libcounts.filter(x => x.chemical_ID == id)
+            for(let lib of libs){
+                countOut = countOut + lib.chem_lib_count
+            }
+            return(countOut)
         }
     },
 }

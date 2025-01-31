@@ -1,9 +1,15 @@
 <template>
     <body>
         <h1 style="font-size:25px">Patch History</h1>
+        <button @click="showhide_1_5 = !showhide_1_5">1.5</button><br>
+        <p v-if="showhide_1_5">
+            1.5.0 - separated titles from references, added representative handling, removed case sensitivity from searching, added tools to fix map positions, added button tools to manipulate map, added right click searching from map view, new handling for searches not in database (now hits CCD for publically available info not in database), security updates, mild stylistics and minor fixes
+            1.5.1 - added DB backup/download
+        </p>
         <button @click="showhide_1_4 = !showhide_1_4">1.4</button><br>
         <p v-if="showhide_1_4">
             1.4.0 - CRACCM updates - added library about and library chemicals pages, default header routing to library about page, fixed some /false issues, added abbreviation option for reaction details on upload and in use on tables, made notes a mandatory column for all libraries, added library description to library upload for use in library about page, added parent and product ratio to reaction model, added CRACCM ID to reaction model, added reaction phase to reaction model, added ratio handling and stying to database/search result pages, added DOI linking to map page, added search visible chemicals button from reaction map, backend changes to accommodate library chemicals search; added library description, detail abbreviation, reaction phase, CRACCM ID, and reactant ratios to data-model, uploading, and passing to front end, added DOIs to maps, added search options for CRACCM ID, reaction phase, and open maps, uploading new db file to avoid wipe issues when editing
+            1.4.1 - Updates to template files, timezone fix
         </p>
         <button @click="showhide_1_3 = !showhide_1_3">1.3</button><br>
         <p v-if="showhide_1_3">
@@ -43,6 +49,8 @@
             1.0.0 - EPA internal release, Submap Visualization tools<br>
             1.0.1 - Bugfix for grid issues on ChemID and Map pages
         </p>
+        <br>
+        <button v-if="this.$cookie.getCookie('user')" @click="DB_DL()">Download Current Database</button><br>
     </body>
 </template>
   
@@ -51,7 +59,10 @@
 </style>
 
 <script>
-    export default{
+
+import axios from "axios"
+
+export default{
         name: 'history',
         data() {
             return {
@@ -60,7 +71,28 @@
                 showhide_1_2:false,
                 showhide_1_3:false,
                 showhide_1_4:false,
+                showhide_1_5:false,
             }
+        },
+
+        methods: {
+            // sets up the grid
+            DB_DL(){
+                axios
+                    // get the file from the backend
+                    .post(this.$apiname + "reaction/download_DB_backup", {
+                        responseType: 'blob',
+                    })
+                    // open a download window
+                    .then((res) => {
+                        let data = res.data;
+                        const blob = new Blob([data], {type: 'text/plain'})
+                        let link = document.createElement('a')
+                        link.href = window.URL.createObjectURL(blob)
+                        link.download = 'flask_EPA_backup_dump'
+                        link.click()
+                    });
+            },
         },
     }
 </script>
