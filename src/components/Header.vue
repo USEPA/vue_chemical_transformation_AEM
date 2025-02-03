@@ -6,12 +6,12 @@
             </div>
             <b-nav-item-dropdown text="Search" class="navstyle" style="font-size:16px">
                 <b-dropdown-item to="/">Homepage (Search Reactions)</b-dropdown-item>
-                <b-dropdown-item to="/chemical/database">Browse Chemicals</b-dropdown-item>
-                <b-dropdown-item to="/reaction/database">Browse Reactions</b-dropdown-item>
+                <b-dropdown-item to="/chemical/database/tiles/1/false">Browse Chemicals</b-dropdown-item>
+                <b-dropdown-item to="/reaction/database/1/false">Browse Reactions</b-dropdown-item>
                 <b-dropdown-item to="/reaction/batchsearch">Batch Search</b-dropdown-item>
             </b-nav-item-dropdown>
             <b-nav-item-dropdown text="Reaction Libraries" class="navstyle" style="font-size:16px">
-                <b-dropdown-item to="/reaction/database">Complete Reaction Database</b-dropdown-item>
+                <b-dropdown-item to="/reaction/database/1/false">Complete Reaction Database</b-dropdown-item>
                 <b-dropdown-item v-for="library in library_list" :to="'/about/'+library.lib_name">{{library.lib_name}}</b-dropdown-item>
             </b-nav-item-dropdown>
             <b-nav-item-dropdown text="Tools" class="navstyle" style="font-size:16px">

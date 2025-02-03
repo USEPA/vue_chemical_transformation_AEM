@@ -95,7 +95,7 @@ const router = createRouter({
       component: chemset
     },
     {
-      path: '/reaction/database',
+      path: '/reaction/database/:pagenum/:searchval',
       component: reactiondatabase
     },
     {

@@ -2,14 +2,20 @@
     <div style="font-size:25px">
         CheT Full Reaction List<br><br>
     </div>
-    Search: <input style="width:255px" type="text" list="typeaheadlist" v-model="searchinput" placeholder="Name, DTXSID, or Reaction Detail" /> <br>
-    <!-- sets up substring filtered search suggestions for DTXSID and Name -->
-    <datalist  v-if="searchinput.length > 2" id="typeaheadlist">
-        <option v-for="row in chemout" :value="row.dtxsid" :label="row.primary_name"></option>
-    </datalist>
-    <br>
-    <br> <button v-on:click="handleDownload">Export Reaction Details</button><br><br>
-    {{ filteredlist.length }} Reactions displayed out of {{ bigout.length }} <br><br>
+    <div v-if="$route.params.searchval == 'false'">
+        <input style='width:245px' type="text" v-model="filterinput" @keyup.enter="$router.push('/chemical/database/tiles/1/' + filterinput)"/>
+        <button @click="$router.push('/reaction/database/1/' + filterinput)">Filter Reactions</button>
+        <br><br>
+    </div>
+    <span v-if="biglen != 0">
+        <RouterLink :to="'/reaction/database/'+ (this.$route.params.pagenum-1) + '/' + this.$route.params.searchval" v-if="this.$route.params.pagenum != 1">&#60;</RouterLink>
+        <span v-for="i in biglen">
+            &nbsp;<span v-if="i != 1">, </span>
+            <span v-if="i == this.$route.params.pagenum">{{i}}</span>
+            <RouterLink v-if="i != this.$route.params.pagenum" :to="'/reaction/database/' + i + '/' + this.$route.params.searchval">{{i}}</RouterLink>
+        </span>&nbsp;
+        <RouterLink :to="'/reaction/database/'+ (parseInt(this.$route.params.pagenum)+1) + '/' + this.$route.params.searchval" v-if="this.$route.params.pagenum != biglen">&#62;</RouterLink>
+    </span>
     <!-- reactions display -->
     <table style="width:100%; border:2px">
         <template v-for="row,index in filteredlist">
@@ -116,22 +122,20 @@ export default {
         const searchinput = ref("");
         return {
             bigout: '',
-            chemout: '',
             searchinput,
+            filterinput:'',
             timer:true,
+            biglen:0,
         }
     },
     // gets chemical and reaction database JSON from the backend
     created: async function(){
         try{
-            const url = this.$apiname + "reaction/database";
+            const url = this.$apiname + "reaction/database/"+this.$route.params.pagenum+"/"+this.$route.params.searchval;
             const gResponse = await fetch(url, {mode:'cors'});
             const gObject = await gResponse.json();
-            this.bigout = gObject;
-            const url2 = this.$apiname + "chemicals/database";
-            const gResponse2 = await fetch(url2, {mode:'cors'});
-            const gObject2 = await gResponse2.json();
-            this.chemout = gObject2;
+            this.bigout = gObject.data;
+            this.biglen = Math.ceil(gObject.length/100);
         } catch (error){
             this.timer = false
         }
