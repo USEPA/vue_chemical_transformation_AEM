@@ -20,9 +20,9 @@ jobs:
         with:
           image_name: vue_chemical_transformation_AEM-security-cs
           dockerfile: Dockerfile
-          output_path: ./output/amos-ui-report.html
-          cleanup_path: /data/watchtower/amos/container-results/amos-ui/amos-ui-report.html
-          watchtower_path: /data/watchtower/amos/container-results/amos-ui/amos-ui-report.html
+          output_path: ./output/chet-vue-report.html
+          cleanup_path: /data/watchtower/chet/container-results/chet-ui/chet-vue-report.html
+          watchtower_path: /data/watchtower/chet/container-results/chet-ui/chet-vue-report.html
 
   trufflehog:
     runs-on: ubuntu-latest
