@@ -135,7 +135,7 @@ export default {
             this.Graph.nodeId('id')
             // builds the node hover with image, name, and DTXSID
             this.Graph.nodeLabel(node => {
-                const scrString = "<div style='text-align:center;'><img src='data:image/png;base64," + node.img + "' style='width:150px;height:150px;'/> <br>" + node.name + " </div>"
+                const scrString = "<div style='text-align:center;'><img src='data:image/png;base64," + node.img + "' style='width:200px;height:200px;'/> <br>" + node.name + " </div>"
                 return scrString
             })
             this.Graph.linkSource('source')

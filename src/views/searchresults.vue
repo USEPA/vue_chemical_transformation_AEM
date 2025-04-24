@@ -73,11 +73,11 @@
                             <span v-if="e_index != row.product_image.length - 1"> + </span> 
                             <img v-if="row.product_representative[e_index].includes('DTXSID')" src="../additional_chemicals.png" style="position:relative; top:-55px; left:-28px; z-index:10; width:25px; height:25px"/>
                         </span></p>
-                        <p v-if="row.lib_name">Reaction Library: <router-link v-bind:to="'/reaction/searchresults/'+row.lib_name+'/reaction_library/false'" style="text-transform: capitalize;">{{row.lib_name}}</router-link></p>
-                        <p v-if="row.reaction_process">Reaction Process: <router-link v-bind:to="'/reaction/searchresults/'+row.reaction_process+'/reaction_process/false'" style="text-transform: capitalize;">{{row.reaction_process}}</router-link></p>
-                        <p v-if="row.reaction_type">Reaction Type: <router-link v-bind:to="'/reaction/searchresults/'+row.reaction_type+'/reaction_type/false'" style="text-transform: capitalize;">{{row.reaction_type}}</router-link></p>
-                        <p v-if="row.reaction_scheme">Reaction Scheme: <router-link v-bind:to="'/reaction/searchresults/'+row.reaction_scheme+'/reaction_scheme/false'" style="text-transform: capitalize;">{{row.reaction_scheme}}</router-link></p>
-                        <p v-if="row.reaction_phase">Reaction Phase: <router-link v-bind:to="'/reaction/searchresults/'+row.reaction_phase+'/reaction_phase/false'" style="text-transform: capitalize;">{{row.reaction_phase}}</router-link></p>
+                        <p v-if="row.lib_name">Reaction Library: <router-link v-bind:to="'/reaction/searchresults/'+row.lib_name+'/reaction_library/false'" style="text-transform: capitalize;">{{row.lib_name}} ({{row.lib_count}})</router-link></p>
+                        <p v-if="row.reaction_process">Reaction Process: <router-link v-bind:to="'/reaction/searchresults/'+row.reaction_process+'/reaction_process/false'" style="text-transform: capitalize;">{{row.reaction_process}} ({{row.process_count}})</router-link></p>
+                        <p v-if="row.reaction_type">Reaction Type: <router-link v-bind:to="'/reaction/searchresults/'+row.reaction_type+'/reaction_type/false'" style="text-transform: capitalize;">{{row.reaction_type}} ({{row.type_count}})</router-link></p>
+                        <p v-if="row.reaction_scheme">Reaction Scheme: <router-link v-bind:to="'/reaction/searchresults/'+row.reaction_scheme+'/reaction_scheme/false'" style="text-transform: capitalize;">{{row.reaction_scheme}} ({{row.scheme_count}})</router-link></p>
+                        <p v-if="row.reaction_phase">Reaction Phase: <router-link v-bind:to="'/reaction/searchresults/'+row.reaction_phase+'/reaction_phase/false'" style="text-transform: capitalize;">{{row.reaction_phase}} ({{row.phase_count}})</router-link></p>
                         <p v-if="row.CRACCM_ID">CRACCM ID: <router-link v-bind:to="'/reaction/searchresults/'+row.CRACCM_ID+'/CRACCM_ID/false'" style="text-transform: capitalize;">{{row.CRACCM_ID}}</router-link></p>
                     </template>
                 </td>
@@ -125,11 +125,11 @@
                                 <img v-if="filteredlist[index+1].product_representative[e_index].includes('DTXSID')" src="../additional_chemicals.png" style="position:relative; top:-55px; left:-28px; z-index:10; width:25px; height:25px"/>
                                 <span v-if="e_index != filteredlist[index+1].product_image.length - 1"> + </span> 
                             </span></p>
-                        <p v-if="filteredlist[index+1].lib_name">Reaction Library: <router-link v-bind:to="'/reaction/searchresults/'+filteredlist[index+1].lib_name+'/reaction_library/false'" style="text-transform: capitalize;">{{filteredlist[index+1].lib_name}}</router-link></p>
-                        <p v-if="filteredlist[index+1].reaction_process">Reaction Process: <router-link v-bind:to="'/reaction/searchresults/'+filteredlist[index+1].reaction_process+'/reaction_process/false'" style="text-transform: capitalize;">{{filteredlist[index+1].reaction_process}}</router-link></p>
-                        <p v-if="filteredlist[index+1].reaction_type">Reaction Type: <router-link v-bind:to="'/reaction/searchresults/'+filteredlist[index+1].reaction_type+'/reaction_type/false'" style="text-transform: capitalize;">{{filteredlist[index+1].reaction_type}}</router-link></p>
-                        <p v-if="filteredlist[index+1].reaction_scheme">Reaction Scheme: <router-link v-bind:to="'/reaction/searchresults/'+filteredlist[index+1].reaction_scheme+'/reaction_scheme/false'" style="text-transform: capitalize;">{{filteredlist[index+1].reaction_scheme}}</router-link></p>
-                        <p v-if="filteredlist[index+1].reaction_phase">Reaction Phase: <router-link v-bind:to="'/reaction/searchresults/'+filteredlist[index+1].reaction_phase+'/reaction_phase/false'" style="text-transform: capitalize;">{{filteredlist[index+1].reaction_phase}}</router-link></p>
+                        <p v-if="filteredlist[index+1].lib_name">Reaction Library: <router-link v-bind:to="'/reaction/searchresults/'+filteredlist[index+1].lib_name+'/reaction_library/false'" style="text-transform: capitalize;">{{filteredlist[index+1].lib_name}} ({{filteredlist[index+1].lib_count}})</router-link></p>
+                        <p v-if="filteredlist[index+1].reaction_process">Reaction Process: <router-link v-bind:to="'/reaction/searchresults/'+filteredlist[index+1].reaction_process+'/reaction_process/false'" style="text-transform: capitalize;">{{filteredlist[index+1].reaction_process}} ({{filteredlist[index+1].process_count}})</router-link></p>
+                        <p v-if="filteredlist[index+1].reaction_type">Reaction Type: <router-link v-bind:to="'/reaction/searchresults/'+filteredlist[index+1].reaction_type+'/reaction_type/false'" style="text-transform: capitalize;">{{filteredlist[index+1].reaction_type}} ({{filteredlist[index+1].type_count}})</router-link></p>
+                        <p v-if="filteredlist[index+1].reaction_scheme">Reaction Scheme: <router-link v-bind:to="'/reaction/searchresults/'+filteredlist[index+1].reaction_scheme+'/reaction_scheme/false'" style="text-transform: capitalize;">{{filteredlist[index+1].reaction_scheme}} ({{filteredlist[index+1].scheme_count}})</router-link></p>
+                        <p v-if="filteredlist[index+1].reaction_phase">Reaction Phase: <router-link v-bind:to="'/reaction/searchresults/'+filteredlist[index+1].reaction_phase+'/reaction_phase/false'" style="text-transform: capitalize;">{{filteredlist[index+1].reaction_phase}} ({{filteredlist[index+1].phase_count}})</router-link></p>
                         <p v-if="filteredlist[index+1].CRACCM_ID">CRACCM ID: <router-link v-bind:to="'/reaction/searchresults/'+filteredlist[index+1].CRACCM_ID+'/CRACCM_ID/false'" style="text-transform: capitalize;">{{filteredlist[index+1].CRACCM_ID}}</router-link></p>
                     </template>
                 </td>
@@ -153,7 +153,7 @@
                 </td>
                 <td style="text-align:left; left:15px; font-size:large;">
                     <span style="font-weight:bold;">Preferred Name:</span> {{ fallback.name }}
-                    <br> <span style="font-weight:bold;">DTXSID:</span> {{ fallback.dtxsid }}
+                    <br> <span style="font-weight:bold;">DTXSID:</span> <a :href="'https://comptox.epa.gov/dashboard/chemical/details/' + fallback.dtxsid" target="_blank">{{ fallback.dtxsid }}</a>
                     <br> <span style="font-weight:bold;">CASRN:</span> {{ fallback.casrn }}
                     <br> <span style="font-weight:bold;">InChIKey:</span> {{ fallback.inchi }}
                     <br> <span style="font-weight:bold;">Molecular Formula:</span> {{ fallback.formula }}
@@ -212,12 +212,37 @@ export default {
             try{
                 this.parsemaps(i.dtxsid)
             } catch {
+            }
+            try{
+                i['lib_count'] = await this.getsearchcount(i.lib_ID,'lib_id')
+            } catch {
+                
+            }
+            try{
+                i['process_count'] = await this.getsearchcount(i.reaction_process,'reaction_process')
+            } catch {
+                
+            }
+            try{
+                i['type_count'] = await this.getsearchcount(i.reaction_type,'reaction_type')
+            } catch {
+                
+            }
+            try{
+                i['scheme_count'] = await this.getsearchcount(i.reaction_scheme,'reaction_scheme')
+            } catch {
+                
+            }
+            try{
+                i['phase_count'] = await this.getsearchcount(i.reaction_phase,'reaction_phase')
+            } catch {
                 
             }
         }
         if(gObject == ''){
             this.timer = false
             let intlist = ['1','2','3','4','5','6','7','8','9','0']
+            console.log(this.$route.params.searchinput)
             if(this.$route.params.searchinput.includes('DTXSID')){
                 let fallbackRes1 = await fetch(this.$apiname + "chemicals/chemtemp/DTXSID/" + this.$route.params.searchinput, {mode:'cors'})
                 let fallbackObj1 = await fallbackRes1.json()
@@ -343,6 +368,14 @@ export default {
                 countOut = countOut + lib.chem_lib_count
             }
             return(countOut)
+        },
+
+        async getsearchcount(input,type){
+            const countURL = this.$apiname + "reaction/searchcounts/" + input + "/" + type 
+            const countOBJ = await fetch(countURL, {mode:'cors'})
+            let responseJSON = await countOBJ.json()
+            let responseOBJ = responseJSON[0]["COUNT(*)"]
+            return(responseOBJ)
         }
     },
 }

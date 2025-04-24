@@ -10,6 +10,7 @@
         </div>
         <button v-on:click="handleGridExport()">Export Chemical List</button><br><br>
         Enter terms of interest into filter boxes to filter the table on that column.<br><br>
+        Displaying {{ rowcount }} Chemicals out of {{ rowData.value.length }}<br><br>
         <!-- the grid setup is in the script section -->
         <ag-grid-vue
             class="ag-theme-balham"

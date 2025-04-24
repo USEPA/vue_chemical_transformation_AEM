@@ -6,6 +6,7 @@
             1.5.0 - separated titles from references, added representative handling, removed case sensitivity from searching, added tools to fix map positions, added button tools to manipulate map, added right click searching from map view, new handling for searches not in database (now hits CCD for publically available info not in database), security updates, mild stylistics and minor fixes
             1.5.1 - added DB backup/download
             1.5.2 - added pagination to full database pages for load speed, changed filter to search to increase speed/responsiveness on full database pages
+            1.5.3 - added search result counts to process/type/scheme/phase in both search results and database view, added link to map page in addition to inset map on reaction page, added total counts to paginated views, increased size of on-hover images in map view, link and typo fixes
         </p>
         <button @click="showhide_1_4 = !showhide_1_4">1.4</button><br>
         <p v-if="showhide_1_4">

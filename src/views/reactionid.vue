@@ -23,12 +23,12 @@
             <img v-if="reaction.product_representative[index].includes('DTXSID')" src="../additional_chemicals.png" style="position:relative; top:-58px; left:-28px; z-index:10; width:25px; height:25px"/>
         </span>
         <br>
-        <p v-if="reaction.lib_name">Reaction Library: <router-link v-bind:to="'/reaction/searchresults/'+reaction.lib_name+'/reaction_library/false'" style="text-transform: capitalize;">{{reaction.lib_name}}</router-link></p>
-        <p v-if="reaction.reaction_phase">Reaction Phase: <router-link v-bind:to="'/reaction/searchresults/'+reaction.reaction_phase+'/reaction_phase/false'" style="text-transform: capitalize;">{{reaction.reaction_phase}}</router-link></p>
+        <p v-if="reaction.lib_name && libcounts != ''">Reaction Library: <router-link v-bind:to="'/reaction/searchresults/'+reaction.lib_name+'/reaction_library/false'" style="text-transform: capitalize;">{{reaction.lib_name}} ({{ libcounts[0]["COUNT(*)"] }})</router-link></p>
+        <p v-if="reaction.reaction_phase && phasecounts != ''">Reaction Phase: <router-link v-bind:to="'/reaction/searchresults/'+reaction.reaction_phase+'/reaction_phase/false'" style="text-transform: capitalize;">{{reaction.reaction_phase}}  ({{ phasecounts[0]["COUNT(*)"] }})</router-link></p>
         <p v-if="reaction.CRACCM_ID">CRACCM ID: <router-link v-bind:to="'/reaction/searchresults/'+reaction.CRACCM_ID+'/CRACCM_ID/false'" style="text-transform: capitalize;">{{reaction.CRACCM_ID}}</router-link></p>
-        <p v-if="reaction.reaction_process">Reaction Process: <router-link v-bind:to="'/reaction/searchresults/'+reaction.reaction_process+'/reaction_process/false'" style="text-transform: capitalize;">{{reaction.reaction_process}}</router-link></p>
-        <p v-if="reaction.reaction_type">Reaction Type: <router-link v-bind:to="'/reaction/searchresults/'+reaction.reaction_type+'/reaction_type/false'" style="text-transform: capitalize;">{{reaction.reaction_type}}</router-link></p>
-        <p v-if="reaction.reaction_scheme">Reaction Scheme: <router-link v-bind:to="'/reaction/searchresults/'+reaction.reaction_scheme+'/reaction_scheme/false'" style="text-transform: capitalize;">{{reaction.reaction_scheme}}</router-link></p>
+        <p v-if="reaction.reaction_process && processcounts != ''">Reaction Process: <router-link v-bind:to="'/reaction/searchresults/'+reaction.reaction_process+'/reaction_process/false'" style="text-transform: capitalize;">{{reaction.reaction_process}} ({{ processcounts[0]["COUNT(*)"] }})</router-link></p>
+        <p v-if="reaction.reaction_type && typecounts">Reaction Type: <router-link v-bind:to="'/reaction/searchresults/'+reaction.reaction_type+'/reaction_type/false'" style="text-transform: capitalize;">{{reaction.reaction_type}} ({{ typecounts[0]["COUNT(*)"] }})</router-link></p>
+        <p v-if="reaction.reaction_scheme && schemecounts">Reaction Scheme: <router-link v-bind:to="'/reaction/searchresults/'+reaction.reaction_scheme+'/reaction_scheme/false'" style="text-transform: capitalize;">{{reaction.reaction_scheme}}  ({{ schemecounts[0]["COUNT(*)"] }})</router-link></p>
     <!-- displays a grid based on the reaction library that the reaction belongs to -->
     <!-- the grid setup is in the script section -->
         <button v-if="showhide" v-on:click="showhide = !showhide">Hide Reaction Details</button> 
@@ -119,6 +119,11 @@ export default {
             mapUI_showhide: true,
             selected_map:'',
             colShowHide: true,
+            libcounts:'',
+            phasecounts:'',
+            processcounts:'',
+            typecounts:'',
+            schemecounts:'',
         }
     },
     
@@ -147,6 +152,32 @@ export default {
         const MapRowObject = await MapRowResponse.json()
         this.mapRowData.value = MapRowObject
         this.mapColDefs.value = this.buildMapColumns()
+        console.log(this.reaction.reaction_phase)
+        if(this.reaction.lib_ID != ''){
+            const libcountURL = this.$apiname + "reaction/searchcounts/" + this.reaction.lib_ID + "/lib_id" 
+            const libcountOBJ = await fetch(libcountURL, {mode:'cors'})
+            this.libcounts = await libcountOBJ.json()
+        }
+        if(this.reaction.reaction_phase != ''){
+            const phasecountURL = this.$apiname + "reaction/searchcounts/" + this.reaction.reaction_phase + "/reaction_phase" 
+            const phasecountOBJ = await fetch(phasecountURL, {mode:'cors'})
+            this.phasecounts = await phasecountOBJ.json()
+        }
+        if(this.reaction.reaction_process != ''){
+            const processcountURL = this.$apiname + "reaction/searchcounts/" + this.reaction.reaction_process + "/reaction_process" 
+            const processcountOBJ = await fetch(processcountURL, {mode:'cors'})
+            this.processcounts = await processcountOBJ.json()
+        }
+        if(this.reaction.reaction_type != ''){
+            const typecountURL = this.$apiname + "reaction/searchcounts/" + this.reaction.reaction_type + "/reaction_type" 
+            const typecountOBJ = await fetch(typecountURL, {mode:'cors'})
+            this.typecounts = await typecountOBJ.json()
+        }
+        if(this.reaction.reaction_scheme != ''){
+            const schemecountURL = this.$apiname + "reaction/searchcounts/" + this.reaction.reaction_scheme + "/reaction_scheme" 
+            const schemecountOBJ = await fetch(schemecountURL, {mode:'cors'})
+            this.schemecounts = await schemecountOBJ.json()
+        }
     },
 
     methods: {
@@ -266,7 +297,28 @@ export default {
                         },
                     width:100
                 },
-                {headerName:'Reference', tooltipField:'reference', field:'reference', sortable: true, resizable: true, filter: 'agTextColumnFilter', width:600},
+                {headerName:'Reference', tooltipField:'reference', field:'reference', sortable: true, resizable: true, filter: 'agTextColumnFilter', width:200},
+                {
+                    headerName:'Map View Page', 
+                    field:'map_ID', 
+                    sortable: true, 
+                    resizable: true, 
+                    cellRenderer: (params) => {
+                            var link = document.createElement('a');
+                            if(params.data.map_ID != ''){
+                                link.innerText = "View Map Page"
+                                link.href = '#'
+                                link.addEventListener("click", e => {
+                                    e.preventDefault();
+                                    this.$router.push('reactionmap/' + params.data.map_ID + '/mapid');
+                                })
+                            } else {
+                                link.innerText = "No Map"
+                            };
+                            return link;
+                        },
+                    width:200
+                },
             )
 
             return new_cols

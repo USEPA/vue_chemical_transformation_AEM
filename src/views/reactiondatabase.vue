@@ -3,12 +3,13 @@
         CheT Full Reaction List<br><br>
     </div>
     <div v-if="$route.params.searchval == 'false'">
-        <input style='width:245px' type="text" v-model="filterinput" @keyup.enter="$router.push('/chemical/database/tiles/1/' + filterinput)"/>
+        <input style='width:245px' type="text" v-model="filterinput" @keyup.enter="$router.push('/reaction/database/1/' + filterinput)"/>
         <button @click="$router.push('/reaction/database/1/' + filterinput)">Filter Reactions</button>
         <br><br>
     </div>
     <span v-if="biglen != 0">
-        <RouterLink :to="'/reaction/database/'+ (this.$route.params.pagenum-1) + '/' + this.$route.params.searchval" v-if="this.$route.params.pagenum != 1">&#60;</RouterLink>
+        <br>{{ exactlen }} Total Results Returned: <br>
+        Page: <RouterLink :to="'/reaction/database/'+ (this.$route.params.pagenum-1) + '/' + this.$route.params.searchval" v-if="this.$route.params.pagenum != 1">&#60;</RouterLink>
         <span v-for="i in biglen">
             &nbsp;<span v-if="i != 1">, </span>
             <span v-if="i == this.$route.params.pagenum">{{i}}</span>
@@ -126,6 +127,7 @@ export default {
             filterinput:'',
             timer:true,
             biglen:0,
+            exactlen:0,
         }
     },
     // gets chemical and reaction database JSON from the backend
@@ -136,6 +138,7 @@ export default {
             const gObject = await gResponse.json();
             this.bigout = gObject.data;
             this.biglen = Math.ceil(gObject.length/100);
+            this.exactlen = gObject.length;
         } catch (error){
             this.timer = false
         }

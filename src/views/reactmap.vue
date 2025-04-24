@@ -258,10 +258,8 @@ export default {
             // necessary for snapping to the center
             this.Graph.autoPauseRedraw(false)
             // this makes the graph self organize into a useful tree when there are no cycles
-            if("x" in data.nodes[0]){
-                this.Graph.dagMode('td')
-                this.Graph.dagLevelDistance(2.2*N)
-            }
+            this.Graph.dagMode('td')
+            this.Graph.dagLevelDistance(2.2*N)
             this.Graph.zoom(5)
             // gets the data for the graph
             this.Graph.graphData(data)
@@ -272,7 +270,7 @@ export default {
             this.Graph.nodeId('id')
             // builds the node hover with image, name, and DTXSID
             this.Graph.nodeLabel(node => {
-                const scrString = "<div style='text-align:center;'><img src='data:image/png;base64," + node.img + "' style='width:150px;height:150px;'/> <br>" + node.name + " </div>"
+                const scrString = "<div style='text-align:center;'><img src='data:image/png;base64," + node.img + "' style='width:200px;height:200px;'/> <br>" + node.name + " </div>"
                 this.fixed_position_list[node.id]=[node.x,node.y]
                 return scrString
             })

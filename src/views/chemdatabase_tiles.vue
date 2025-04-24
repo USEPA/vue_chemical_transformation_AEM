@@ -12,7 +12,8 @@
     <div id="tiles">
         <!-- <button v-on:click="handleExport">Export Chemical List</button> <br><br>  -->
         <span v-if="biglen != 0">
-            <RouterLink :to="'/chemical/database/tiles/'+ (this.$route.params.pagenum-1) + '/' + this.$route.params.searchval" v-if="this.$route.params.pagenum != 1">&#60;</RouterLink>
+            <br>{{ exactlen }} Total Results Returned: <br>
+            Page: <RouterLink :to="'/chemical/database/tiles/'+ (this.$route.params.pagenum-1) + '/' + this.$route.params.searchval" v-if="this.$route.params.pagenum != 1">&#60;</RouterLink>
             <span v-for="i in biglen">
                 &nbsp;<span v-if="i != 1">, </span>
                 <span v-if="i == this.$route.params.pagenum">{{i}}</span>
@@ -62,6 +63,7 @@
             return {
                 bigout:'',
                 biglen:0,
+                exactlen:0,
                 input,
                 showhide: false,
                 filterinput:'',
@@ -81,6 +83,7 @@
                 const gObject = await gResponse.json();
                 this.bigout = gObject.data;
                 this.biglen = Math.ceil(gObject.length/100);
+                this.exactlen = gObject.length
             } catch (error){
                 this.timer = false
             }

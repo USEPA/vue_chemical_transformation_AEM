@@ -29,7 +29,7 @@
             </b-nav-item-dropdown>
             <b-nav-item-dropdown text="About" class="navstyle" style="font-size:16px">
                 <b-dropdown-item to="/about">About</b-dropdown-item>
-                <b-dropdown-item to="/history">Patch HIstory</b-dropdown-item>
+                <b-dropdown-item to="/history">Patch History</b-dropdown-item>
                 <b-dropdown-item to="/errorreport">Submit Comments</b-dropdown-item>
                 <b-dropdown-item to="/contactpage">Contact Us</b-dropdown-item>
             </b-nav-item-dropdown>
