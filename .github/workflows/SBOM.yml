@@ -4,7 +4,7 @@ name: Generate SBOM
 
 on:
   push:
-    branches: [ "dev" , dev-1062 ]
+    branches: [ "dev" ]
     tags: [ 'v*.*.*' ]
 
 env:
