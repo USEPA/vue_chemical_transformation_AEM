@@ -1,5 +1,5 @@
 # Build VUE project
-FROM node:12.18.1 AS build
+FROM ghcr.io/usepa/node-18:latest AS build
 WORKDIR /app
 COPY package*.json ./
 RUN npm install
@@ -9,7 +9,7 @@ RUN npm run build
 # Build server
 FROM nginx:1.28.3 AS prod-stage
 RUN apt-get update && \
-    apt-get install -y && \
+    apt-get upgrade -y && \
     rm -rf /var/lib/apt/lists/*
 
 COPY --from=build /app/dist/ /usr/share/nginx/html
