@@ -33,3 +33,5 @@ jobs:
         password: ${{ secrets.GITHUB_TOKEN }}
         image_name: ${{ github.repository }}-${{ github.head_ref || github.ref_name }}
         build_args: APP_SERVER_ENVIRONMENT=${{ github.head_ref || github.ref_name }}
+        no-cache: 'true'
+        
